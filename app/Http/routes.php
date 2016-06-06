@@ -17,3 +17,4 @@ Route::get('/', function () {
 
 Route::post('registroEmpresas','registroController@registrarEmpresa');
 Route::post('registroPersonas','registroController@registrarPersona');
+Route::post('registroColaboradores','registroController@registroColaborador');

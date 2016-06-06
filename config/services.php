@@ -35,4 +35,9 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'mailgun' => [
+    'domain' => 'facturanext.com',
+    'secret' => 'EiCZTO.ePLFIP',
+    ],
+
 ];
