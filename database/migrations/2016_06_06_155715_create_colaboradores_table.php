@@ -12,14 +12,14 @@ class CreateColaboradoresTable extends Migration
      */
     public function up()
     {
-         Schema::create('colaboradores', function (Blueprint $table) {
+         Schema::connection('pgsql')->create('colaboradores', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('correo');
             $table->string('pass');
             $table->string('estado');
             $table->string('id_empresa');
             $table->timestamps();
-            $table->foreign('id_empresa')->references('id')->on('empresas')->onDelete('cascade');;
+            $table->foreign('id_empresa')->references('id_empresa')->on('empresas')->onUpdate('cascade');
         });
     }
 
@@ -30,6 +30,6 @@ class CreateColaboradoresTable extends Migration
      */
     public function down()
     {
-        Schema::drop('colaboradores');
+        Schema::connection('pgsql')->drop('colaboradores');
     }
 }

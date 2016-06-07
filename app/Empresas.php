@@ -8,5 +8,7 @@ class Empresas extends Model
 {
     protected $connection='pgsql';
     protected $table='empresas';
-    protected $fillable=array('id','razon_social','nombre_comercial','estado_contribuyente','tipo_contribuyente','obligado_contabilidad','actividad_economica','nombres_apellidos','fecha_nacimiento','correo','telefono','celular');
+    protected $primaryKey='id_empresa';
+    public $incrementing = false;
+    protected $fillable=array('id_empresa','Ruc','user_nextbook','razon_social','nombre_comercial','estado_contribuyente','tipo_contribuyente','obligado_contabilidad','actividad_economica','nombres_apellidos','fecha_nacimiento','correo','telefono','celular','codigo_activacion','estado');
 }

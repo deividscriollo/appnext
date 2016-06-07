@@ -12,8 +12,10 @@ class CreateEmpresasTable extends Migration
      */
     public function up()
     {
-        Schema::create('empresas', function (Blueprint $table) {
-            $table->string('id')->primary();
+        Schema::connection('pgsql')->create('empresas', function (Blueprint $table) {
+            $table->string('id_empresa')->primary();
+            $table->string('Ruc');
+            $table->string('user_nextbook');
             $table->string('razon_social');
             $table->string('nombre_comercial');
             $table->string('estado_contribuyente');
@@ -25,6 +27,8 @@ class CreateEmpresasTable extends Migration
             $table->string('correo');
             $table->string('telefono');
             $table->string('celular');
+            $table->string('codigo_activacion');
+            $table->string('estado');
             $table->timestamps();
         });
     }
@@ -36,6 +40,6 @@ class CreateEmpresasTable extends Migration
      */
     public function down()
     {
-        Schema::drop('empresas');
+        Schema::connection('pgsql')->drop('empresas');
     }
 }
