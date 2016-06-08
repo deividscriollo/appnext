@@ -33,7 +33,7 @@ class Funciones
         if (strpos($available_sets, 'd') !== false)
             $sets[] = '23456789';
         if (strpos($available_sets, 's') !== false)
-            $sets[] = '!@#$%&*?';
+            $sets[] = '!@$%&*?';
         $all      = '';
         $password = '';
         foreach ($sets as $set) {

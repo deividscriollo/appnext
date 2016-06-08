@@ -32,7 +32,7 @@
                 <h4 style="font-family:Verdana, Geneva, sans-serif; color:#64A8DC; font-size:12px; line-height:20px">NEXTBOOK</h4>
                   <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"> Usuario: {{$user_nextbook}}</strong></font><br>
                   <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"> Contraseña: {{$pass_nextbook}}</strong></font><br>
-                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.1.27/emailuser/" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; INGRESAR &gt;</strong></a></font>
+                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.1.32/emailuser/" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; INGRESAR &gt;</strong></a></font>
                   </td>
                 <td width="5%">&nbsp;</td>
               </tr>
