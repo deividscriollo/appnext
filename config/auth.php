@@ -45,6 +45,12 @@ return [
             'driver' => 'token',
             'provider' => 'users',
         ],
+
+         // Para Empresas
+        'usersE' => [
+            'driver'   => 'session',
+            'provider' => 'usersE'
+        ]
     ],
 
     /*
@@ -69,7 +75,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\User::class,
         ],
-
+        
+        // For admin
+        'usersE' => [
+            'driver' => 'eloquent',
+            'model' => App\UserE::class
+        ]
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
@@ -98,6 +109,12 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
+            'email' => 'auth.emails.password',
+            'table' => 'password_resets',
+            'expire' => 60,
+        ],
+        'usersE' => [
+            'provider' => 'usersE',
             'email' => 'auth.emails.password',
             'table' => 'password_resets',
             'expire' => 60,

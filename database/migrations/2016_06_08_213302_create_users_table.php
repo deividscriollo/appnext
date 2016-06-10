@@ -12,10 +12,11 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::connection('ingresoconex')->create('users', function (Blueprint $table) {
+       Schema::connection('ingresoconex')->create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            // $table->string('name');
             $table->string('email')->unique();
+            $table->string('password_email');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

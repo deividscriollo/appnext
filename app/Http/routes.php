@@ -14,6 +14,10 @@
 Route::get('/', function () {
     return view('credenciales_ingreso');
 });
+Route::auth();
+
+Route::get('/', 'HomeController@index');
+Route::get('/home', 'HomeController@index');
 
 Route::post('registroEmpresas','registroController@registrarEmpresa');
 Route::post('registroPersonas','registroController@registrarPersona');
@@ -22,4 +26,9 @@ Route::get('activar_cuenta','registroController@activar_cuenta');
 
 Route::post('login','loginController@login');
 
-Route::get('personas','loginController@getUsers');
+Route::group(['middleware' => ['jwt.auth']], function() {
+        Route::get('personas','loginController@getUsers');
+    });
+
+
+

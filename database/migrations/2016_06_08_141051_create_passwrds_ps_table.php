@@ -16,7 +16,7 @@ class CreatePasswrdsPsTable extends Migration
             $table->increments('id');
             $table->string('email');
             $table->string('pass_email');
-            $table->string('pass_nextbook');
+            $table->string('password');
             $table->string('id_user');
             // $table->foreign('id_user')->references('id_persona')->on('personas')->onDelete('cascade');
             $table->timestamps();

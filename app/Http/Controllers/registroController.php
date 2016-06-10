@@ -188,8 +188,8 @@ switch ($tipocuenta) {
 
         //***************************************** Registro Clave  *****************************************
         $tabla_pass->email             = $documento.'@'.'facturanext.com';
-        $tabla_pass->pass_email       = $pass_email;
-        $tabla_pass->pass_nextbook     = $pass_nextbook;
+        $tabla_pass->pass_email       = bcrypt($pass_email);
+        $tabla_pass->password     = bcrypt($pass_nextbook);
         $tabla_pass->id_user          = $id_user;
         $tabla_pass->save();
 

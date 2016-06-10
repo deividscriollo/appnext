@@ -17,11 +17,6 @@ use App\PasswrdsP;
 class loginController extends Controller
 {
 
-public function __construct(){
-		// $this->middleware('CORS');
-        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
-	}
-	
 public function getUsers(){
 	$tabla =new Personas();
 	$lista=$tabla->get();
@@ -30,25 +25,59 @@ public function getUsers(){
 
 }
 public function login(Request $request) {
-	$tabla =	new PasswrdsP();
-	$datos=$tabla->select('id_user')
+// 	$tabla =	new PasswrdsP();
+// 	$datos=$tabla->select('id_user')
+// 			  ->where('email','=',$request->input('email'))->first();
+
+// 			  if ($datos['id_user']!='') {
+// 			  	$pass_bdd=PasswrdsP::select('email','pass_nextbook')
+// 			  ->where('id_user','=',$datos['id_user'])->get();
+// if ($pass_bdd[0]['pass_nextbook']==$request->input('password')) {
+// 	echo "OK";
+// 	$credentials = $request->only('email', 'password');
+// 	$token = JWTAuth::fromUser($datos);
+
+// }
+// else{
+// 	echo "FAIL";
+// }
+// }
+// 	 return response()->json(compact('token'));
+
+
+ // $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
+
+ //   if ( ! $token = JWTAuth::attempt($credentials)) {
+ //       return response()->json(false, 404);
+ //   }
+
+ //   return response()->json(compact('token'));
+
+
+   $auth = auth()->guard('usersE');
+ $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
+
+   if ( ! $token = $auth->attempt($credentials)) {
+       return response()->json(false, 404);
+   }
+   	$tabla =	new PasswrdsE();
+	$datos=$tabla->select('password')
 			  ->where('email','=',$request->input('email'))->first();
 
-			  if ($datos['id_user']!='') {
-			  	$pass_bdd=PasswrdsP::select('email','pass_nextbook')
-			  ->where('id_user','=',$datos['id_user'])->get();
-if ($pass_bdd[0]['pass_nextbook']==$request->input('password')) {
-	echo "OK";
-	$credentials = $request->only('email', 'password');
-	$token = JWTAuth::fromUser($datos);
+   $token = JWTAuth::fromUser($datos);
+
+   return response()->json(compact('token'));
+
+ // return User::create([
+ //        'email' => $request->input('email'),
+ //        'password_email' => bcrypt($request->input('password')),
+ //        'password' => bcrypt($request->input('password')),
+ //        // 'id_user' => '20160610123011575af9238e4ba'
+ //    ]);
 
 }
-else{
-	echo "FAIL";
-}
-}
-	 return response()->json(compact('token'));
-}
+
+
 
 // /**
 //      * Return the authenticated user
