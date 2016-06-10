@@ -17,39 +17,36 @@ use App\PasswrdsP;
 class loginController extends Controller
 {
 
+public function __construct(){
+		// $this->middleware('CORS');
+        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+	}
+	
+public function getUsers(){
+	$tabla =new Personas();
+	$lista=$tabla->get();
 
+	return $lista;
+
+}
 public function login(Request $request) {
-	$tabla =	new Personas();
-	$datos=$tabla->select('id_persona','estado','user_nextbook')
-			  ->where('correo','=',$request->input('email'))
-			  ->orWhere('user_nextbook', '=',$request->input('email'))->get();
+	$tabla =	new PasswrdsP();
+	$datos=$tabla->select('id_user')
+			  ->where('email','=',$request->input('email'))->first();
 
-			  if ($datos[0]['estado']=='1') {
-			 $pass_bdd=PasswrdsP::select('pass_nextbook')
-			  ->where('id_user','=',$datos[0]['id_persona'])->get();
-			  }
+			  if ($datos['id_user']!='') {
+			  	$pass_bdd=PasswrdsP::select('email','pass_nextbook')
+			  ->where('id_user','=',$datos['id_user'])->get();
 if ($pass_bdd[0]['pass_nextbook']==$request->input('password')) {
-	$credentials = $request->only('email', 'password');
-	$token = JWTAuth::attempt($credentials);
 	echo "OK";
+	$credentials = $request->only('email', 'password');
+	$token = JWTAuth::fromUser($datos);
+
 }
 else{
 	echo "FAIL";
 }
-
-   // $credentials = $request->only('email', 'password');
-   //      try {
-   //          // attempt to verify the credentials and create a token for the user
-   //          if (! $token = JWTAuth::attempt($credentials)) {
-   //              return response()->json(['error' => 'Usuario / Contraseña incorrectos'], 401);
-   //          }
-   //      } catch (JWTException $e) {
-   //          // something went wrong whilst attempting to encode the token
-   //          return response()->json(['error' => 'could_not_create_token'], 500);
-   //      }
-   //      // all good so return the token
-   //       return response()->json(compact('token'));
-
+}
 	 return response()->json(compact('token'));
 }
 

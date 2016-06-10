@@ -15,7 +15,6 @@ class CreatePersonasTable extends Migration
          Schema::connection('pgsql')->create('personas', function (Blueprint $table) {
             $table->string('id_persona')->primary();
             $table->string('cedula');
-            $table->string('user_nextbook');
             $table->string('Nombres_apellidos');
             $table->string('provincia');
             $table->string('canton');
@@ -25,7 +24,7 @@ class CreatePersonasTable extends Migration
             $table->string('telefono');
             $table->string('celular');
             $table->string('codigo_activacion');
-            $table->string('estado');
+            $table->integer('estado');
             $table->timestamps();
         });
     }

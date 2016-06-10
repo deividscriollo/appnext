@@ -14,6 +14,7 @@ class CreatePasswrdsPsTable extends Migration
     {
         Schema::connection('ingresoconex')->create('passwrdsP', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('email');
             $table->string('pass_email');
             $table->string('pass_nextbook');
             $table->string('id_user');

@@ -21,3 +21,5 @@ Route::post('registroColaboradores','registroController@registroColaborador');
 Route::get('activar_cuenta','registroController@activar_cuenta');
 
 Route::post('login','loginController@login');
+
+Route::get('personas','loginController@getUsers');

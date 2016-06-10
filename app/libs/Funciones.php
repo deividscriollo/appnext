@@ -23,7 +23,7 @@ class Funciones
        return $activation_code;
     }
     
-    function generarPass($length = 9, $add_dashes = false, $available_sets = 'luds')
+    function generarPass($length = 9, $add_dashes = false, $available_sets = 'lud')
     {
         $sets = array();
         if (strpos($available_sets, 'l') !== false)
@@ -33,7 +33,7 @@ class Funciones
         if (strpos($available_sets, 'd') !== false)
             $sets[] = '23456789';
         if (strpos($available_sets, 's') !== false)
-            $sets[] = '!@$%&*?';
+            $sets[] = '!@$%*?';
         $all      = '';
         $password = '';
         foreach ($sets as $set) {

@@ -16,7 +16,7 @@ class CreateColaboradoresTable extends Migration
             $table->string('id')->primary();
             $table->string('correo');
             $table->string('pass');
-            $table->string('estado');
+            $table->integer('estado');
             $table->string('id_empresa');
             $table->timestamps();
             $table->foreign('id_empresa')->references('id_empresa')->on('empresas')->onUpdate('cascade');

@@ -12,10 +12,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $connection='ingresoconex';
-    protected $table='users';
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
+    protected $table='passwrdsP';
+    protected $fillable = ['id','email','pass_nextbook','id_user'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -23,6 +21,6 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'pass_nextbook',
     ];
 }

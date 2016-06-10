@@ -15,20 +15,14 @@ class CreateEmpresasTable extends Migration
         Schema::connection('pgsql')->create('empresas', function (Blueprint $table) {
             $table->string('id_empresa')->primary();
             $table->string('Ruc');
-            $table->string('user_nextbook');
             $table->string('razon_social');
             $table->string('nombre_comercial');
             $table->string('estado_contribuyente');
             $table->string('tipo_contribuyente');
             $table->string('obligado_contabilidad');
             $table->string('actividad_economica');
-            $table->string('nombres_apellidos');
-            $table->string('fecha_nacimiento');
-            $table->string('correo');
-            $table->string('telefono');
-            $table->string('celular');
             $table->string('codigo_activacion');
-            $table->string('estado');
+            $table->integer('estado');
             $table->timestamps();
         });
     }

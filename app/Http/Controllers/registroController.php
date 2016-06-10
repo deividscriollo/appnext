@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Empresas;
+use App\regpersona_empresas;
 use App\Personas;
 use App\Colaboradores;
 use App\Sucursales;
@@ -26,25 +27,29 @@ class registroController extends Controller
         $funciones                    = new Funciones();
         $activation_code              = $funciones->generarActivacion(md5($request->input('cedula')));
         $id                           = $funciones->generarID();
-        $tabla                        = new Empresas();
-        $tabla->id_empresa            = $id;
-        $tabla->Ruc                   = $request->input('cedula');
-        $tabla->user_nextbook         = $request->input('cedula').'@'.'facturanext.com';
-        $tabla->razon_social          = $request->input('razon_social');
-        $tabla->nombre_comercial      = $request->input('nombre_comercial');
-        $tabla->estado_contribuyente  = $request->input('estado_contribuyente');
-        $tabla->tipo_contribuyente    = $request->input('tipo_contribuyente');
-        $tabla->obligado_contabilidad = $request->input('obligado_llevar_contabilidad');
-        $tabla->actividad_economica   = $request->input('actividad_principal');
-        $tabla->nombres_apellidos     = $request->input('nombres_apellidos');
-        $tabla->fecha_nacimiento      = utf8_encode(strftime(strftime("%A, %d de %B de %Y", strtotime($request->input('fecha_nacimiento')))));
-        $tabla->correo                = $request->input('correo');
-        $tabla->telefono              = $request->input('telefono');
-        $tabla->celular               = $request->input('celular');
-        $tabla->codigo_activacion     = $activation_code;
-        $tabla->estado                = '0';
-        $tabla->save();
-
+        $tablaE                        = new Empresas();
+        $tablaPersonareg               = new regpersona_empresas();
+        $tablaE->id_empresa            = $id;
+        $tablaE->Ruc                   = $request->input('cedula');
+        $tablaE->razon_social          = $request->input('razon_social');
+        $tablaE->nombre_comercial      = $request->input('nombre_comercial');
+        $tablaE->estado_contribuyente  = $request->input('estado_contribuyente');
+        $tablaE->tipo_contribuyente    = $request->input('tipo_contribuyente');
+        $tablaE->obligado_contabilidad = $request->input('obligado_llevar_contabilidad');
+        $tablaE->actividad_economica   = $request->input('actividad_principal');
+        $tablaE->codigo_activacion     = $activation_code;
+        $tablaE->estado                = 0;
+        $tablaE->save();
+        //************************************************* Persona que Registra ***********************
+        $tablaPersonareg->idp_regE              =$funciones->generarID();
+        $tablaPersonareg->nombres_apellidos     = $request->input('nombres_apellidos');
+        $tablaPersonareg->fecha_nacimiento      = utf8_encode($request->input('fecha_nacimiento'));
+        $tablaPersonareg->correo                = $request->input('correo');
+        $tablaPersonareg->telefono              = $request->input('telefono');
+        $tablaPersonareg->celular               = $request->input('celular');
+        $tablaPersonareg->estado                = 1;
+        $tablaPersonareg->id_empresa            = $id;
+        $tablaPersonareg->save();
    //****************************************************** Registrar sucursales***********************
 
          $establecimientos=$request->input('sucursales')['sucursal'];
@@ -83,7 +88,6 @@ class registroController extends Controller
         $tabla->id_persona        = $funciones->generarID();
         $tabla->Nombres_apellidos = $request->input('nombres_apellidos');
         $tabla->cedula            = $request->input('cedula');
-        $tabla->user_nextbook     = $request->input('cedula').'@'.'facturanext.com';
         $tabla->provincia         = $request->input('provincia');
         $tabla->canton            = $request->input('canton');
         $tabla->parroquia         = $request->input('parroquia');
@@ -92,7 +96,7 @@ class registroController extends Controller
         $tabla->telefono          = $request->input('telefono');
         $tabla->celular           = $request->input('celular');
         $tabla->codigo_activacion = $activation_code;
-        $tabla->estado                = '0';
+        $tabla->estado                = 0;
         $tabla->save();
 
         //******************************************* Enivar email de verificacion**************************
@@ -148,25 +152,29 @@ class registroController extends Controller
            case 'EEE':
                $tabla = new Empresas();
                $tabla_pass      = new passwrdsE();
-               $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','correo','Ruc','user_nextbook','estado')->where('codigo_activacion', $codigo_email)->get();
+               $tablaPersonareg               = new regpersona_empresas();
+               $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','Ruc','estado')->where('codigo_activacion', $codigo_email)->get();
                break;
            
            case 'PPP':
               $tabla_pass      = new passwrdsP();
               $tabla = new Personas();
-              $datos = $tabla->select('id_persona','codigo_activacion','Nombres_apellidos','correo','cedula','user_nextbook','estado')->where('codigo_activacion', $codigo_email)->get();
+              $datos = $tabla->select('id_persona','codigo_activacion','Nombres_apellidos','correo','cedula','estado')->where('codigo_activacion', $codigo_email)->get();
                break;
        }
     if (empty($datos[0]['estado'])) {   
 
 switch ($tipocuenta) {
            case 'EEE':
+               $datospersonaregE = $tablaPersonareg->select('correo')->where('id_empresa', $datos[0]['id_empresa'])->orderBy('created_at')->first();
+               $correo_enviar=$datospersonaregE['correo'];
                $id_user=$datos[0]['id_empresa'];
                 $nombre_comercial=$datos[0]['nombre_comercial'];
                 $documento=$datos[0]['Ruc'];
                break;
            
            case 'PPP':
+           $correo_enviar=$datos[0]['correo'];
               $id_user=$datos[0]['id_persona'];
             $nombre_comercial=$datos[0]['Nombres_apellidos'];
             $documento=$datos[0]['cedula'];
@@ -175,17 +183,17 @@ switch ($tipocuenta) {
 
     if ($codigo_email==$datos[0]['codigo_activacion']&&$datos[0]['estado']=='0') {
 
-        $pass_nextbook                = $funciones->generarPass(12,false,'luds');
-        $pass_email                   = $funciones->generarPass(12,false,'luds');
+        $pass_nextbook                = $funciones->generarPass(12);
+        $pass_email                   = $funciones->generarPass(12);
 
         //***************************************** Registro Clave  *****************************************
+        $tabla_pass->email             = $documento.'@'.'facturanext.com';
         $tabla_pass->pass_email       = $pass_email;
         $tabla_pass->pass_nextbook     = $pass_nextbook;
         $tabla_pass->id_user          = $id_user;
         $tabla_pass->save();
 
             //***************************************** Registrar Email *****************************************
-        $correo_enviar=$datos[0]['correo'];
         $correo= $this->crear_email($documento, $pass_email);
         $data = ["pass_nextbook"=>$pass_nextbook,"user_nextbook"=>$correo,"nombre_comercial"=>$nombre_comercial];
         //***************************************** Enviar Credenciales Email *****************************************
