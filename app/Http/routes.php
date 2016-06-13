@@ -31,6 +31,3 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::get('getsucursales','datosController@getsucursales');
         Route::post('logoutE','loginController@logoutE');
     });
-
-
-

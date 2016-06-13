@@ -20,13 +20,17 @@ class loginController extends Controller
 
 public function login(Request $request) {
 $tipo_user=$request->input('tipo');
-if ($tipo_user=='P') {
-	   $auth = Auth::guard('web');
-	   $tabla =	new PasswrdsP();
-}
-if ($tipo_user=='E') {
-	   $auth = Auth::guard('usersE');
-	      	$tabla =	new PasswrdsE();
+
+switch ($tipo_user) {
+    case 'P':
+               $auth = Auth::guard('web');
+       $tabla =    new PasswrdsP();
+        break;
+    
+    case 'E':
+              $auth = Auth::guard('usersE');
+              $tabla =    new PasswrdsE();
+        break;
 }
 
 
@@ -36,14 +40,14 @@ if ($tipo_user=='E') {
        return response()->json(false, 404);
    }
 
-	$datos=$tabla->select('id')
-			  ->where('email','=',$request->input('email'))->first();
+    $datos=$tabla->select('id')
+              ->where('email','=',$request->input('email'))->first();
 
    $token = JWTAuth::fromUser($datos);
 
-   	$id=$tabla->select('id')
-			  ->where('email','=',$request->input('email'))->first();  
-	 $tabla->where('id', '=', $id['id'])->update(['remember_token' => $token]);
+       $id=$tabla->select('id')
+              ->where('email','=',$request->input('email'))->first();  
+     $tabla->where('id', '=', $id['id'])->update(['remember_token' => $token]);
 
    return response()->json(compact('token'));
 
@@ -51,13 +55,22 @@ if ($tipo_user=='E') {
 
 public function logoutE(Request $request){
 
-   	$tabla=new PasswrdsE();
-   	$datos=$tabla->select('id')->where('remember_token','=',$request->input('token'))->get();
-	JWTAuth::setToken($request->input('token'))->invalidate();
-	$tabla->where('id', '=', $datos[0]['id'])->update(['remember_token' => '']);
+switch ($request->input('tipo')) {
+    case 'E':
+            $tabla=new PasswrdsE();
+        break;
+    
+    case 'P':
+         $tabla =    new PasswrdsP();
+        break;
+}
 
-// print_r($datos[0]['id']);
-	return response()->json(true, 200);
+  $user = JWTAuth::parseToken()->authenticate();
+   
+    JWTAuth::setToken($user['remember_token'])->invalidate();
+    $tabla->where('email', '=', $user['email'])->update(['remember_token' => '']);
+
+    return response()->json(true, 200);
 }
 
 
