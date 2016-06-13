@@ -28,6 +28,7 @@ Route::post('login','loginController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
         Route::get('getDatosE','datosController@getDatosE');
+        Route::get('getDatosP','datosController@getDatosP');
         Route::get('getsucursales','datosController@getsucursales');
         Route::post('logoutE','loginController@logoutE');
     });

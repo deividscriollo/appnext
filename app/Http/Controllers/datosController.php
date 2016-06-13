@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\PasswrdsE;
+use App\PasswrdsP;
 use App\Personas;
 use App\Empresas;
 use App\Sucursales;
@@ -23,15 +24,12 @@ class datosController extends Controller
        $tabla=new Sucursales();
        $tablaE=new PasswrdsE();
        $datos=$tablaE->select('id_user')->where('remember_token','=',$request->input('token'))->get();
-       // echo count($datos);
        if (count($datos)!==0) {
                   $sucursales=$tabla->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
 
        return response()->json(array('sucursales'=>$sucursales));
        }
-       // else{
-       //     // return response()->json(false,401);
-       // }
+
 
    }
 
@@ -42,15 +40,27 @@ class datosController extends Controller
        $tabla=new Empresas();
        $tablaE=new PasswrdsE();
        $datos=$tablaE->select('id_user')->where('email','=',$user['email'])->get();
-       // echo count($datos);
        if (count($datos)!==0) {
                   $empresa=$tabla->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
 
        return response()->json(array('empresa'=>$empresa));
        }
-       // else{
-       //     // return response()->json(false,401);
-       // }
+
+   }
+
+    public function  getDatosP(Request $request){
+
+   // $user = JWTAuth::parseToken()->authenticate();
+
+       $tabla=new Personas();
+       $tablaP=new PasswrdsP();
+       $datos=$tablaP->select('id_user')->where('remember_token','=',$request->input('token'))->get();
+       if (count($datos)!==0) {
+        $persona=$tabla->select('*')->where('id_persona','=',$datos[0]['id_user'])->get();
+
+       return response()->json(array('persona'=>$persona));
+       }
+       // print_r($datos);
 
    }
 }

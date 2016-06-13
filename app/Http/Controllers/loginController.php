@@ -45,9 +45,9 @@ switch ($tipo_user) {
 
    $token = JWTAuth::fromUser($datos);
 
-       $id=$tabla->select('id')
-              ->where('email','=',$request->input('email'))->first();  
-     $tabla->where('id', '=', $id['id'])->update(['remember_token' => $token]);
+       // $id=$tabla->select('id')
+       //        ->where('email','=',$request->input('email'))->first();  
+     $tabla->where('id', '=', $datos['id'])->update(['remember_token' => $token]);
 
    return response()->json(compact('token'));
 
@@ -58,17 +58,20 @@ public function logoutE(Request $request){
 switch ($request->input('tipo')) {
     case 'E':
             $tabla=new PasswrdsE();
+            $datos=$tabla->select('email')->where('remember_token','=',$request->input('token'))->get();
         break;
     
     case 'P':
          $tabla =    new PasswrdsP();
+         $datos=$tabla->select('email')->where('remember_token','=',$request->input('token'))->get();
         break;
 }
 
-  $user = JWTAuth::parseToken()->authenticate();
-   
-    JWTAuth::setToken($user['remember_token'])->invalidate();
-    $tabla->where('email', '=', $user['email'])->update(['remember_token' => '']);
+  // $user = JWTAuth::parseToken()->authenticate();
+  
+    JWTAuth::setToken($request->input('token'))->invalidate();
+    $tabla->where('email', '=', $datos['email'])->update(['remember_token' => '']);
+echo $datos['email'];
 
     return response()->json(true, 200);
 }

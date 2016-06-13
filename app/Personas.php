@@ -12,5 +12,5 @@ class Personas extends Model
    	public $incrementing = false;
     protected $fillable=array('id_persona','cedula','Nombres_apellidos','provincia','canton','parroquia','zona','correo','telefono','celular','codigo_activacion','estado');
 
-     protected $hidden = ['created_at','updated_at'];
+     protected $hidden = ['created_at','updated_at','codigo_activacion'];
 }
