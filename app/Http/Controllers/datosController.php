@@ -12,7 +12,10 @@ use App\Sucursales;
 
 class datosController extends Controller
 {
-   
+   public function __construct(){
+        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+	}
+
    public function  getsucursales(Request $request){
 
    	$tabla=new Sucursales();
@@ -24,9 +27,9 @@ class datosController extends Controller
 
    	return response()->json(array('sucursales'=>$sucursales));
    	}
-   	else{
-   		return response()->json(false,401);
-   	}
+   	// else{
+   	// 	// return response()->json(false,401);
+   	// }
 
    }
 
@@ -41,9 +44,9 @@ class datosController extends Controller
 
    	return response()->json(array('empresa'=>$empresa));
    	}
-   	else{
-   		return response()->json(false,401);
-   	}
+   	// else{
+   	// 	// return response()->json(false,401);
+   	// }
 
    }
 }

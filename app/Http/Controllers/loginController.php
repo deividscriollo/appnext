@@ -49,10 +49,14 @@ if ($tipo_user=='E') {
 
 }
 
-public function logout(Request $request){
+public function logoutE(Request $request){
 
+   	$tabla=new PasswrdsE();
+   	$datos=$tabla->select('id')->where('remember_token','=',$request->input('token'))->get();
 	JWTAuth::setToken($request->input('token'))->invalidate();
+	$tabla->where('id', '=', $datos[0]['id'])->update(['remember_token' => '']);
 
+// print_r($datos[0]['id']);
 	return response()->json(true, 200);
 }
 

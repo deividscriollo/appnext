@@ -14,10 +14,10 @@
 Route::get('/', function () {
     return view('credenciales_ingreso');
 });
-Route::auth();
+// Route::auth();
 
-Route::get('/', 'HomeController@index');
-Route::get('/home', 'HomeController@index');
+// Route::get('/', 'HomeController@index');
+// Route::get('/home', 'HomeController@index');
 
 Route::post('registroEmpresas','registroController@registrarEmpresa');
 Route::post('registroPersonas','registroController@registrarPersona');
@@ -29,7 +29,7 @@ Route::post('login','loginController@login');
 Route::group(['middleware' => ['jwt.auth']], function() {
         Route::get('getDatosE','datosController@getDatosE');
         Route::get('getsucursales','datosController@getsucursales');
-        Route::post('logout','datosController@logout');
+        Route::post('logoutE','loginController@logoutE');
     });
 
 
