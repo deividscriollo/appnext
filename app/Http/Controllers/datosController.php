@@ -17,10 +17,16 @@ class datosController extends Controller
    	$tabla=new Sucursales();
    	$tablaE=new PasswrdsE();
    	$datos=$tablaE->select('id_user')->where('remember_token','=',$request->input('token'))->get();
-   	// print_r($datos);
-   	$sucursales=$tabla->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
+   	// echo count($datos);
+   	if (count($datos)!==0) {
+   		   	$sucursales=$tabla->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
 
    	return response()->json(array('sucursales'=>$sucursales));
+   	}
+   	else{
+   		return response()->json(false,401);
+   	}
+
 
    }
 }
