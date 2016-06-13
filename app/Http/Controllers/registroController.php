@@ -122,7 +122,7 @@ class registroController extends Controller
         $tabla             = new Colaboradores();
         $tabla->id         = $funciones->generarID();
         $tabla->correo     = $request->input('correo');
-        $tabla->pass       = md5($request->input('pass'));
+        $tabla->pass       = bcrypt($request->input('pass'));
         $tabla->estado     = '0';
         $tabla->id_empresa = $request->input('id_empresa');
         // $tabla->save();
@@ -190,6 +190,7 @@ switch ($tipocuenta) {
         $tabla_pass->email             = $documento.'@'.'facturanext.com';
         $tabla_pass->pass_email       = bcrypt($pass_email);
         $tabla_pass->password     = bcrypt($pass_nextbook);
+        $tabla_pass->remember_token ='';
         $tabla_pass->id_user          = $id_user;
         $tabla_pass->save();
 

@@ -21,7 +21,7 @@ return [
     |
     */
 
-    'secret' => env('JWT_SECRET', 'XeMVt92UsStJvbxx2cmaGLJNeZE6wnby'),
+    'secret' => env('JWT_SECRET', 'z3sGjDYVA5u5XJKuGvwlNabV661RSzhG'),
 
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'user' => 'App\User',
+    'user' => 'App\UserE',
 
     /*
     |--------------------------------------------------------------------------

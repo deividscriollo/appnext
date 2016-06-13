@@ -9,4 +9,6 @@ class Roles extends Model
     protected $connection='ingresoconex';
    	protected $table='roles';
     protected $fillable=array('id','nombre_rol');
+
+     protected $hidden = ['created_at','updated_at'];
 }

@@ -27,7 +27,7 @@ Route::get('activar_cuenta','registroController@activar_cuenta');
 Route::post('login','loginController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
-        Route::get('personas','loginController@getUsers');
+        Route::get('getDatosE','datosController@getDatosE');
     });
 
 

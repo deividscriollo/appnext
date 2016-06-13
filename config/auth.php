@@ -14,8 +14,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
-        'passwords' => 'users',
+        'guard' => 'usersE',
+        'passwords' => 'usersE',
     ],
 
     /*
@@ -76,7 +76,7 @@ return [
             'model' => App\User::class,
         ],
         
-        // For admin
+        // For Empresas
         'usersE' => [
             'driver' => 'eloquent',
             'model' => App\UserE::class

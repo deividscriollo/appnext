@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "730ede54f3aa77b2df0310ec85299a56",
-    "content-hash": "b31c98580b5639e9671938233a5393bc",
+    "hash": "33a1379c6c2e636f222de3df6b8d22d0",
+    "content-hash": "d0545811ad41b3bc848c14023ab0c501",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -162,67 +162,6 @@
             "time": "2015-11-06 14:35:42"
         },
         {
-            "name": "irazasyed/jwt-auth-guard",
-            "version": "v1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/irazasyed/jwt-auth-guard.git",
-                "reference": "efb6195b33bf4221c0553a081a6e3b2a476d2070"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/irazasyed/jwt-auth-guard/zipball/efb6195b33bf4221c0553a081a6e3b2a476d2070",
-                "reference": "efb6195b33bf4221c0553a081a6e3b2a476d2070",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "~5.0",
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.*",
-                "scrutinizer/ocular": "~1.1",
-                "squizlabs/php_codesniffer": "~2.3",
-                "tymon/jwt-auth": "^1.0@dev"
-            },
-            "suggest": {
-                "tymon/jwt-auth": "Add JWT Auth Package for Laravel and Lumen"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Irazasyed\\JwtAuthGuard\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Syed Irfaq R.",
-                    "email": "syed+gh@lukonet.com",
-                    "homepage": "https://lukonet.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "JWT Auth Guard for Laravel and Lumen",
-            "homepage": "https://github.com/irazasyed/laravel-jwt-guard",
-            "keywords": [
-                "irazasyed",
-                "jwt auth guard",
-                "jwt guard",
-                "laravel jwt auth guard",
-                "lumen jwt auth guard"
-            ],
-            "time": "2016-04-27 15:47:45"
-        },
-        {
             "name": "jakub-onderka/php-console-color",
             "version": "0.1",
             "source": {
@@ -369,16 +308,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v5.2.36",
+            "version": "v5.2.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "236d7c0c5b67a2348ac7831391031d93000de3ab"
+                "reference": "bf199036b0e222a27e2133d841aee0d4238f804d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/236d7c0c5b67a2348ac7831391031d93000de3ab",
-                "reference": "236d7c0c5b67a2348ac7831391031d93000de3ab",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/bf199036b0e222a27e2133d841aee0d4238f804d",
+                "reference": "bf199036b0e222a27e2133d841aee0d4238f804d",
                 "shasum": ""
             },
             "require": {
@@ -494,7 +433,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2016-06-06 15:18:48"
+            "time": "2016-06-10 22:38:47"
         },
         {
             "name": "league/flysystem",

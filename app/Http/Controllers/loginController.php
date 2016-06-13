@@ -13,67 +13,39 @@ use App\Empresas;
 use App\Personas;
 use App\PasswrdsE;
 use App\PasswrdsP;
+use Auth;
 
 class loginController extends Controller
 {
 
-public function getUsers(){
-	$tabla =new Personas();
-	$lista=$tabla->get();
-
-	return $lista;
-
-}
 public function login(Request $request) {
-// 	$tabla =	new PasswrdsP();
-// 	$datos=$tabla->select('id_user')
-// 			  ->where('email','=',$request->input('email'))->first();
-
-// 			  if ($datos['id_user']!='') {
-// 			  	$pass_bdd=PasswrdsP::select('email','pass_nextbook')
-// 			  ->where('id_user','=',$datos['id_user'])->get();
-// if ($pass_bdd[0]['pass_nextbook']==$request->input('password')) {
-// 	echo "OK";
-// 	$credentials = $request->only('email', 'password');
-// 	$token = JWTAuth::fromUser($datos);
-
-// }
-// else{
-// 	echo "FAIL";
-// }
-// }
-// 	 return response()->json(compact('token'));
+$tipo_user=$request->input('tipo');
+if ($tipo_user=='P') {
+	   $auth = Auth::guard('web');
+	   $tabla =	new PasswrdsP();
+}
+if ($tipo_user=='E') {
+	   $auth = Auth::guard('usersE');
+	      	$tabla =	new PasswrdsE();
+}
 
 
- // $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
-
- //   if ( ! $token = JWTAuth::attempt($credentials)) {
- //       return response()->json(false, 404);
- //   }
-
- //   return response()->json(compact('token'));
-
-
-   $auth = auth()->guard('usersE');
  $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
 
    if ( ! $token = $auth->attempt($credentials)) {
        return response()->json(false, 404);
    }
-   	$tabla =	new PasswrdsE();
-	$datos=$tabla->select('password')
+
+	$datos=$tabla->select('id')
 			  ->where('email','=',$request->input('email'))->first();
 
    $token = JWTAuth::fromUser($datos);
 
-   return response()->json(compact('token'));
+   	$id=$tabla->select('id')
+			  ->where('email','=',$request->input('email'))->first();  
+	 $tabla->where('id', '=', $id['id'])->update(['remember_token' => $token]);
 
- // return User::create([
- //        'email' => $request->input('email'),
- //        'password_email' => bcrypt($request->input('password')),
- //        'password' => bcrypt($request->input('password')),
- //        // 'id_user' => '20160610123011575af9238e4ba'
- //    ]);
+   return response()->json(compact('token'));
 
 }
 
