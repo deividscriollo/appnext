@@ -49,6 +49,12 @@ if ($tipo_user=='E') {
 
 }
 
+public function logout(Request $request){
+
+	JWTAuth::setToken($request->input('token'))->invalidate();
+
+	return response()->json(true, 200);
+}
 
 
 // /**
