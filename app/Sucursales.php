@@ -8,7 +8,8 @@ class Sucursales extends Model
 {
     protected $connection='pgsql';
    	protected $table='sucursales';
-    protected $fillable=array('id','codigo','direccion','estado','nombre_sucursal');
+   	protected $primaryKey='id_sucursal';
+    protected $fillable=array('id_sucursal','codigo','direccion','estado','nombre_sucursal');
 
     protected $hidden = ['created_at','updated_at'];
 }

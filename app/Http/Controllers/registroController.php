@@ -15,7 +15,6 @@ use App\passwrdsP;
 use App\libs\Funciones;
 use App\libs\xmlapi;
 use Mail;
-// use DB;
 
 class registroController extends Controller
 {
@@ -39,7 +38,7 @@ class registroController extends Controller
         $tablaE->actividad_economica   = $request->input('actividad_principal');
         $tablaE->codigo_activacion     = $activation_code;
         $tablaE->estado                = 0;
-        $tablaE->save();
+        $saveE=$tablaE->save();
         //************************************************* Persona que Registra ***********************
         $tablaPersonareg->idp_regE              =$funciones->generarID();
         $tablaPersonareg->nombres_apellidos     = $request->input('nombres_apellidos');
@@ -49,8 +48,8 @@ class registroController extends Controller
         $tablaPersonareg->celular               = $request->input('celular');
         $tablaPersonareg->estado                = 1;
         $tablaPersonareg->id_empresa            = $id;
-        $tablaPersonareg->save();
-   //****************************************************** Registrar sucursales***********************
+        $saveS=$tablaPersonareg->save();
+        //****************************************************** Registrar sucursales***********************
 
          $establecimientos=$request->input('sucursales')['sucursal'];
             foreach ($establecimientos as $sucursal) {
@@ -70,14 +69,15 @@ class registroController extends Controller
         
         Mail::send('email_registro', $data, function($message)use ($correo_enviar,$nombre_comercial)
             {
-                $message->from("1003498142001@facturanext.ec",'no-reply@facturanext.com');
+                $message->from("no-reply@facturanext.com",'no-reply@facturanext.com');
                 $message->to($correo_enviar,$nombre_comercial)->subject('Verificación de Email');
             });
         
-        return response()->json(array(
-            "status" => "200"
-        ));
-        // return $request->input('sucursales')['sucursal'];
+        if(!$saveE&&!$saveS){
+            App::abort(500, 'Error');
+        }else{
+            return response()->json(true,200);
+        }
         
     }
     public function registrarPersona(Request $request)
@@ -97,7 +97,7 @@ class registroController extends Controller
         $tabla->celular           = $request->input('celular');
         $tabla->codigo_activacion = $activation_code;
         $tabla->estado                = 0;
-        $tabla->save();
+        $saveP=$tabla->save();
 
         //******************************************* Enivar email de verificacion**************************
         $correo_enviar=$request->input('correo');
@@ -106,40 +106,42 @@ class registroController extends Controller
         
         Mail::send('email_registro', $data, function($message)use ($correo_enviar,$nombre_comercial)
             {
-                $message->from("1003498142001@facturanext.ec",'no-reply@facturanext.com');
+                $message->from("no-reply@facturanext.com",'no-reply@facturanext.com');
                 $message->to($correo_enviar,$nombre_comercial)->subject('Verificación de Email');
             });
 
         // return response()->json(array_map('utf8_encode', $datospersona));
-        return response()->json(array(
-            "status" => "200"
-        ));
+         if(!$saveP){
+            App::abort(500, 'Error');
+        }else{
+            return response()->json(true,200);
+        }
     }
     
     public function registroColaborador(Request $request)
     {
         $funciones         = new Funciones();
         $tabla             = new Colaboradores();
-        $tabla->id         = $funciones->generarID();
+        $tabla->id_colaborador  = $funciones->generarID();
         $tabla->correo     = $request->input('correo');
         $tabla->pass       = bcrypt($request->input('pass'));
-        $tabla->estado     = '0';
+        $tabla->estado     = 0;
         $tabla->id_empresa = $request->input('id_empresa');
-        // $tabla->save();
+        $saveC=$tabla->save();
         
         // $a = $this->crear_email('1003498142', 'root@123');
         // $data = ["nombre"=>"Alex"]; // Empty array
         
         // Mail::send('email_registro', $data, function($message)
         // {
-        //     $message->from("1003498142001@facturanext.ec",'Admin');
+        //     $message->from("no-reply@facturanext.com",'Admin');
         //     $message->to('alexdariogc@gmail.com', 'Alex')->subject('Welcome!');
         // });
-        // return response()->json(array_map('utf8_encode', $datospersona));
-        return response()->json(array(
-            "mensaje" => "Colaborador creado Correctamente"
-        ));
-        // return response()->json(array("result"=>$a));
+        if(!$saveC){
+            App::abort(500, 'Error');
+        }else{
+            return response()->json(true,200);
+        }
     }
 
     function activar_cuenta(Request $request){
@@ -152,7 +154,7 @@ class registroController extends Controller
            case 'EEE':
                $tabla = new Empresas();
                $tabla_pass      = new passwrdsE();
-               $tablaPersonareg               = new regpersona_empresas();
+               $tablaPersonareg = new regpersona_empresas();
                $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','Ruc','estado')->where('codigo_activacion', $codigo_email)->get();
                break;
            
@@ -188,7 +190,7 @@ switch ($tipocuenta) {
 
         //***************************************** Registro Clave  *****************************************
         $tabla_pass->email             = $documento.'@'.'facturanext.com';
-        $tabla_pass->pass_email       = bcrypt($pass_email);
+        $tabla_pass->pass_email       = $pass_email;
         $tabla_pass->password     = bcrypt($pass_nextbook);
         $tabla_pass->remember_token ='';
         $tabla_pass->id_user          = $id_user;
@@ -200,7 +202,7 @@ switch ($tipocuenta) {
         //***************************************** Enviar Credenciales Email *****************************************
         Mail::send('credenciales_ingreso', $data, function($message)use ($correo_enviar,$nombre_comercial)
             {
-                $message->from("1003498142001@facturanext.ec",'no-reply@facturanext.com');
+                $message->from("no-reply@facturanext.com",'no-reply@facturanext.com');
                 $message->to($correo_enviar, $nombre_comercial)->subject('Credenciales de Ingreso');
             });
         
@@ -216,17 +218,17 @@ switch ($tipocuenta) {
         return redirect()->away('http://192.168.1.32/emailuser');
            // return response()->json(array('status' => '200'));
         }else{
-            return response()->json(array('status' => '500'));
+            return response()->json(false, 500);
         }
         }
         else{
-            return response()->json(array('status' => '500'));
+            return response()->json(false, 500);
         }
 
         // return $datos;
     }
     
-    public function crear_email($user,$email_pass)
+    private function crear_email($user,$email_pass)
     {
         $ip           = "nextbook.ec"; 
         $account      = "nextbook"; 

@@ -13,7 +13,7 @@ class CreateSucursalesTable extends Migration
     public function up()
     {
         Schema::connection('pgsql')->create('sucursales', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('id_sucursal');
             $table->string('codigo');
             $table->string('direccion');
             $table->string('estado');
@@ -31,6 +31,6 @@ class CreateSucursalesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('sucursales');
+        Schema::connection('pgsql')->drop('sucursales');
     }
 }

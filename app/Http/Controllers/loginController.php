@@ -22,6 +22,10 @@ public function login(Request $request) {
 $tipo_user=$request->input('tipo');
 
 switch ($tipo_user) {
+  default:
+          $auth = Auth::guard('web');
+          $tabla =    new PasswrdsP();
+  break;
     case 'P':
                $auth = Auth::guard('web');
        $tabla =    new PasswrdsP();
@@ -33,7 +37,6 @@ switch ($tipo_user) {
         break;
 }
 
-
  $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
 
    if ( ! $token = $auth->attempt($credentials)) {
@@ -44,6 +47,7 @@ switch ($tipo_user) {
               ->where('email','=',$request->input('email'))->first();
 
    $token = JWTAuth::fromUser($datos);
+   // JWTAuth::setToken($token);
 
        // $id=$tabla->select('id')
        //        ->where('email','=',$request->input('email'))->first();  
@@ -70,8 +74,8 @@ switch ($request->input('tipo')) {
   // $user = JWTAuth::parseToken()->authenticate();
   
     JWTAuth::setToken($request->input('token'))->invalidate();
-    $tabla->where('email', '=', $datos['email'])->update(['remember_token' => '']);
-echo $datos['email'];
+    $tabla->where('email', '=', $datos[0]['email'])->update(['remember_token' => '']);
+// echo $datos['email'];
 
     return response()->json(true, 200);
 }

@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('credenciales_ingreso');
+    return view('email_registro');
 });
 // Route::auth();
 
@@ -31,4 +31,12 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::get('getDatosP','datosController@getDatosP');
         Route::get('getsucursales','datosController@getsucursales');
         Route::post('logoutE','loginController@logoutE');
+        
+        //************************************ AÑADIR EXTRA ***********************;
+        Route::post('addExtra','perzonalizacionController@addExtra');
+
+        //************************************ LEER FACTURAS ***********************;
+ Route::post('addFactura','facturaController@add_factura_to_bdd');
+
     });
+

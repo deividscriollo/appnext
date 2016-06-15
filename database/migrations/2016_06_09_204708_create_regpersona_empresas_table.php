@@ -12,7 +12,7 @@ class CreateRegpersonaEmpresasTable extends Migration
      */
     public function up()
     {
-        Schema::create('regpersona_empresas', function (Blueprint $table) {
+        Schema::connection('pgsql')->create('regpersona_empresas', function (Blueprint $table) {
             $table->string('idp_regE')->primary();
             $table->string('nombres_apellidos');
             $table->string('fecha_nacimiento');
@@ -33,6 +33,6 @@ class CreateRegpersonaEmpresasTable extends Migration
      */
     public function down()
     {
-        Schema::drop('regpersona_empresas');
+        Schema::connection('pgsql')->drop('regpersona_empresas');
     }
 }

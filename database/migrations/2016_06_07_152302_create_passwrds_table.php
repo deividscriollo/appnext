@@ -19,7 +19,7 @@ class CreatePasswrdsTable extends Migration
             $table->string('password');
             $table->string('remember_token',500);
             $table->string('id_user');
-            // $table->foreign('id_user')->references('id_empresa')->on('empresas')->onDelete('cascade');
+            $table->foreign('id_user')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -9,14 +9,15 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#8d8e90">
   <tr>
     <td><table width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" align="center">
+        <br><br>
         <tr>
           <td align="center"><a href= "http://yourlink" target="_blank"><img src="img/logo.png" alt=""  border="0"/></a></td>
         </tr>
         <tr>
           <td align="center" valign="middle"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
-                <td width="2%">&nbsp;</td>
-                <td width="96%" align="center" style="border-bottom:1px solid #000000" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#68696a; font-size:30px; text-transform:uppercase"><strong>VERIFICACIÓN DE EMAIL</strong></font></td>
+                <td width="2%">&nbsp;</td><br>
+                <td width="96%" align="center" style="background: #81c8f4;" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#FFFFFF; font-size:30px; text-transform:uppercase"><strong>CREDENCIALES DE INGRESO</strong></font></td>
                 <td width="2%">&nbsp;</td>
               </tr>
             </table></td>
@@ -66,6 +67,6 @@
         </tr>
       </table></td>
   </tr>
-</table>
+</table><br><br>
 </body>
 </html>
