@@ -215,7 +215,7 @@ switch ($tipocuenta) {
                 $tabla::where('id_persona', '=',$id_user)->update(['estado' => "1"]);
                 break;
         }
-        return redirect()->away('http://192.168.1.32/emailuser');
+        return redirect()->away('http://192.168.1.34/emailuser');
            // return response()->json(array('status' => '200'));
         }else{
             return response()->json(false, 500);

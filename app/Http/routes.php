@@ -36,7 +36,7 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::post('addExtra','perzonalizacionController@addExtra');
 
         //************************************ LEER FACTURAS ***********************;
- Route::post('addFactura','facturaController@add_factura_to_bdd');
+ Route::post('addFactura','facturaController@add_fac_bdd');
 
     });
 

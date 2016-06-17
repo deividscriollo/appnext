@@ -30,7 +30,7 @@
               <tr>
                 <td width="5%">&nbsp;</td>
                 <td width="90%" align="center" valign="middle"><font style="font-family: Verdana, sans-serif; color:#68696a; font-size:12px; line-height:20px; text-transform:uppercase">Hola {{$nombre_comercial}}, <br><br>Bienvenido a Nextbook para poder activar tu cuenta haz clic en el siguiente enlace :</font><br />
-                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.1.32/appnext/public/activar_cuenta?cuenta={{$cuenta}}&code={{$codigo}}" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; ACTIVAR CUENTA &gt;</strong></a></font></td>
+                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.1.34/appnext/public/activar_cuenta?cuenta={{$cuenta}}&code={{$codigo}}" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; ACTIVAR CUENTA &gt;</strong></a></font></td>
                 <td width="5%">&nbsp;</td>
               </tr>
             </table></td>
