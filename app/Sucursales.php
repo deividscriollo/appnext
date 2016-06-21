@@ -11,5 +11,5 @@ class Sucursales extends Model
    	protected $primaryKey='id_sucursal';
     protected $fillable=array('id_sucursal','codigo','direccion','estado','nombre_sucursal');
 
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['id_sucursal','id_empresa','created_at','updated_at'];
 }

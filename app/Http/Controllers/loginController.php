@@ -29,11 +29,13 @@ switch ($tipo_user) {
     case 'P':
                $auth = Auth::guard('web');
        $tabla =    new PasswrdsP();
+       $tablaDatos =    new Personas();
         break;
     
     case 'E':
               $auth = Auth::guard('usersE');
               $tabla =    new PasswrdsE();
+              $tablaDatos =    new Empresas();
         break;
 }
 
@@ -43,9 +45,13 @@ switch ($tipo_user) {
        return response()->json(false, 404);
    }
 
-    $datos=$tabla->select('id')
+    $datos=$tabla->select('id','remember_token','id_user')
               ->where('email','=',$request->input('email'))->first();
-
+   $datosE=$tablaDatos->select('*')
+              ->where('id_empresa','=',$datos['id_user'])->first();
+              // if ($datos['remember_token']!='') {
+              //   JWTAuth::setToken($datos['remember_token'])->invalidate();
+              // }
    $token = JWTAuth::fromUser($datos);
    // JWTAuth::setToken($token);
 
@@ -53,7 +59,7 @@ switch ($tipo_user) {
        //        ->where('email','=',$request->input('email'))->first();  
      $tabla->where('id', '=', $datos['id'])->update(['remember_token' => $token]);
 
-   return response()->json(compact('token'));
+   return response()->json(["datosE"=>$datosE,compact('token')]);
 
 }
 
@@ -71,10 +77,10 @@ switch ($request->input('tipo')) {
         break;
 }
 
-  // $user = JWTAuth::parseToken()->authenticate();
+  $user = JWTAuth::parseToken()->authenticate();
   
     JWTAuth::setToken($request->input('token'))->invalidate();
-    $tabla->where('email', '=', $datos[0]['email'])->update(['remember_token' => '']);
+    $tabla->where('email', '=', $user['email'])->update(['remember_token' => '']);
 // echo $datos['email'];
 
     return response()->json(true, 200);

@@ -19,6 +19,8 @@ Route::get('/', function () {
 // Route::get('/', 'HomeController@index');
 // Route::get('/home', 'HomeController@index');
 
+Route::group(['middleware' => 'cors'], function(){
+	
 Route::post('registroEmpresas','registroController@registrarEmpresa');
 Route::post('registroPersonas','registroController@registrarPersona');
 Route::post('registroColaboradores','registroController@registroColaborador');
@@ -36,7 +38,10 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::post('addExtra','perzonalizacionController@addExtra');
 
         //************************************ LEER FACTURAS ***********************;
- Route::post('addFactura','facturaController@add_fac_bdd');
+ 		Route::get('readFacturas','facturaController@add_fac_bdd');
 
     });
+
+});
+
 
