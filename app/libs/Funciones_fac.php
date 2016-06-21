@@ -399,12 +399,10 @@ function save_zip_mail($xmlmaster,$emailuser){
           $clave_acceso = $file_xml->infoTributaria->claveAcceso;
           $client = new Client;
           $res = $client->request('POST', 'http://192.168.1.28/appserviciosnext/public/estado_factura', [
-    'json' => ["clave"=>"1503201601109172437100120020010000269744392556014"]
+    'json' => ["clave"=>(string)$clave_acceso]
 ]);
 
 $respuesta= json_decode($res->getBody(), true);
-
-print_r($respuesta);
 
           // $respuesta = $getsri->estado_factura_electronica($clave_acceso);
           if (count($respuesta[0]['autorizaciones']) != 0) {
