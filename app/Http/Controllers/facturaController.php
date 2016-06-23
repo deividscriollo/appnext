@@ -39,7 +39,11 @@ switch ($tamaño) {
 }
 
         $resultado=$Funciones_fac->leer($user->email,$datos[0]['pass_email'],$user->id_user);
-        return response()->json($resultado);
+        if ($resultado==null) {
+         return response()->json(true,200);
+        }else{
+            return response()->json([$request->input('token'),"resultados"=>$resultado],500);
+        }
         // print_r($resultado);
         // print_r($user->email);
     }

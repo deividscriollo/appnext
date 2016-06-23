@@ -282,12 +282,12 @@ if ($emails) {
                 if (strtolower($file_ext[1]) == "xml") {
                  // echo "XML";
                  $res_xml = $this->save_xml_mail($attachment['attachment'],$username);
-                  print_r($res_xml);
+                  // print_r($res_xml);
                 }
                 if (strtolower($file_ext[1]) == "zip") {
                  // echo "ZIP";
                  $res_zip = $this->save_zip_mail($attachment['attachment'],$username);
-                  print_r($res_zip);
+                  // print_r($res_zip);
                 }
             }
         }
