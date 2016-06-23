@@ -553,13 +553,13 @@ switch ((string)$tipo_doc) {
             return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
           return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
-        fclose($fp);
          }//*************************************************** FIN si el archivo es XML******************************
+         fclose($fp);
         }
       }
     }
     zip_close($zip);
-    echo $url_destination;
+    // echo $url_destination;
     unlink($url_destination);
   }
 
