@@ -143,7 +143,7 @@ public static function generateValidXmlFromArray($array, $node_block='nodes', $n
         case ']]':
           if (  '>' == $v  ) {
               $new_xml .= str_replace('>','&gt;',
-                          str_replace('>','&lt;',
+                          str_replace('<','&lt;',
                           str_replace('"','&quot;',
                           str_replace('&','&amp;',
                           $cdata))));
@@ -216,24 +216,29 @@ if ($emails) {
         /* if any attachments found... */
         if (isset($structure->parts) && count($structure->parts)) {
             for ($i = 1; $i < count($structure->parts); $i++) {
-                
-                if($structure->parts[$i]->ifdparameters) 
-                {
-                    foreach($structure->parts[$i]->dparameters as $object) 
-                    {
-                     if (!file_exists("./facturas/". $email_number . "-" . $object->value)) {
-                        if (strtolower(substr($object->value, -3))=="xml"||strtolower(substr($object->value, -3))=="zip") {
-                     //echo $object->attribute;
-                            if(strtolower($object->attribute) == 'filename') 
-                                {
-                            $attachments[$i]['is_attachment'] = true;
-                            $attachments[$i]['filename'] = $object->value;                             
-                             $cont++;
-                                }
-                            }
-                        }
-                    }
-                }
+                $attachments[$i] = array(
+                            'is_attachment' => false,
+                            'filename' => '',
+                            'name' => '',
+                            'attachment' => ''
+                        );
+                // if($structure->parts[$i]->ifdparameters) 
+                // {
+                //     foreach($structure->parts[$i]->dparameters as $object) 
+                //     {
+                //      if (!file_exists("./facturas/". $email_number . "-" . $object->value)) {
+                //         if (strtolower(substr($object->value, -3))=="xml"||strtolower(substr($object->value, -3))=="zip") {
+                //      //echo $object->attribute;
+                //             if(strtolower($object->attribute) == 'filename') 
+                //                 {
+                //             $attachments[$i]['is_attachment'] = true;
+                //             $attachments[$i]['filename'] = $object->value;                             
+                //              $cont++;
+                //                 }
+                //             }
+                //         }
+                //     }
+                // }
                 if ($structure->parts[$i]->ifparameters) {
                     foreach ($structure->parts[$i]->parameters as $object) {
                         if (!file_exists("./facturas/" . $email_number . "-" . $object->value)) {
@@ -275,18 +280,15 @@ if ($emails) {
                 $file_ext = explode('.', $filename);
                 // echo strtolower($file_ext[1]);
                 if (strtolower($file_ext[1]) == "xml") {
-                 
-                 $res = $this->save_xml_mail($attachment['attachment'],$username);
-
-                  return $res;
-                };
-                 if (strtolower($file_ext[1]) == "zip") {
-                 
-                 $res = $this->save_zip_mail($attachment['attachment'],$username);
-
-                  return $res;
-                };
-                
+                 // echo "XML";
+                 $res_xml = $this->save_xml_mail($attachment['attachment'],$username);
+                  print_r($res_xml);
+                }
+                if (strtolower($file_ext[1]) == "zip") {
+                 // echo "ZIP";
+                 $res_zip = $this->save_zip_mail($attachment['attachment'],$username);
+                  print_r($res_zip);
+                }
             }
         }
     }
@@ -306,64 +308,112 @@ imap_close($inbox);
     }
 
     function save_xml_mail($xmlmaster,$emailuser){
-
+        $tblFacturas=new Facturas();
+        $funciones=new Funciones();
+        $empresas=new Empresas();
+        $passE=new PasswrdsE();
+          $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
+ if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
+    mkdir("facturas/".$datosPass[0]['id_user']);      
+    }
         $xmlData_sub = new \SimpleXMLElement($xmlmaster);
+if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
         $file_xml = new \SimpleXMLElement($xmlDatamaster);
-        $clave_acceso = $file_xml->infoTributaria->claveAcceso;
-        // $respuesta = $getsri->estado_factura_electronica($clave_acceso);
-        // $respuesta = Request::create('http://192.168.1.34/appserviciosnext/public/estado_factura', 'POST', ['clave' => '1503201601109172437100120020010000269744392556014']);
+}else{
+        $file_xml = new \SimpleXMLElement($xmlmaster);     
+}
+$clave_acceso = $file_xml->infoTributaria->claveAcceso;
+$ambiente = $file_xml->infoTributaria->ambiente;
+$tipo_doc=$file_xml->infoTributaria[0]->codDoc;
+$nombre_comercial = $file_xml->infoTributaria->nombreComercial;
+$ruc_comercial = $file_xml->infoTributaria->ruc;
         $client = new Client;
 
-$res = $client->request('POST', 'http://192.168.1.28/appserviciosnext/public/estado_factura', [
-    'json' => ["clave"=>"1503201601109172437100120020010000269744392556014"]
+$res = $client->request('POST', 'http://192.168.1.21/appserviciosnext/public/estado_factura', [
+    'json' => ["clave"=>(string)$clave_acceso]
 ]);
 
 $respuesta= json_decode($res->getBody(), true);
+// print_r($respuesta) ;
 
-       // print_r($respuesta[0]['autorizaciones']);
 if (count($respuesta[0]['autorizaciones'])!=0) {
     $estado=$respuesta[0]['autorizaciones']['autorizacion']['estado'];
 
             if($estado == 'AUTORIZADO') {
-                $funciones=new Funciones();
-                $empresas=new Empresas();
-                $passE=new PasswrdsE();
-                $id_fac = $funciones->generarID();    
-                $xmlComp = new \SimpleXMLElement($estado=$respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
-                $email = $this->getmail($xmlComp);
-                $fecha_aut = $xmlComp->infoFactura->fechaEmision;                                    
-                $hora = date('G:i');
-                $razon_social = $xmlComp->infoTributaria->razonSocial;
-                $cod_doc = $xmlComp->infoTributaria->codDoc;
-                $datos = explode('@', $email);
-                $ruc = $datos[0];
-                // echo $fecha_aut;
-                if($ruc != $xmlComp->infoFactura->identificacionComprador || substr($ruc, 0,10)  != $xmlComp->infoFactura->identificacionComprador) {
-                if($ruc == $xmlComp->infoFactura->identificacionComprador || substr($ruc, 0,10)  == $xmlComp->infoFactura->identificacionComprador) {
-                    $id_prov = $funciones->generarID();
-                    $fecha_adj = date('G:i');
-                    $id_fact = $funciones->generarID();
-                    $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
-                    // $datosE=$empresas->select('Ruc')->where('id_empresa','=',$datosPass[0]['id_user'])->get();
-                    // echo $datosE[0]['Ruc'];
-                        $id_factura=$funciones->generarID();
-                        $tabla=new Facturas();
-                        $tabla->id_factura=$id_factura;
-                        $tabla->nombre_fac=$id_factura.'.xml';
-                        $tabla->contenido_fac=$estado=$respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
-                        $tabla->id_empresa=$datosPass[0]['id_user'];
-                        $tabla->save();
-                         if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
-                         mkdir("facturas/".$datosPass[0]['id_user']);      
-                          }
-                         $url_destination = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                    
-                         $fp = fopen($url_destination, "wr+");   
-                         // $xml = $this->generateValidXmlFromArray($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);  
-                         $xml =$xmlmaster;                           
-                         fwrite($fp, $xml);
-                         fclose($fp);
-                        return array('valid' => 'true', 'methods' => 'full'); // ---------- valido y listo para procesar
+
+             switch ((string)$tipo_doc) {
+    //****************************************************** NOTA DE CREDITO
+  case '04':
+            $id_fac = $funciones->generarID();          
+            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $email = $xmlComp->infoAdicional->campoAdicional;
+            $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
+            $razon_social = $xmlComp->infoNotaCredito->razonSocial;
+            $cod_doc = $xmlComp->infoNotaCredito->codDoc;
+            $datos = explode('@', $email);
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoNotaCredito->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
+
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoNotaCredito->fechaEmision;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+           // print_r($ruc_comercial);
+
+    break;  
+
+     case '01':
+            $id_fac = $funciones->generarID();          
+            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $email = $this->getmail($xmlComp);
+            $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
+            $razon_social = $xmlComp->infoFactura->razonSocial;
+            $cod_doc = $xmlComp->infoFactura->codDoc;
+            $datos = explode('@', $email);
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
+
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoFactura->fechaEmision;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+    break;  
+}
+// echo "RUC= ".$cod_doc."identificacionComprador=".$identificacionComprador;
+               if($ruc != $identificacionComprador) {
+              
+              $id_fact = $funciones->generarID();
+              $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
+              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
+              if(count($res) == 0 ){
+                $tblFacturas->id_factura = $id_fac;
+                $tblFacturas->num_factura = $num_fac;
+                $tblFacturas->nombre_comercial = $nombre_comercial;
+                $tblFacturas->Ruc_prov = $ruc_comercial;
+                $tblFacturas->fecha_emision = $date_fe;
+                $tblFacturas->clave_acceso = (string)$clave_acceso;
+                $tblFacturas->ambiente = (string)$ambiente;
+                $tblFacturas->tipo_doc = $tipo_doc;
+                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                $save=$tblFacturas->save();
+                if ($save) {
+                  echo "OK XML";
+                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
+                  $fp_fac = fopen($url_destination_xml, "wr+");
+                  fwrite($fp_fac, $xmlmaster);
+                  fclose($fp_fac);
+                  return array('valid' => 'true', 'methods' => 'full');
+                }else
+                echo "FAIL XML";
+
                     }else
                         return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
@@ -377,6 +427,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
 function save_zip_mail($xmlmaster,$emailuser){
   $funciones=new Funciones();
   $passE=new PasswrdsE();
+  $tblFacturas=new Facturas();
   $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
 
  if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
@@ -390,105 +441,126 @@ function save_zip_mail($xmlmaster,$emailuser){
     $zip = zip_open($url_destination);
     if ($zip) {
       while ($zip_entry = zip_read($zip)) {
-        $fp = fopen("facturas/".$datosPass[0]['id_user']."/".zip_entry_name($zip_entry), "w");
+        // $fp = fopen("facturas/".$datosPass[0]['id_user']."/".zip_entry_name($zip_entry), "w");
         if (zip_entry_open($zip, $zip_entry, "r")) {
+          //*************************************************** INICIO si el archivo es XML******************************
+            $nombre_archivo= zip_entry_name($zip_entry);
+            $tipo_archivo= explode(".", $nombre_archivo);
+            $tipo_archivo= $tipo_archivo[1];
+            $filesize=zip_entry_filesize($zip_entry);
+        if ($tipo_archivo=="xml"&&$filesize!=0) {
         $buf = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
         $xmlData_sub = new \SimpleXMLElement($buf);
-        $xmlDatamaster = $xmlData_sub->comprobante;
-        $file_xml = new \SimpleXMLElement($xmlDatamaster);
+          if ($xmlData_sub->comprobante) {
+                  $xmlDatamaster = $xmlData_sub->comprobante;
+                  $file_xml = new \SimpleXMLElement($xmlDatamaster);
+          }else{
+                  $file_xml = new \SimpleXMLElement($xmlData_sub);
+                  // $clave_acceso = $file_xml->infoTributaria->claveAcceso;
+          }
           $clave_acceso = $file_xml->infoTributaria->claveAcceso;
+          $ambiente = $file_xml->infoTributaria->ambiente;
+          $tipo_doc=$file_xml->infoTributaria[0]->codDoc;
           $client = new Client;
-          $res = $client->request('POST', 'http://192.168.1.28/appserviciosnext/public/estado_factura', [
-    'json' => ["clave"=>(string)$clave_acceso]
-]);
+          $res = $client->request('POST', 'http://192.168.1.21/appserviciosnext/public/estado_factura', ['json' => ["clave"=>(string)$clave_acceso]
+          ]);
 
-$respuesta= json_decode($res->getBody(), true);
-
-          // $respuesta = $getsri->estado_factura_electronica($clave_acceso);
+          $respuesta= json_decode($res->getBody(), true);
+          // print_r($respuesta);
           if (count($respuesta[0]['autorizaciones']) != 0) {
           $estado = $respuesta[0]['autorizaciones']['autorizacion']['estado'];
           if($estado == 'AUTORIZADO') {
+
+switch ((string)$tipo_doc) {
+    //****************************************************** NOTA DE CREDITO
+  case '04':
+            $id_fac = $funciones->generarID();          
+            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $email = $xmlComp->infoAdicional->campoAdicional;
+            $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
+            $razon_social = $xmlComp->infoNotaCredito->razonSocial;
+            $cod_doc = $xmlComp->infoNotaCredito->codDoc;
+            $datos = explode('@', $email);
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoNotaCredito->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
+
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoNotaCredito->fechaEmision;
+            $nombre_comercial = $xmlComp->infoFactura->nombreComercial;
+            $ruc_comercial = $xmlComp->infoFactura->ruc;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+    break;  
+
+     case '01':
             $id_fac = $funciones->generarID();          
             $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
             $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
-            // $fecha = $class->fecha_hora();
-            $razon_social = $xmlComp->infoTributaria->razonSocial;
-            $cod_doc = $xmlComp->infoTributaria->codDoc;
+            $razon_social = $xmlComp->infoFactura->razonSocial;
+            $cod_doc = $xmlComp->infoFactura->codDoc;
             $datos = explode('@', $email);
-            $ruc = $datos[0];
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
 
-            if($ruc != $xmlComp->infoFactura->identificacionComprador || substr($ruc, 0,10)  != $xmlComp->infoFactura->identificacionComprador) {
-            // if($ruc == $xmlComp->infoFactura->identificacionComprador || substr($ruc, 0,10)  == $xmlComp->infoFactura->identificacionComprador) {
-              $id_prov = $funciones->generarID();
-              $fecha_adj = date('G:i');
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoFactura->fechaEmision;
+            $nombre_comercial = $xmlComp->infoFactura->nombreComercial;
+            $ruc_comercial = $xmlComp->infoFactura->ruc;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+    break;  
+}
+
+     if($ruc != $identificacionComprador) {
+
               $id_fact = $funciones->generarID();
               $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
+              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
+              if(count($res) == 0 ){
+                $tblFacturas->id_factura = $id_factura;
+                $tblFacturas->num_factura = $num_fac;
+                $tblFacturas->nombre_comercial = (string)$nombre_comercial;
+                $tblFacturas->Ruc_prov = (string)$ruc_comercial;
+                $tblFacturas->fecha_emision = $date_fe;
+                $tblFacturas->clave_acceso = (string)$clave_acceso;
+                $tblFacturas->ambiente = (string)$ambiente;
+                $tblFacturas->tipo_doc = $tipo_doc;
+                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                // $save=$tblFacturas->save();
+                // if ($save) {
+                //   echo "OK ZIP";
+                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
+                  $fp_fac = fopen($url_destination_xml, "wr+");
+                  fwrite($fp_fac, $buf);
+                  fclose($fp_fac);
+                  // return array('valid' => 'true', 'methods' => 'full');
+                // }
+                // else
+                // echo "FAIL XML";
 
-              $res = $class->consulta("SELECT id FROM facturanext.correo WHERE clave_acceso = '$clave_acceso'");
-              if($class->num_rows($res) == 0 ){
-                $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
-                $var_fe = $xmlComp->infoFactura->fechaEmision;
-                $date_fe = str_replace('/', '-', $var_fe);
-                $date_fe = date('Y-m-d', strtotime($date_fe));
-                $id_factura = $funciones->generarID();
-
-                $class->consulta("INSERT INTO facturanext.correo values ( '".$id_factura."',
-                                              '".$razon_social."',
-                                              lower('".$email."'),
-                                              '".''."','".$fecha."',
-                                              '".'Docuemnto Generado por el SRI'."',
-                                              '".''."','1',
-                                              '".$datosPass[0]['id_user']."',
-                                              '".$cod_doc."',
-                                              '".$razon_social."',
-                                              '".$clave_acceso."',
-                                              '".''."',
-                                              '".$fecha_aut."')");
-
-                $class->consulta("INSERT INTO facturanext.facturas VALUES ( '".$class->idz()."',
-                                              '".$num_fac."',
-                                              '".$id_prov."',
-                                              '".$date_fe."',
-                                              '".$xmlComp->infoFactura->totalSinImpuestos."',
-                                              '".$xmlComp->infoFactura->totalDescuento."',
-                                              '".$xmlComp->infoFactura->propina."',
-                                              '".$xmlComp->infoFactura->importeTotal ."',
-                                              '".$fecha_adj."',
-                                              '1',
-                                              '".$id_factura."',
-                                              '".$xmlComp->infoTributaria->codDoc."')");
-
-                  
-                
-                $class->consulta("INSERT INTO facturanext.adjuntos values ( '".$class->idz()."',
-                                              '".$id_factura."',
-                                              '".$id_factura.".xml',
-                                              '".$id_factura.".xml',
-                                              '".$id_factura.".xml',
-                                              '0',
-                                              'xml',
-                                              '0',
-                                              '".$fecha."')");
-                 $url_destination = "../archivos/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                  
-                   $fp = fopen($url_destination, "wr+");   
-                   $xml = $class->generateValidXmlFromObj($respuesta[0]['autorizaciones']);                             
-                   fwrite($fp, $xml);
-                   fclose($fp);
-                  return array('valid' => 'true', 'methods' => 'full'); // ---------- valido y listo para procesar
-              }else
-                return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
-            }else 
-              return array('valid' => 'false', 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
-          }else
+              }
+            }else
+        return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
+            }else
             return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
           return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
         fclose($fp);
+         }//*************************************************** FIN si el archivo es XML******************************
         }
       }
     }
     zip_close($zip);
+    echo $url_destination;
+    unlink($url_destination);
   }
 
 }

@@ -14,7 +14,13 @@ class CreateFacturasTable extends Migration
     {
         Schema::connection('facturanexconex')->create('facturas', function (Blueprint $table) {
             $table->string('id_factura')->primary();
-            $table->string('nombre_fac');
+            $table->string('num_factura');
+            $table->string('nombre_comercial');
+            $table->string('Ruc_prov');
+            $table->string('fecha_emision');
+            $table->string('clave_acceso')->unique();
+            $table->string('ambiente');
+            $table->string('tipo_doc');
             $table->string('contenido_fac',10000);
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
