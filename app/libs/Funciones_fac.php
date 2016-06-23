@@ -405,14 +405,13 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $save=$tblFacturas->save();
                 if ($save) {
-                  echo "OK XML";
+                  // echo "OK XML--";
                   $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
                   $fp_fac = fopen($url_destination_xml, "wr+");
                   fwrite($fp_fac, $xmlmaster);
                   fclose($fp_fac);
-                  return array('valid' => 'true', 'methods' => 'full');
-                }else
-                echo "FAIL XML";
+                  // return array('valid' => 'true', 'methods' => 'full');
+                }
 
                     }else
                         return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
@@ -437,18 +436,20 @@ function save_zip_mail($xmlmaster,$emailuser){
     $url_destination = "facturas/".$datosPass[0]['id_user']."/".$id.'.zip';                 
     $fp = fopen($url_destination, "wr+");
     fwrite($fp, $xmlmaster);
+    fclose($fp);
 
     $zip = zip_open($url_destination);
     if ($zip) {
       while ($zip_entry = zip_read($zip)) {
         // $fp = fopen("facturas/".$datosPass[0]['id_user']."/".zip_entry_name($zip_entry), "w");
         if (zip_entry_open($zip, $zip_entry, "r")) {
-          //*************************************************** INICIO si el archivo es XML******************************
+          
             $nombre_archivo= zip_entry_name($zip_entry);
             $tipo_archivo= explode(".", $nombre_archivo);
             $tipo_archivo= $tipo_archivo[1];
             $filesize=zip_entry_filesize($zip_entry);
-        if ($tipo_archivo=="xml"&&$filesize!=0) {
+        if ($tipo_archivo=="xml"&&$filesize!=0) {//********************INICIO si el archivo es XML******************************
+        
         $buf = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
         $xmlData_sub = new \SimpleXMLElement($buf);
           if ($xmlData_sub->comprobante) {
@@ -534,17 +535,15 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->tipo_doc = $tipo_doc;
                 $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
-                // $save=$tblFacturas->save();
-                // if ($save) {
-                //   echo "OK ZIP";
+                $save=$tblFacturas->save();
+                if ($save) {
+                  // echo "OK ZIP--";
                   $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
                   $fp_fac = fopen($url_destination_xml, "wr+");
                   fwrite($fp_fac, $buf);
                   fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
-                // }
-                // else
-                // echo "FAIL XML";
+                }
 
               }
             }else
@@ -553,13 +552,12 @@ switch ((string)$tipo_doc) {
             return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
           return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
-         }//*************************************************** FIN si el archivo es XML******************************
-         fclose($fp);
+           }//*************************************************** FIN si el archivo es XML******************************
         }
-      }
-    }
+      }//**********while
+    }/// *****if ZIP
     zip_close($zip);
-    // echo $url_destination;
+    // echo "<br>".$url_destination;
     unlink($url_destination);
   }
 
