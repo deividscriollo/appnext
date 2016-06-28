@@ -47,4 +47,50 @@ switch ($tamaño) {
         // print_r($resultado);
         // print_r($user->email);
     }
+
+        public function get_facturas(Request $request){
+        $Funciones_fac=new Funciones_fac();
+
+             $user = JWTAuth::parseToken()->authenticate();
+             $pos=stripos($user->email, '@');
+             $documento=substr($user->email,0,$pos);
+             $tamaño=strlen($documento);
+             $facturas= new Facturas();
+             // echo $tamaño;
+    
+            switch ($tamaño) {
+                case 13:
+                    // $auth = Auth::guard('usersE');
+                    $tabla =    new PasswrdsE();
+                    $datos= $tabla->select('id_user')->where('email','=',$user->email)->get();
+                    break;
+            }
+
+        $resultado=$facturas->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
+
+            return response()->json(array("misfacturas"=>$resultado),200);
+    }
+
+
+public function upload_xmlfile(Request $request){
+        $Funciones_fac=new Funciones_fac();
+
+             $user = JWTAuth::parseToken()->authenticate();
+            // $resultado=$Funciones_fac->upload_xmlfile($request->file('xml'),$user['email']);
+
+$xmlInfo = new \SplFileInfo($request->file('xml'));
+$nombrefile=$request->file('xml')->getClientOriginalName();
+if((int) $xmlInfo->getSize() > 0){
+    $xmlDoc = new \DOMDocument();
+    $xmlDoc->load($request->file('xml'));
+    $archivo=$xmlDoc->saveXML();
+    $xmlmaster=$archivo;
+    $resultado=$Funciones_fac->save_xml_mail($xmlmaster,$user['email'],$nombrefile);
+    }else{
+        $resultado=$Funciones_fac->save_fac_rechazada("",$user['email'],$nombrefile,"Documento Vacio");
+    }
+
+    return response()->json($resultado);
+    }
+
 }

@@ -21,6 +21,7 @@ class CreateFacturasTable extends Migration
             $table->string('clave_acceso')->unique();
             $table->string('ambiente');
             $table->string('tipo_doc');
+            $table->string('total');
             $table->string('contenido_fac',10000);
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');

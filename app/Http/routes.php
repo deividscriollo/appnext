@@ -37,8 +37,12 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         //************************************ AÑADIR EXTRA ***********************;
         Route::post('addExtra','perzonalizacionController@addExtra');
 
-        //************************************ LEER FACTURAS ***********************;
+        //************************************ ADD FACTURAS ***********************;
  		Route::get('readFacturas','facturaController@add_fac_bdd');
+        //************************************ LEER FACTURAS ***********************;
+        Route::get('getFacturas','facturaController@get_facturas');
+        //************************************ SUBIR ARCHIVOS XML ***********************;
+        Route::post('uploadFactura','facturaController@upload_xmlfile');
 
     });
 

@@ -13,6 +13,7 @@ use App\Empresas;
 use App\Personas;
 use App\PasswrdsE;
 use App\PasswrdsP;
+use App\regpersona_empresas;
 use Auth;
 
 class loginController extends Controller
@@ -20,7 +21,7 @@ class loginController extends Controller
 
 public function login(Request $request) {
 $tipo_user=$request->input('tipo');
-
+$regpersona_empresas=new regpersona_empresas();
 switch ($tipo_user) {
   default:
           $auth = Auth::guard('web');
@@ -47,6 +48,10 @@ switch ($tipo_user) {
 
     $datos=$tabla->select('id','remember_token','id_user')
               ->where('email','=',$request->input('email'))->first();
+ //*********************************** Datos persona que registro ********************
+  $persona_registroE=$regpersona_empresas->select('*')
+              ->where('id_empresa','=',$datos['id_user'])->first();
+
    $datosE=$tablaDatos->select('*')
               ->where('id_empresa','=',$datos['id_user'])->first();
               // if ($datos['remember_token']!='') {
@@ -59,7 +64,7 @@ switch ($tipo_user) {
        //        ->where('email','=',$request->input('email'))->first();  
      $tabla->where('id', '=', $datos['id'])->update(['remember_token' => $token]);
 
-   return response()->json(["datosE"=>$datosE,compact('token')]);
+   return response()->json(["datosE"=>$datosE,"datosPersona"=>$persona_registroE,compact('token')]);
 
 }
 
