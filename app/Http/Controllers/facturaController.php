@@ -74,23 +74,20 @@ switch ($tamaño) {
 
 public function upload_xmlfile(Request $request){
         $Funciones_fac=new Funciones_fac();
+        $respuesta=$Funciones_fac->verificar_autorizacion($request->input('clave'));
+        $mensajes=$respuesta[0]['autorizaciones']['autorizacion']['mensajes'];
 
              $user = JWTAuth::parseToken()->authenticate();
-            // $resultado=$Funciones_fac->upload_xmlfile($request->file('xml'),$user['email']);
 
-$xmlInfo = new \SplFileInfo($request->file('xml'));
-$nombrefile=$request->file('xml')->getClientOriginalName();
-if((int) $xmlInfo->getSize() > 0){
-    $xmlDoc = new \DOMDocument();
-    $xmlDoc->load($request->file('xml'));
-    $archivo=$xmlDoc->saveXML();
-    $xmlmaster=$archivo;
-    $resultado=$Funciones_fac->save_xml_mail($xmlmaster,$user['email'],$nombrefile);
-    }else{
-        $resultado=$Funciones_fac->save_fac_rechazada("",$user['email'],$nombrefile,"Documento Vacio");
-    }
+        if(count($mensajes)==0){
+            $comprobante=$respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+            $resultado=$Funciones_fac->save_xml_mail($comprobante,$user['email'],"999.xml");
+            }
+            // else{
+            // $resultado=$Funciones_fac->save_fac_rechazada("",$user['email'],$request->input('clave'),"Documento Vacio");
+            //     }
 
-    return response()->json($resultado);
+            return response()->json($resultado);
     }
 
 }

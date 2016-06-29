@@ -309,7 +309,7 @@ imap_close($inbox);
     }
 function verificar_autorizacion($clave_acceso){
         $client = new Client;
-$res = $client->request('POST', 'http://192.168.0.3/appserviciosnext/public/estado_factura', [
+$res = $client->request('POST', 'http://172.30.1.14/appserviciosnext/public/estado_factura', [
     'json' => ["clave"=>(string)$clave_acceso]
 ]);
 

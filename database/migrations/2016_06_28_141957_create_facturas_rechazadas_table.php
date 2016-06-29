@@ -22,7 +22,7 @@ class CreateFacturasRechazadasTable extends Migration
             // $table->string('ambiente');
             // $table->string('tipo_doc');
             // $table->string('total');
-            $table->string('nombre_doc');
+            $table->string('clave_acceso');
             $table->string('razon_rechazo');
             $table->string('contenido_fac',10000);
             $table->string('id_empresa');
