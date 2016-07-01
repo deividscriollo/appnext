@@ -48,7 +48,7 @@ switch ($tamaño) {
         // print_r($user->email);
     }
 
-        public function get_facturas(Request $request){
+public function get_facturas(Request $request){
         $Funciones_fac=new Funciones_fac();
 
              $user = JWTAuth::parseToken()->authenticate();
@@ -75,19 +75,40 @@ switch ($tamaño) {
 public function upload_xmlfile(Request $request){
         $Funciones_fac=new Funciones_fac();
         $respuesta=$Funciones_fac->verificar_autorizacion($request->input('clave'));
-        $mensajes=$respuesta[0]['autorizaciones']['autorizacion']['mensajes'];
-
-             $user = JWTAuth::parseToken()->authenticate();
-
-        if(count($mensajes)==0){
+        $autorizaciones=$respuesta[0]['autorizaciones'];
+                     $user = JWTAuth::parseToken()->authenticate();
+        if (count($autorizaciones)!=0) {
+                 $mensajes=$respuesta[0]['autorizaciones']['autorizacion']['mensajes'];
+                         if(count($mensajes)==0){
             $comprobante=$respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
-            $resultado=$Funciones_fac->save_xml_mail($comprobante,$user['email'],"999.xml");
+            $resultado=$Funciones_fac->save_xml_file($comprobante,$user['email'],"999.xml",$request->input('tipo'));
             }
             // else{
             // $resultado=$Funciones_fac->save_fac_rechazada("",$user['email'],$request->input('clave'),"Documento Vacio");
             //     }
-
+                         }else{
+                            $resultado=array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri');
+                         }
+// echo $request->input('tipo');
             return response()->json($resultado);
     }
+
+public function Download_fac(Request $request)
+        {
+            $user = JWTAuth::parseToken()->authenticate();
+            // echo $user;
+    //PDF file is stored under project/public/download/info.pdf
+    // $file= public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
+    $Factura=new Facturas();
+    $resultado=$Factura->select('contenido_fac')->where('id_factura','=',$request->input('id'))->get();
+
+
+    // $headers = array(
+    //           'Content-Type: application/xml',
+    //         );
+
+    // return response()->download($file, $request->input('id').'xml', $headers);
+    return response()->json($resultado);
+        }
 
 }

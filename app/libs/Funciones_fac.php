@@ -309,7 +309,7 @@ imap_close($inbox);
     }
 function verificar_autorizacion($clave_acceso){
         $client = new Client;
-$res = $client->request('POST', 'http://172.30.1.14/appserviciosnext/public/estado_factura', [
+$res = $client->request('POST', 'http://localhost/appserviciosnext/public/estado_factura', [
     'json' => ["clave"=>(string)$clave_acceso]
 ]);
 
@@ -354,7 +354,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
              switch ((string)$tipo_doc) {
     //****************************************************** NOTA DE CREDITO
   case '04':
-            $id_fac = $funciones->generarID();          
+                  
             $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
@@ -377,7 +377,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
     break;  
 
      case '01':
-            $id_fac = $funciones->generarID();          
+                  
             $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
             $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
@@ -404,7 +404,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
               $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
               $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
               if(count($res) == 0 ){
-                $tblFacturas->id_factura = $id_fac;
+                $tblFacturas->id_factura = $id_factura;
                 $tblFacturas->num_factura = $num_fac;
                 $tblFacturas->nombre_comercial = $nombre_comercial;
                 $tblFacturas->Ruc_prov = $ruc_comercial;
@@ -412,6 +412,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                 $tblFacturas->clave_acceso = (string)$clave_acceso;
                 $tblFacturas->ambiente = (string)$ambiente;
                 $tblFacturas->tipo_doc = $tipo_doc;
+                $tblFacturas->tipo_consumo = '-------';
                 $tblFacturas->total = $total;
                 $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
@@ -427,13 +428,13 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                     }else
                         return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
-                    $this->save_fac_rechazada($xmlmaster,$emailuser,$doc_name,'ruc-no-perteneciente');
+                    $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
                     // return array('valid' => 'false', 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
             }else
-            $this->save_fac_rechazada($xmlmaster,$emailuser,$doc_name,'Documento-no-autorizado');
+            $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
                 // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
-        $this->save_fac_rechazada($xmlmaster,$emailuser,$doc_name,'registro-no-existente-sri');
+        $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
             // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }
 
@@ -488,7 +489,7 @@ function save_zip_mail($xmlmaster,$emailuser,$doc_name){
 switch ((string)$tipo_doc) {
     //****************************************************** NOTA DE CREDITO
   case '04':
-            $id_fac = $funciones->generarID();          
+                  
             $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
@@ -511,7 +512,7 @@ switch ((string)$tipo_doc) {
     break;  
 
      case '01':
-            $id_fac = $funciones->generarID();          
+                  
             $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
             $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
@@ -548,6 +549,7 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->clave_acceso = (string)$clave_acceso;
                 $tblFacturas->ambiente = (string)$ambiente;
                 $tblFacturas->tipo_doc = $tipo_doc;
+                $tblFacturas->tipo_consumo = '-------';
                 $tblFacturas->total = $total;
                 $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
@@ -565,12 +567,12 @@ switch ((string)$tipo_doc) {
             }else
             return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
             }else
-             $this->save_fac_rechazada($buf,$emailuser,$nombre_archivo,'no-autorizado');
+             $this->save_fac_rechazada($buf,$emailuser,'no-definido','no-autorizado');
             // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
-        $this->save_fac_rechazada($buf,$emailuser,$nombre_archivo,'registro-no-existente-sri');
+        $this->save_fac_rechazada($buf,$emailuser,'no-definido','registro-no-existente-sri');
       }else
-      $this->save_fac_rechazada("",$emailuser,$nombre_archivo,'Documento-Vacio'); //************** si el XML esta vacio
+      $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio'); //************** si el XML esta vacio
           // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
            }//*************************************************** FIN si el archivo es XML******************************
 
@@ -582,7 +584,7 @@ switch ((string)$tipo_doc) {
     unlink($url_destination);
   }
 
-function save_fac_rechazada($xmlmaster,$emailuser,$nombre_doc,$razon){
+function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon){
   $tblFacturas_rechazadas=new FacturasRechazadas();
   $passE=new PasswrdsE();
   $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
@@ -598,13 +600,134 @@ function save_fac_rechazada($xmlmaster,$emailuser,$nombre_doc,$razon){
     // $tblFacturas_rechazadas->ambiente = "no-disponible";
     // $tblFacturas_rechazadas->tipo_doc = "no-disponible";
     // $tblFacturas_rechazadas->total = "no-disponible";
-    $tblFacturas_rechazadas->nombre_doc = $nombre_doc;
+    $tblFacturas_rechazadas->clave_acceso = $clave_acceso;
+    $tblFacturas_rechazadas->tipo_consumo = '-------';
     $tblFacturas_rechazadas->razon_rechazo = $razon;
     $tblFacturas_rechazadas->contenido_fac = $xmlmaster;
     $tblFacturas_rechazadas->id_empresa = $datosPass[0]['id_user'];
     $save=$tblFacturas_rechazadas->save();
 
 }
+
+function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo){
+        $tblFacturas=new Facturas();
+        $tblFacturas_rechazadas=new FacturasRechazadas();
+        $funciones=new Funciones();
+        $empresas=new Empresas();
+        $passE=new PasswrdsE();
+        $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
+        $doc_name=$doc_name;
+ if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
+    mkdir("facturas/".$datosPass[0]['id_user']);      
+    }
+        $xmlData_sub = new \SimpleXMLElement($xmlmaster);
+if ($xmlData_sub->comprobante) {
+        $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
+        $file_xml = new \SimpleXMLElement($xmlDatamaster);
+}else{
+        $file_xml = new \SimpleXMLElement($xmlmaster);     
+}
+$clave_acceso = $file_xml->infoTributaria->claveAcceso;
+$ambiente = $file_xml->infoTributaria->ambiente;
+$tipo_doc=$file_xml->infoTributaria[0]->codDoc;
+$nombre_comercial = $file_xml->infoTributaria->nombreComercial;
+$ruc_comercial = $file_xml->infoTributaria->ruc;
+
+
+$respuesta=$this->verificar_autorizacion($clave_acceso);
+// print_r($respuesta) ;
+
+if (count($respuesta[0]['autorizaciones'])!=0) {
+    $estado=$respuesta[0]['autorizaciones']['autorizacion']['estado'];
+
+            if($estado == 'AUTORIZADO') {
+
+             switch ((string)$tipo_doc) {
+    //****************************************************** NOTA DE CREDITO
+  case '04':
+                  
+            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $email = $xmlComp->infoAdicional->campoAdicional;
+            $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
+            $razon_social = $xmlComp->infoNotaCredito->razonSocial;
+            $cod_doc = $xmlComp->infoNotaCredito->codDoc;
+            $total = $xmlComp->infoNotaCredito->valorModificacion;
+            $datos = explode('@', $email);
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoNotaCredito->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
+
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoNotaCredito->fechaEmision;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+           // print_r($ruc_comercial);
+
+    break;  
+
+     case '01':
+                  
+            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $email = $this->getmail($xmlComp);
+            $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
+            $razon_social = $xmlComp->infoFactura->razonSocial;
+            $cod_doc = $xmlComp->infoFactura->codDoc;
+            $total = $xmlComp->infoFactura->importeTotal;
+            $datos = explode('@', $email);
+            $ruc = $datos[0];         
+            $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
+            //******************************** Datos Nota de Credito/************************
+
+            $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
+            $var_fe = $xmlComp->infoFactura->fechaEmision;
+            $tipo_doc = $xmlComp->infoTributaria->codDoc;
+            $date_fe = str_replace('/', '-', $var_fe);
+            $date_fe = date('Y-m-d', strtotime($date_fe));
+            $id_factura = $funciones->generarID();
+    break;  
+}
+// echo "RUC= ".$cod_doc."identificacionComprador=".$identificacionComprador;
+               if($ruc != $identificacionComprador) {
+              
+              $id_fact = $funciones->generarID();
+              $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
+              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
+              if(count($res) == 0 ){
+                $tblFacturas->id_factura = $id_factura;
+                $tblFacturas->num_factura = $num_fac;
+                $tblFacturas->nombre_comercial = $nombre_comercial;
+                $tblFacturas->Ruc_prov = $ruc_comercial;
+                $tblFacturas->fecha_emision = $date_fe;
+                $tblFacturas->clave_acceso = (string)$clave_acceso;
+                $tblFacturas->ambiente = (string)$ambiente;
+                $tblFacturas->tipo_doc = $tipo_doc;
+                $tblFacturas->tipo_consumo = $tipo_consumo;
+                $tblFacturas->total = $total;
+                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                $save=$tblFacturas->save();
+                if ($save) {
+                  // echo "OK XML--";
+                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
+                  $fp_fac = fopen($url_destination_xml, "wr+");
+                  fwrite($fp_fac, $xmlmaster);
+                  fclose($fp_fac);
+                  // return array('valid' => 'true', 'methods' => 'full');
+                }
+                    }else
+                        return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
+                }else 
+                    $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
+                    // return array('valid' => 'false', 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
+            }else
+            $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+                // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
+        }else
+        $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
+            // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
+    }
 
 
 }

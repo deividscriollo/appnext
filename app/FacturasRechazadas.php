@@ -18,6 +18,7 @@ class FacturasRechazadas extends Model
     // 'ambiente',
     // 'tipo_doc',
     'clave_acceso',
+    'tipo_consumo',
     'razon_rechazo',
     'contenido_fac'
     ];

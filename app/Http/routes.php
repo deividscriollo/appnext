@@ -43,6 +43,8 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::get('getFacturas','facturaController@get_facturas');
         //************************************ SUBIR ARCHIVOS XML ***********************;
         Route::post('uploadFactura','facturaController@upload_xmlfile');
+           //************************************ DESCARGAR ARCHIVOS XML ***********************;
+        Route::get('Downloadfac','facturaController@Download_fac');
 
     });
 
