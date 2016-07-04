@@ -13,6 +13,8 @@ use App\PasswrdsP;
 use App\PasswrdsE;
 use App\libs\Funciones;
 use App\libs\Funciones_fac;
+use Zipper;
+// use Codedge\Fpdf\Fpdf\FPDF;
 
 class facturaController extends Controller
 {
@@ -96,19 +98,29 @@ public function upload_xmlfile(Request $request){
 public function Download_fac(Request $request)
         {
             $user = JWTAuth::parseToken()->authenticate();
-            // echo $user;
-    //PDF file is stored under project/public/download/info.pdf
-    // $file= public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
-    $Factura=new Facturas();
-    $resultado=$Factura->select('contenido_fac')->where('id_factura','=',$request->input('id'))->get();
 
+            $files = glob(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml");
+            $zip=Zipper::make(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".zip")->add($files);
 
-    // $headers = array(
-    //           'Content-Type: application/xml',
-    //         );
+            $headers = array(
+                        'Content-Type' => 'application/octet-stream',
+                        'Content-Disposition' => 'attachment; filename="file-name.ext'
+                    );
+             return response()->download(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".zip",$request->input('id').".zip",$headers);
+        }
 
-    // return response()->download($file, $request->input('id').'xml', $headers);
-    return response()->json(["fac"=>$resultado]);
+        public function gen_download_link(Request $request)
+        {
+
+$user = JWTAuth::parseToken()->authenticate();
+
+            $files = public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
+
+$xml = file_get_contents($files);
+            
+        $Funciones_fac=new Funciones_fac();
+        $Funciones_fac->gen_pdf($xml);
+             // return response()->json(["link"=>"http://localhost/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
         }
 
 }

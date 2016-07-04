@@ -149,6 +149,8 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
+        'Chumper\Zipper\ZipperServiceProvider',
+        Codedge\Fpdf\FpdfServiceProvider::class,
         
 
         /*
@@ -207,6 +209,8 @@ return [
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Funciones_fac' =>App\libs\Funciones_fac::class,
+        'Zipper' => 'Chumper\Zipper\Zipper',
+        'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
 
     ],
 
