@@ -108,7 +108,7 @@ public function Download_fac(Request $request)
     //         );
 
     // return response()->download($file, $request->input('id').'xml', $headers);
-    return response()->json($resultado);
+    return response()->json(["fac"=>$resultado]);
         }
 
 }
