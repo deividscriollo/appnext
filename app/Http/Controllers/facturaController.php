@@ -112,15 +112,16 @@ public function Download_fac(Request $request)
         public function gen_download_link(Request $request)
         {
 
-$user = JWTAuth::parseToken()->authenticate();
+// $user = JWTAuth::parseToken()->authenticate();
 
-            $files = public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
+//             $files = public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
 
-$xml = file_get_contents($files);
+// $xml = file_get_contents($files);
             
-        $Funciones_fac=new Funciones_fac();
-        $Funciones_fac->gen_pdf($xml);
-             // return response()->json(["link"=>"http://localhost/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
+//         $Funciones_fac=new Funciones_fac();
+//         $Funciones_fac->gen_pdf($xml);
+             return response()->json(["link"=>"http://localhost/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
+             
         }
 
 }
