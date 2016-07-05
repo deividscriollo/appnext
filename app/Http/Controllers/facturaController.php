@@ -15,6 +15,7 @@ use App\libs\Funciones;
 use App\libs\Funciones_fac;
 use Zipper;
 // use Codedge\Fpdf\Fpdf\FPDF;
+use File;
 
 class facturaController extends Controller
 {
@@ -95,31 +96,43 @@ public function upload_xmlfile(Request $request){
             return response()->json($resultado);
     }
 
+
+public function gen_zip($iduser,$idfac)
+        {
+            // -------------------------------------------GENERAR PDF ---------------------------------------------------
+            $xml = public_path().'/facturas/'.$iduser.'/'.$idfac.".xml";
+            $xml = file_get_contents($xml);
+            // echo $xml;
+            $Funciones_fac=new Funciones_fac();
+            $Funciones_fac->gen_pdf($xml,$iduser,$idfac);
+            // ----------------------------------------- GENERAR ZIP ----------------------------------------------------
+            $xml = glob(public_path().'/facturas/'.$iduser.'/'.$idfac.".xml");
+            $pdf = glob(public_path().'/facturas/'.$iduser.'/'.$idfac.".pdf");
+            $zip=Zipper::make(public_path().'/facturas/'.$iduser.'/'.$idfac.".zip")->add($xml);
+            $resul_zip=$zip->add($pdf);
+            if ($resul_zip) {
+               return true;
+            }
+            // File::delete(public_path().'/facturas/'.$iduser.'/'.$idfac.".pdf");
+            // File::delete(public_path().'/facturas/'.$user['id_user'].'/'.$idfac.".zip");
+        }
+
+
 public function Download_fac(Request $request)
         {
             $user = JWTAuth::parseToken()->authenticate();
-
-            $files = glob(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml");
-            $zip=Zipper::make(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".zip")->add($files);
-
             $headers = array(
                         'Content-Type' => 'application/octet-stream',
-                        'Content-Disposition' => 'attachment; filename="file-name.ext'
+                        'Content-Disposition' => 'attachment; filename="fac.zip'
                     );
              return response()->download(public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".zip",$request->input('id').".zip",$headers);
         }
 
         public function gen_download_link(Request $request)
         {
+             $user = JWTAuth::parseToken()->authenticate();
+             $this->gen_zip($user['id_user'],$request->input('id'));
 
-// $user = JWTAuth::parseToken()->authenticate();
-
-//             $files = public_path().'/facturas/'.$user['id_user'].'/'.$request->input('id').".xml";
-
-// $xml = file_get_contents($files);
-            
-//         $Funciones_fac=new Funciones_fac();
-//         $Funciones_fac->gen_pdf($xml);
              return response()->json(["link"=>"http://localhost/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
              
         }

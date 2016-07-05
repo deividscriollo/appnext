@@ -731,7 +731,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
     }
 
     // --------------------------------------GENERAR PDF----------------------
-public function gen_pdf($xmlmaster){
+public function gen_pdf($xmlmaster,$iduser,$idfac){
 
 $xmlData = new \SimpleXMLElement($xmlmaster);
 if(!is_object($xmlData)){
@@ -750,20 +750,14 @@ if(!is_object($xmlData)){
     $xmlAut = $this->uncdata($xmlData->comprobante); 
   }         
 
-  $xmlAut =  new \SimpleXMLElement($xmlAut);               
+  $xmlAut =  new \SimpleXMLElement($xmlAut); 
+  // print_r($xmlAut);              
   
   if($xmlAut->infoTributaria->tipoEmision == 1){
     $emi = 'Normal';  
   }else{
     $emi = 'Indisponibilidad del Sistema';  
   }
-
-    // $pdf = new FPDF('P','mm','a4');
-    // $pdf->AddPage();
-    
-    // $pdf->AddFont('Amble-Regular','','fpdf/Amble-Regular.php');
-    // $pdf->SetFont('Amble-Regular','',10);  
-    // $pdf->Output();
 
      $fpdf= new FPDF('P','mm','a4');
         $fpdf->AddPage();
@@ -903,7 +897,7 @@ if(!is_object($xmlData)){
     $y_1 = $y_1;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);    
-    $fpdf->Cell(70, 5, utf8_decode('SUBOTOTAL 12 %'),1,0, 'L',0);                              
+    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL 12 %'),1,0, 'L',0);                              
     $tam = sizeof($xmlAut->infoFactura->totalConImpuestos->totalImpuesto);
     $cont = 0;
     for($i = 0; $i < $tam;$i++){
@@ -918,7 +912,7 @@ if(!is_object($xmlData)){
       $fpdf->SetX(115);  
     }         
     $cont = 0;    
-    $fpdf->Cell(70, 5, utf8_decode('SUBOTOTAL 0 %'),1,0, 'L',0);                                       
+    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL 0 %'),1,0, 'L',0);                                       
     for($i = 0; $i < $tam;$i++){
       if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 0){
         $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);                                                      
@@ -931,7 +925,7 @@ if(!is_object($xmlData)){
       $fpdf->SetX(115);  
     }         
     $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBOTOTAL No sujeto de IVA'),1,0, 'L',0);                
+    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1,0, 'L',0);                
     for($i = 0; $i < $tam;$i++){
       if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 6){
         $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);        
@@ -944,7 +938,7 @@ if(!is_object($xmlData)){
       $fpdf->SetX(115);  
     }         
     $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBOTOTAL Exento de IVA'),1,0, 'L',0);                         
+    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL Exento de IVA'),1,0, 'L',0);                         
     for($i = 0; $i < $tam;$i++){
       if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 7){
         $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);                        
@@ -958,7 +952,7 @@ if(!is_object($xmlData)){
       $cont = 1;
     }         
     $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBOTOTAL SIN IMPUESTOS'),1,0, 'L',0);                             
+    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1,0, 'L',0);                             
     $fpdf->Cell(23, 5, utf8_decode($xmlAut->infoFactura->totalSinImpuestos),1,1, 'L',0);                                 
     $fpdf->SetX(115);
 
@@ -1021,7 +1015,8 @@ if(!is_object($xmlData)){
   }
 
   if($xmlAut->infoTributaria->codDoc == '04'){
-    $doc = "NOTA DE CRÉBITO";     
+    // echo "NOTA DE CRÉDITO";
+    $doc = "NOTA DE CRÉDITO";     
     $fpdf->Rect(3, 8, 100, 43 , 'D');//1 empresa imagen
       $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
       $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
@@ -1068,7 +1063,7 @@ if(!is_object($xmlData)){
       $fpdf->Text(5, 143, utf8_decode('Razón de Modificación: ' . $xmlAut->infoNotaCredito->motivo));//
       
        //////////////////detalles factura/////////////
-      $fpdf->SetFont('Amble-Regular','',8);               
+      // $fpdf->SetFont('Amble-Regular','',8);               
       $fpdf->SetY(145);
     $fpdf->SetX(3);
     $fpdf->multiCell( 15, 10, utf8_decode('Código'),1 );
@@ -1141,35 +1136,35 @@ if(!is_object($xmlData)){
     $y_1 = $y_1;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL 12 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->baseImponible,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL 0 %'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 12 %'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[0]->baseImponible,1 , 'C');
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL No sujeto de IVA'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 0 %'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[2]->baseImponible,1, 'C' );
+    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[0]->baseImponible,1 , 'C');
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL Exento IVA'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[3]->baseImponible,1 , 'C');
+    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->baseImponible,1, 'C' );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL SIN IMPUESTOS'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL Exento de IVA'),1 );
+    $fpdf->SetY($y_1);
+    $fpdf->SetX(115 + 70);
+    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->baseImponible,1 , 'C');
+    $y_1 = $y_1 + 5;
+    $fpdf->SetY($y_1);
+    $fpdf->SetX(115);
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaCredito->totalSinImpuestos),1 , 'C');
@@ -1205,7 +1200,7 @@ if(!is_object($xmlData)){
     $fpdf->multiCell( 70, 5, utf8_decode('IRBPNR'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[5]->valor,1,'C' );
+    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->valor,1,'C' );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
@@ -1302,35 +1297,35 @@ if(!is_object($xmlData)){
     $y_1 = $y_1;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL 12 %'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 12 %'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, $xmlAut->infoNotaDebito->totalSinImpuestos,1 );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL 0 %'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 0 %'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, '0.00',1 );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL No sujeto de IVA'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, '0.00',1 );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL Exento IVA'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL Exento IVA'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaDebito->totalSinImpuestos),1 );
     $y_1 = $y_1 + 5;
     $fpdf->SetY($y_1);
     $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBOTOTAL SIN IMPUESTOS'),1 );
+    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1 );
     $fpdf->SetY($y_1);
     $fpdf->SetX(115 + 70);
     $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaDebito->totalSinImpuestos),1 );
@@ -1363,7 +1358,8 @@ if(!is_object($xmlData)){
     
 
   }
-          $fpdf->Output();
+  $filename=public_path().'/facturas/'.$iduser.'/'.$idfac.".pdf";
+  $fpdf->Output($filename,'F');
 
 }
 
