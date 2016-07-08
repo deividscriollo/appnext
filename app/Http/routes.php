@@ -38,8 +38,8 @@ Route::group(['middleware' => ['jwt.auth']], function() {
         Route::post('addExtra','perzonalizacionController@addExtra');
         //************************************ CAMBIAR PASSWORD ***********************;
         Route::post('changePass','perzonalizacionController@change_pass');
-        //************************************ CAMBIAR PASSWORD ***********************;
-        Route::post('changePassState','perzonalizacionController@change_pass');
+        //************************************ ESTADO PASSWORD ***********************;
+        Route::post('PassState','perzonalizacionController@pass_state');
 
         //************************************ ADD FACTURAS ***********************;
  		Route::get('readFacturas','facturaController@add_fac_bdd');
@@ -50,12 +50,14 @@ Route::group(['middleware' => ['jwt.auth']], function() {
            //************************************ DESCARGAR ARCHIVOS XML ***********************;
         Route::post('Downloadlink','facturaController@gen_download_link');
         Route::get('Downloadfac','facturaController@Download_fac');
+        // --------------------------------------- AÑADIR IMAGEN DE PERFIL -----------
+        Route::post('addImgPerfil','PerfilesController@add_img_perfil');
         // --------------------------------------- SELECCIONAR IMAGEN DE PERFIL -----------
-        Route::post('addImgPerfil','Imgs_PerfilesController@add_img_perfil');
-        // --------------------------------------- SELECCIONAR IMAGEN DE PERFIL -----------
-        Route::post('setImgPerfil','Imgs_PerfilesController@set_img_perfil');
+        Route::post('setImgPerfil','PerfilesController@set_img_perfil');
         // --------------------------------------- CARGAR IMAGENES PERFIL -----------
-        Route::get('loadImgsPerfil','Imgs_PerfilesController@load_imgs_perfil');
+        Route::get('loadImgsPerfil','PerfilesController@load_imgs_perfil');
+        // --------------------------------------- GET IMAGENES PERFIL -----------
+        Route::get('getImgPerfil','PerfilesController@get_img_perfil');
 
     });
 

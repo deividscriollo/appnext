@@ -20,6 +20,7 @@ class perzonalizacionController extends Controller
            $tabla->dato = $request->input('dato');
            $tabla->tipo = $request->input('tipo');
            $tabla->id_empresa = $datos[0]['id_user'];
+           $tabla->pass_estado = 0;
            $saved = $tabla->save();
         if(!$saved){
             App::abort(500, 'Error');
@@ -32,6 +33,7 @@ class perzonalizacionController extends Controller
         $tablaE = new PasswrdsE();
         $user = JWTAuth::parseToken()->authenticate();
            $result = $tablaE->where('id_user','=',$user['id_user'])->update(['password'=>bcrypt($request->input('new_pass'))]);
+           $tablaE->where('id_user','=',$user['id_user'])->update(['pass_estado'=>1]);
         if(!$result){
             App::abort(500, 'Error');
         }else{
@@ -39,14 +41,10 @@ class perzonalizacionController extends Controller
         }
    }
 
-   public function change_pass_state(Request $request){
+   public function pass_state(Request $request){
         $tablaE = new PasswrdsE();
         $user = JWTAuth::parseToken()->authenticate();
-           $result = $tablaE->select('password')->where('id_user','=',$user['id_user'])->get();
-        if(!$result){
-            App::abort(500, 'Error');
-        }else{
-            return response()->json(true,200);
-        }
+        $result = $tablaE->select('pass_estado')->where('id_user','=',$user['id_user'])->get();
+        return response()->json(["estado"=>$result['pass_estado']],200);
    }
 }

@@ -18,6 +18,7 @@ class CreatePasswrdsTable extends Migration
             $table->string('pass_email');
             $table->string('password');
             $table->string('remember_token',500);
+            $table->integer('pass_estado');
             $table->string('id_user');
             $table->foreign('id_user')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();

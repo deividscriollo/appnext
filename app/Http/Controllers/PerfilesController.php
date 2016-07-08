@@ -10,7 +10,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\libs\Funciones;
 use App\img_perfiles;
 
-class Imgs_PerfilesController extends Controller
+class PerfilesController extends Controller
 {
     public function add_img_perfil(Request $request){
     
@@ -77,6 +77,18 @@ class Imgs_PerfilesController extends Controller
     // print_r($resultado);
 
     	return response()->json(["imgs"=>$resultado]);
+    }
+
+    public function get_img_perfil(Request $request){
+    
+    $user = JWTAuth::parseToken()->authenticate();
+
+    $tabla_img=new img_perfiles();
+    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->orderBy('created_at', 'DESC')->first();
+    // print_r($resultado);
+
+        return response()->json($resultado);
     
     }
+
 }

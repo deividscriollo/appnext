@@ -15,6 +15,7 @@ use App\PasswrdsE;
 use App\PasswrdsP;
 use App\regpersona_empresas;
 use Auth;
+use GuzzleHttp\Client;
 
 class loginController extends Controller
 {
@@ -43,8 +44,17 @@ switch ($tipo_user) {
  $credentials = array('email' => $request->input('email'), 'password' => $request->input('password'));
 
    if ( ! $token = $auth->attempt($credentials)) {
-       return response()->json(false, 404);
-   }
+
+      $client = new Client;
+      $res = $client->request('POST', 'http://localhost/serviciosradio/public/login', [
+          'json' => ['email' => $request->input('email'), 'password' => $request->input('password')]
+      ]);
+      $respuesta= json_decode($res->getBody(), true);
+      if (isset($respuesta['error'])) {
+        return response()->json(false, 404);
+      }else 
+       return response()->json(["token"=>$respuesta['token']], 200);
+      }
 
     $datos=$tabla->select('id','remember_token','id_user')
               ->where('email','=',$request->input('email'))->first();
