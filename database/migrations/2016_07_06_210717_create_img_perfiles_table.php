@@ -15,6 +15,7 @@ class CreateImgPerfilesTable extends Migration
         Schema::connection('personalizacionconex')->create('img_perfiles', function (Blueprint $table) {
             $table->string('id_img_perfil')->primary();
             $table->string('img');
+            $table->integer('estado');
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();

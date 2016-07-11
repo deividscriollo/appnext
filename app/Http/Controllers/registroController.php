@@ -21,30 +21,32 @@ class registroController extends Controller
    
     public function registrarEmpresa(Request $request)
     {
+        // return response()->json($request->all(),200);
         date_default_timezone_set('America/Guayaquil'); 
         setlocale(LC_TIME, 'spanish');
         $funciones                    = new Funciones();
-        $activation_code              = $funciones->generarActivacion(md5($request->input('cedula')));
+        $activation_code              = $funciones->generarActivacion(md5($request->input('ruc')));
         $id                           = $funciones->generarID();
         $tablaE                        = new Empresas();
         $tablaPersonareg               = new regpersona_empresas();
         $tablaE->id_empresa            = $id;
-        $tablaE->Ruc                   = $request->input('cedula');
+        $tablaE->Ruc                   = $request->input('ruc');
         $tablaE->razon_social          = $request->input('razon_social');
         $tablaE->nombre_comercial      = $request->input('nombre_comercial');
         $tablaE->estado_contribuyente  = $request->input('estado_contribuyente');
         $tablaE->tipo_contribuyente    = $request->input('tipo_contribuyente');
         $tablaE->obligado_contabilidad = $request->input('obligado_llevar_contabilidad');
-        $tablaE->actividad_economica   = $request->input('actividad_principal');
+        $tablaE->actividad_economica   = $request->input('actividad_economica');
         $tablaE->codigo_activacion     = $activation_code;
         $tablaE->estado                = 0;
+        $tablaE->id_provincia          = $request->input('provincia');
         $saveE=$tablaE->save();
         //************************************************* Persona que Registra ***********************
         $tablaPersonareg->idp_regE              =$funciones->generarID();
-        $tablaPersonareg->nombres_apellidos     = $request->input('nombres_apellidos');
+        $tablaPersonareg->nombres_apellidos     = 'nombres_apellidos';
         $tablaPersonareg->fecha_nacimiento      = utf8_encode($request->input('fecha_nacimiento'));
         $tablaPersonareg->correo                = $request->input('correo');
-        $tablaPersonareg->telefono              = $request->input('telefono');
+        $tablaPersonareg->telefono              = implode(",",$request->input('telefonos'));
         $tablaPersonareg->celular               = $request->input('celular');
         $tablaPersonareg->estado                = 1;
         $tablaPersonareg->id_empresa            = $id;

@@ -56,7 +56,7 @@ switch ($tipo_user) {
        return response()->json(["token"=>$respuesta['token']], 200);
       }
 
-    $datos=$tabla->select('id','remember_token','id_user')
+    $datos=$tabla->select('id','remember_token','id_user','pass_estado')
               ->where('email','=',$request->input('email'))->first();
  //*********************************** Datos persona que registro ********************
   $persona_registroE=$regpersona_empresas->select('*')
@@ -73,6 +73,7 @@ switch ($tipo_user) {
        // $id=$tabla->select('id')
        //        ->where('email','=',$request->input('email'))->first();  
      $tabla->where('id', '=', $datos['id'])->update(['remember_token' => $token]);
+     $datosE['pass_estado']=$datos['pass_estado'];
 
    return response()->json(["datosE"=>$datosE,"datosPersona"=>$persona_registroE,compact('token')]);
 

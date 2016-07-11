@@ -19,6 +19,12 @@ use File;
 
 class facturaController extends Controller
 {
+
+public function __construct()
+    {
+        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+    }
+    
     public function add_fac_bdd(Request $request){
         $Funciones_fac=new Funciones_fac();
 

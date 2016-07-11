@@ -12,6 +12,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class perzonalizacionController extends Controller
 {
+
+  public function __construct()
+    {
+        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+    }
    public function addExtra(Request $request){
 
            $tablaE = new PasswrdsE();

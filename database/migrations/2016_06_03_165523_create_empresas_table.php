@@ -23,6 +23,7 @@ class CreateEmpresasTable extends Migration
             $table->string('actividad_economica');
             $table->string('codigo_activacion');
             $table->integer('estado');
+            $table->integer('id_provincia');
             $table->timestamps();
         });
     }
