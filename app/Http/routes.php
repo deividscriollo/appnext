@@ -32,10 +32,14 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('logoutE', 'loginController@logoutE');
         // ************************************ AÑADIR EXTRA ***********************;
         Route::post('addExtra', 'perzonalizacionController@addExtra');
+        // /////////////////////////////////////////////////////////////////////////////////// PASSWORD ///////////////////////////////
         // ************************************ CAMBIAR PASSWORD ***********************;
         Route::post('changePass', 'perzonalizacionController@change_pass');
         // ************************************ ESTADO PASSWORD ***********************;
         Route::post('PassState', 'perzonalizacionController@pass_state');
+        // ************************************ VERIFICAR PASSWORD ***********************;
+        Route::get('VerficarPass', 'perzonalizacionController@verify_pass');
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // ************************************ ADD FACTURAS ***********************;
         Route::get('readFacturas', 'facturaController@add_fac_bdd');
         // ************************************ LEER FACTURAS ***********************;
@@ -62,6 +66,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::delete('deleteCliente', 'ClientesController@delete');
         // --------------------------------------- GET CLIENTES -----------
         Route::get('getClientes', 'ClientesController@get');
+        // --------------------------------------- Cliente Existe -----------
+        Route::get('buscarCliente', 'ClientesController@cliente_exist');
         // ///////////////////////////////////////////////////////////////////////////////////////////////////////
         });
     });

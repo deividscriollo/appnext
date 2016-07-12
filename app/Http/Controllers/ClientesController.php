@@ -9,6 +9,7 @@ use App\Clientes;
 use App\libs\Funciones;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use GuzzleHttp\Client;
 
 class ClientesController extends Controller
 
@@ -31,6 +32,7 @@ class ClientesController extends Controller
 		$file = $request->file('imagen');
 		$id_cliente = $funciones->generarID();
 		$table->id = $id_cliente;
+		$table->ruc_empresa = $request->input('ruc_empresa');
 		$table->nombre_comercial = $request->input('nombre_comercial');
 		$table->actividad_economica = $request->input('actividad_economica');
 		$table->razon_social = $request->input('razon_social');
@@ -53,12 +55,12 @@ class ClientesController extends Controller
 
 		// ----------------------------------guardar Imagen--------------------
 
-		$extension = $file->getClientOriginalExtension();
-		$file->move(public_path() . "/clientes/" . $user['id_user'], $id_cliente . "." . $extension);
-		$table->where('id', '=', $ultimo_cliente)->update(['imagen' => "http://192.168.100.5/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension]);
+		// $extension = $file->getClientOriginalExtension();
+		// $file->move(public_path() . "/clientes/" . $user['id_user'], $id_cliente . "." . $extension);
+		// $table->where('id', '=', $ultimo_cliente)->update(['imagen' => "http://192.168.100.5/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension]);
 		if ($resultado)
 			{
-			return response()->json(true, 200);
+			return response()->json(['respuesta'=>true], 200);
 			}
 		}
 
@@ -110,9 +112,7 @@ class ClientesController extends Controller
 			}
 		}
 
-	public
-
-	function get(Request $request)
+	public	function get(Request $request)
 		{
 		$table = new Clientes();
 		$user = JWTAuth::parseToken()->authenticate();
@@ -125,6 +125,30 @@ class ClientesController extends Controller
 			return response()->json($resultado, 200);
 			}
 		}
+
+
+public	function cliente_exist(Request $request)
+		{
+		$table = new Clientes();
+		$user = JWTAuth::parseToken()->authenticate();
+
+		// ------------------------------ Eliminar Cliente --------------------
+
+		$resultado = $table->select('id')->where('ruc_empresa', '=', $request->input('ruc_empresa'))->orderBy('id', 'DESC')->get();
+		if (count($resultado)==0)
+			{
+	$client = new Client;
+      $res = $client->request('GET', 'http://localhost/appserviciosnext/public/getDatos', [
+          'json' => ['tipodocumento' => 'RUC','nrodocumento'=> $request->input('ruc_empresa')]
+      ]);
+      $respuesta= json_decode($res->getBody(), true);
+				return response()->json(["respuesta"=>$respuesta], 200);
+			}
+			else{
+			return response()->json(["respuesta"=>true], 200);
+			}
+		}
+
 	}
 
 

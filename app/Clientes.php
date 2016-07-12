@@ -11,6 +11,7 @@ class Clientes extends Model
     public $incrementing=false;
     protected $fillable=[
     'id',
+    'ruc_empresa',
     'id_empresa',
     'nombre_comercial',
     'actividad_economica',

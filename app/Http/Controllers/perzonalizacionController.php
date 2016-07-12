@@ -9,6 +9,7 @@ use App\Extras;
 use App\PasswrdsE;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Hash;
 
 class perzonalizacionController extends Controller
 {
@@ -42,7 +43,7 @@ class perzonalizacionController extends Controller
         if(!$result){
             App::abort(500, 'Error');
         }else{
-            return response()->json(true,200);
+            return response()->json(["response"=>true],200);
         }
    }
 
@@ -51,5 +52,16 @@ class perzonalizacionController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
         $result = $tablaE->select('pass_estado')->where('id_user','=',$user['id_user'])->get();
         return response()->json(["estado"=>$result['pass_estado']],200);
+   }
+
+   public function verify_pass(Request $request){
+       
+        $tablaE = new PasswrdsE();
+        $user = JWTAuth::parseToken()->authenticate();
+        $result = $tablaE->select('password')->where('id_user','=',$user['id_user'])->first();
+        if (Hash::check($request->input('pass'), $result['password'])) {
+           return response()->json(["response"=>true],200);
+        }
+        else return response()->json(["response"=>false],200);
    }
 }
