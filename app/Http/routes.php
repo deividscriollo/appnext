@@ -24,6 +24,11 @@ Route::group(['middleware' => 'cors'], function ()
     Route::post('registroColaboradores', 'registroController@registroColaborador');
     Route::get('activar_cuenta', 'registroController@activar_cuenta');
     Route::post('login', 'loginController@login');
+        // /////////////////////////////////////////////////////////////////////// USUARIOS NEXTBOOK ///////////////////
+        // --------------------------------------- Usuario Existe -----------
+        Route::get('buscarUsernext', 'existenciaController@usernext_exist');
+        // ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     Route::group(['middleware' => ['jwt.auth']], function ()
         {
         Route::get('getDatosE', 'datosController@getDatosE');
@@ -68,9 +73,5 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getClientes', 'ClientesController@get');
         // --------------------------------------- Cliente Existe -----------
         Route::get('buscarCliente', 'existenciaController@cliente_exist');
-        // /////////////////////////////////////////////////////////////////////// USUARIOS NEXTBOOK ///////////////////
-        // --------------------------------------- Usuario Existe -----------
-        Route::get('buscarUsernext', 'existenciaController@usernext_exist');
-        // ///////////////////////////////////////////////////////////////////////////////////////////////////////
         });
     });
