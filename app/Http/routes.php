@@ -67,7 +67,10 @@ Route::group(['middleware' => 'cors'], function ()
         // --------------------------------------- GET CLIENTES -----------
         Route::get('getClientes', 'ClientesController@get');
         // --------------------------------------- Cliente Existe -----------
-        Route::get('buscarCliente', 'ClientesController@cliente_exist');
+        Route::get('buscarCliente', 'existenciaController@cliente_exist');
+        // /////////////////////////////////////////////////////////////////////// USUARIOS NEXTBOOK ///////////////////
+        // --------------------------------------- Usuario Existe -----------
+        Route::get('buscarUsernext', 'existenciaController@usernext_exist');
         // ///////////////////////////////////////////////////////////////////////////////////////////////////////
         });
     });
