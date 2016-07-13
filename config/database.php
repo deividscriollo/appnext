@@ -68,7 +68,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
+            'host' => env('DB_HOST', '192.168.100.17'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'appnext'),
             'username' => env('DB_USERNAME', 'postgres'),
@@ -80,7 +80,7 @@ return [
 
         'ingresoconex' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
+            'host' => env('DB_HOST', '192.168.100.17'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'appnext'),
             'username' => env('DB_USERNAME', 'postgres'),
@@ -92,7 +92,7 @@ return [
 
          'personalizacionconex' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
+            'host' => env('DB_HOST', '192.168.100.17'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'appnext'),
             'username' => env('DB_USERNAME', 'postgres'),
@@ -104,7 +104,7 @@ return [
 
         'facturanexconex' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
+            'host' => env('DB_HOST', '192.168.100.17'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'appnext'),
             'username' => env('DB_USERNAME', 'postgres'),
