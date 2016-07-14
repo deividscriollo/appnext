@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Promotional email template</title>
+<title>NEXTBOOK | CREDENCIALES DE INGRESO</title>
 </head>
 
 <body bgcolor="#8d8e90">
@@ -11,13 +11,13 @@
     <td><table width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" align="center">
         <br><br>
         <tr>
-          <td align="center"><a href= "http://yourlink" target="_blank"><img src="img/logo.png" alt=""  border="0"/></a></td>
+          <td align="center"><a href= "http://yourlink" target="_blank"><img src="https://raw.githubusercontent.com/deividscriollo/appnext/master/public/img/logo.png" alt=""  border="0"/></a></td>
         </tr>
         <tr>
           <td align="center" valign="middle"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="2%">&nbsp;</td><br>
-                <td width="96%" align="center" style="background: #81c8f4;" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#FFFFFF; font-size:30px; text-transform:uppercase"><strong>VERIFICACIÓN DE EMAIL</strong></font></td>
+                <td width="96%" align="center" style="background: #81c8f4;" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#FFFFFF; font-size:30px; text-transform:uppercase"><strong>CREDENCIALES DE INGRESO</strong></font></td>
                 <td width="2%">&nbsp;</td>
               </tr>
             </table></td>
@@ -29,7 +29,7 @@
           <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="5%">&nbsp;</td>
-                <td width="90%" align="center" valign="middle"><font style="font-family: Verdana, sans-serif; color:#68696a; font-size:12px; line-height:20px; text-transform:uppercase">Hola Alex, <br><br>Cuenta activada correctamente para acceder a nuestro sistema utiliza las siguientes credenciales:</font><br/>
+                <td width="90%" align="center" valign="middle"><font style="font-family: Verdana, sans-serif; color:#68696a; font-size:12px; line-height:20px; text-transform:uppercase">Saludos estimado@ {{$nombre_comercial}},<br><br>Cuenta activada correctamente para acceder a nuestro sistema utiliza las siguientes credenciales:</font><br/>
                 <h4 style="font-family:Verdana, Geneva, sans-serif; color:#64A8DC; font-size:12px; line-height:20px">NEXTBOOK</h4>
                   <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"> Usuario: {{$user_nextbook}}</strong></font><br>
                   <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"> Contraseña: {{$pass_nextbook}}</strong></font><br>
@@ -50,7 +50,7 @@
         <tr>
           <td>&nbsp;</td>
         </tr>
-        <tr>
+<!--         <tr>
           <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="13%" align="center">&nbsp;</td>
@@ -62,7 +62,7 @@
               <td width="5%">&nbsp;</td>
             </tr>
           </table></td>
-        </tr>
+        </tr> -->
         <tr>
           <td>&nbsp;</td>
         </tr>

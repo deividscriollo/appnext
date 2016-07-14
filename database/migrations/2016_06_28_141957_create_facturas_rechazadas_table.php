@@ -25,7 +25,7 @@ class CreateFacturasRechazadasTable extends Migration
             $table->string('clave_acceso');
             $table->string('tipo_consumo');
             $table->string('razon_rechazo');
-            $table->string('contenido_fac',10000);
+            $table->string('contenido_fac',12000);
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();

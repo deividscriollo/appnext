@@ -73,5 +73,10 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getClientes', 'ClientesController@get');
         // --------------------------------------- Cliente Existe -----------
         Route::get('buscarCliente', 'existenciaController@cliente_exist');
+         // /////////////////////////////////////////////////////////////////////// PERSONA QUE REGISTRA ///////////////////
+        // --------------------------------------- Persona Existe -----------
+        Route::get('getDatosPropietario', 'persona_q_registraController@get_datos');
+        // --------------------------------------- Guardar datos personales y cambio de contraseña -----------
+        Route::post('setDatosPropietario', 'persona_q_registraController@set_datos');
         });
     });

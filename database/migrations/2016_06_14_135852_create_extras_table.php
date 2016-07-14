@@ -14,8 +14,8 @@ class CreateExtrasTable extends Migration
     {
         Schema::connection('personalizacionconex')->create('extras', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('dato');
             $table->string('tipo');
+            $table->string('dato');
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();

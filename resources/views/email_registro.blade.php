@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Promotional email template</title>
+<title>NEXTBOOK | VALIDACION DE CUENTA</title>
 </head>
 
 <body bgcolor="#8d8e90">
@@ -11,13 +11,13 @@
     <td><table width="600" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" align="center">
         <br><br>
         <tr>
-          <td align="center"><a href= "http://yourlink" target="_blank"><img src="img/logo.png" alt=""  border="0"/></a></td>
+          <td align="center"><a href= "http://apiadmin.nextbook.ec/" target="_blank"><img src="https://raw.githubusercontent.com/deividscriollo/appnext/master/public/img/logo.png" alt=""  border="0"/></a></td>
         </tr>
         <tr>
           <td align="center" valign="middle"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="2%">&nbsp;</td><br>
-                <td width="96%" align="center" style="background: #81c8f4;" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#FFFFFF; font-size:30px; text-transform:uppercase"><strong>CREDENCIALES DE INGRESO</strong></font></td>
+                <td width="96%" align="center" style="background: #81c8f4;" height="70"><font style="font-family:'Myriad Pro', Helvetica, Arial, sans-serif; color:#FFFFFF; font-size:30px; text-transform:uppercase"><strong>VALIDACION DE CUENTA</strong></font></td>
                 <td width="2%">&nbsp;</td>
               </tr>
             </table></td>
@@ -29,8 +29,8 @@
           <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="5%">&nbsp;</td>
-                <td width="90%" align="center" valign="middle"><font style="font-family: Verdana, sans-serif; color:#68696a; font-size:12px; line-height:20px; text-transform:uppercase">Hola {{$nombre_comercial}}, <br><br>Bienvenido a Nextbook para poder activar tu cuenta haz clic en el siguiente enlace :</font><br />
-                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.1.34/appnext/public/activar_cuenta?cuenta={{$cuenta}}&code={{$codigo}}" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; ACTIVAR CUENTA &gt;</strong></a></font></td>
+                <td width="90%" align="center" valign="middle"><font style="font-family: Verdana, sans-serif; color:#68696a; font-size:12px; line-height:20px; text-transform:uppercase">Saludos estimad@ {{$nombre_comercial}}, <br><br>Bienvenido a Nextbook para poder activar tu cuenta haz clic en el siguiente enlace :</font><br />
+                  <font style="font-family:Verdana, Geneva, sans-serif; color:#f58220; font-size:12px; line-height:20px"><a href= "http://192.168.100.3/appnext/public/activar_cuenta?cuenta={{$cuenta}}&code={{$codigo}}" style="color:#f58220; font-size:15px;text-decoration:none"><strong>&lt; ACTIVAR CUENTA &gt;</strong></a></font></td>
                 <td width="5%">&nbsp;</td>
               </tr>
             </table></td>
@@ -46,7 +46,7 @@
         <tr>
           <td>&nbsp;</td>
         </tr>
-        <tr>
+     <!--    <tr>
           <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="13%" align="center">&nbsp;</td>
@@ -58,7 +58,7 @@
               <td width="5%">&nbsp;</td>
             </tr>
           </table></td>
-        </tr>
+        </tr> -->
         <tr>
           <td>&nbsp;</td>
         </tr>
