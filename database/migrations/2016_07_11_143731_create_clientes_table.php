@@ -12,7 +12,6 @@ class CreateClientesTable extends Migration
      */
     public function up()
     {
-        $file = $request->file('file');
         Schema::connection('pgsql')->create('clientes', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('ruc_empresa')->nullable();
