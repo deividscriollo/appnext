@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use App\Http\Requests;
+use App\Nomina;
+use App\libs\Funciones;
+
+class NominaController extends Controller
+{
+  public function add_nomina(Request $request){
+  	$nomina=new Nomina();
+  	$funciones=new Funciones();
+  	$nomina->id=$funciones->generarID();
+  	$nomina->periodicidad = $request->input('periodicidad');
+  	$nomina->registro_patronal=$request->input('registro_patronal');
+  	$nomina->dias =$request->input('dias');
+  	$nomina->fecha_inicio=$request->input('fecha_inicio');
+  	$nomina->id_sucursal=$request->input('id_sucursal');
+  	$nomina->estado=1;
+  	$save=$nomina->save();
+  	if ($save) {
+  		  	return response()->json(['respuesta'=>true],200);
+  	}else{
+  		return response()->json(['respuesta'=>false],200);
+  	}
+
+  }
+
+   public function update_nomina(Request $request){
+
+print_r($request->all());
+
+  	$nomina=new Nomina();
+  	$funciones=new Funciones();
+	$update=$nomina->where('id_sucursal')->update([
+    'periodicidad'=>$request->input('periodicidad'),
+  	'registro_patronal'=>$request->input('registro_patronal'),
+  	'dias'=>$request->input('dias'),
+  	'fecha_inicio'=>$request->input('fecha_inicio')
+		]);
+
+  	if ($update) {
+  		  	return response()->json(['respuesta'=>true],200);
+  	}else{
+  		return response()->json(['respuesta'=>false],200);
+  	}
+
+  }
+}

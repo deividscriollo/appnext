@@ -78,5 +78,10 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getDatosPropietario', 'persona_q_registraController@get_datos');
         // --------------------------------------- Guardar datos personales y cambio de contraseña -----------
         Route::post('setDatosPropietario', 'persona_q_registraController@set_datos');
+        // /////////////////////////////////////////////////////////////////////// NOMINA ///////////////////
+        // --------------------------------------- add Nomina -----------
+        Route::post('addNomina', 'NominaController@add_nomina');
+        // --------------------------------------- Actualizar Nomina -----------
+        Route::post('updateNomina', 'NominaController@update_nomina');
         });
     });
