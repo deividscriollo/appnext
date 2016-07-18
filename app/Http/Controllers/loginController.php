@@ -46,7 +46,7 @@ switch ($tipo_user) {
    if ( ! $token = $auth->attempt($credentials)) {
 
       $client = new Client;
-      $res = $client->request('POST', 'http://localhost/serviciosradio/public/login', [
+      $res = $client->request('POST', 'http://192.168.100.17/serviciosradio/public/login', [
           'json' => ['email' => $request->input('email'), 'password' => $request->input('password')]
       ]);
       $respuesta= json_decode($res->getBody(), true);

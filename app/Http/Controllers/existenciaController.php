@@ -26,7 +26,7 @@ class existenciaController extends Controller
 		if (count($resultado) == 0)
 			{
 			$client = new Client;
-			$res = $client->request('GET', 'http://localhost/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc_empresa') ]]);
+			$res = $client->request('GET', 'http://192.168.100.17/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc_empresa') ]]);
 			$respuesta = json_decode($res->getBody() , true);
 			return response()->json(["respuesta" => $respuesta], 200);
 			}
@@ -46,7 +46,7 @@ class existenciaController extends Controller
 		if (count($resultado) == 0)
 			{
 			$client = new Client;
-			$res = $client->request('GET', 'http://localhost/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
+			$res = $client->request('GET', 'http://192.168.100.17/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
 			$respuesta = json_decode($res->getBody() , true);
 			return response()->json(["respuesta" => $respuesta], 200);
 			}

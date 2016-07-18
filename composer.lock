@@ -4,25 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a4ba002bf110b892c336a3df5cbf6630",
+    "hash": "f68bdd3d783ee006aa16a8f8ede20564",
     "content-hash": "fd59fec31f4bc7a573256067c862dfb7",
     "packages": [
         {
             "name": "barryvdh/laravel-cors",
-            "version": "v0.8.0",
+            "version": "v0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-cors.git",
-                "reference": "39975d7505757488f982ca132bcd02c704792fd8"
+                "reference": "1998c8c7295d167cb744bbc45fbefad9b86b836c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-cors/zipball/39975d7505757488f982ca132bcd02c704792fd8",
-                "reference": "39975d7505757488f982ca132bcd02c704792fd8",
+                "url": "https://api.github.com/repos/barryvdh/laravel-cors/zipball/1998c8c7295d167cb744bbc45fbefad9b86b836c",
+                "reference": "1998c8c7295d167cb744bbc45fbefad9b86b836c",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "5.1.x|5.2.x",
+                "illuminate/support": "5.1.x|5.2.x|5.3.x",
                 "php": ">=5.5.9",
                 "symfony/http-foundation": "~2.7|~3.0",
                 "symfony/http-kernel": "~2.7|~3.0"
@@ -58,7 +58,7 @@
                 "crossdomain",
                 "laravel"
             ],
-            "time": "2016-02-11 18:38:09"
+            "time": "2016-06-22 06:36:34"
         },
         {
             "name": "chumper/zipper",
@@ -1416,23 +1416,23 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.4.2",
+            "version": "v5.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "d8db871a54619458a805229a057ea2af33c753e8"
+                "reference": "4cc92842069c2bbc1f28daaaf1d2576ec4dfe153"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/d8db871a54619458a805229a057ea2af33c753e8",
-                "reference": "d8db871a54619458a805229a057ea2af33c753e8",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/4cc92842069c2bbc1f28daaaf1d2576ec4dfe153",
+                "reference": "4cc92842069c2bbc1f28daaaf1d2576ec4dfe153",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "mockery/mockery": "~0.9.1,<0.9.4"
+                "mockery/mockery": "~0.9.1"
             },
             "type": "library",
             "extra": {
@@ -1465,7 +1465,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2016-05-01 08:45:47"
+            "time": "2016-07-08 11:51:25"
         },
         {
             "name": "symfony/console",
@@ -2248,16 +2248,16 @@
         },
         {
             "name": "tymon/jwt-auth",
-            "version": "0.5.10",
+            "version": "0.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tymondesigns/jwt-auth.git",
-                "reference": "6b96673942debe1667aa41b4410959cb8ca9a29c"
+                "reference": "18b2add90de2315d549664b4d4a062db07e8b080"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tymondesigns/jwt-auth/zipball/6b96673942debe1667aa41b4410959cb8ca9a29c",
-                "reference": "6b96673942debe1667aa41b4410959cb8ca9a29c",
+                "url": "https://api.github.com/repos/tymondesigns/jwt-auth/zipball/18b2add90de2315d549664b4d4a062db07e8b080",
+                "reference": "18b2add90de2315d549664b4d4a062db07e8b080",
                 "shasum": ""
             },
             "require": {
@@ -2307,7 +2307,7 @@
                 "laravel",
                 "tymon"
             ],
-            "time": "2016-06-03 20:09:47"
+            "time": "2016-02-18 09:22:36"
         },
         {
             "name": "vlucas/phpdotenv",

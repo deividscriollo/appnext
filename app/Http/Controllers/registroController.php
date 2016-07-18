@@ -40,7 +40,7 @@ class registroController extends Controller
         $tablaE->actividad_economica   = $request->input('actividad_economica');
         $tablaE->codigo_activacion     = $activation_code;
         $tablaE->estado                = 0;
-        $tablaE->id_provincia          = '------';
+        $tablaE->id_provincia          = '----';
         $saveE=$tablaE->save();
         $id_empresa=$tablaE->id_empresa;
 
@@ -182,10 +182,12 @@ class registroController extends Controller
 
        switch ($tipocuenta) {
            case 'EEE':
+                   // echo $codigo_email;
                $tabla = new Empresas();
                $tabla_pass      = new passwrdsE();
                $tablaPersonareg = new regpersona_empresas();
                $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','Ruc','estado')->where('codigo_activacion', $codigo_email)->get();
+               print($datos);
                break;
            
            case 'PPP':
@@ -194,6 +196,7 @@ class registroController extends Controller
               $datos = $tabla->select('id_persona','codigo_activacion','Nombres_apellidos','correo','cedula','estado')->where('codigo_activacion', $codigo_email)->get();
                break;
        }
+
     if (empty($datos[0]['estado'])) {   
 
 switch ($tipocuenta) {
@@ -223,6 +226,7 @@ switch ($tipocuenta) {
         $tabla_pass->pass_email       = $pass_email;
         $tabla_pass->password     = bcrypt($pass_nextbook);
         $tabla_pass->remember_token ='';
+        $tabla_pass->pass_estado      = 0;
         $tabla_pass->id_user          = $id_user;
         $tabla_pass->save();
 
@@ -233,7 +237,7 @@ switch ($tipocuenta) {
         Mail::send('credenciales_ingreso', $data, function($message)use ($correo_enviar,$nombre_comercial)
             {
                 $message->from("registro@facturanext.com",'Nextbook');
-                $message->to($correo_enviar, $nombre_comercial)->subject('Credenciales de Ingreso');
+                $message->to('fallsouls@hotmail.com', $nombre_comercial)->subject('Credenciales de Ingreso');
             });
         
         switch ($tipocuenta) {
