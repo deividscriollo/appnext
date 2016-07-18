@@ -83,5 +83,9 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('addNomina', 'NominaController@add_nomina');
         // --------------------------------------- Actualizar Nomina -----------
         Route::post('updateNomina', 'NominaController@update_nomina');
+           // --------------------------------------- Borrar Nomina -----------
+        Route::post('deleteNomina', 'NominaController@delete_nomina');
+           // --------------------------------------- Get Nomina -----------
+        Route::get('getNomina', 'NominaController@get_nomina');
         });
     });

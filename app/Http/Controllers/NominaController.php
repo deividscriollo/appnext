@@ -31,11 +31,8 @@ class NominaController extends Controller
 
    public function update_nomina(Request $request){
 
-print_r($request->all());
-
   	$nomina=new Nomina();
-  	$funciones=new Funciones();
-	$update=$nomina->where('id_sucursal')->update([
+	$update=$nomina->where('id','=',$request->input('id'))->update([
     'periodicidad'=>$request->input('periodicidad'),
   	'registro_patronal'=>$request->input('registro_patronal'),
   	'dias'=>$request->input('dias'),
@@ -47,6 +44,29 @@ print_r($request->all());
   	}else{
   		return response()->json(['respuesta'=>false],200);
   	}
+  }
 
+  public function delete_nomina(Request $request){
+
+  	$nomina=new Nomina();
+	$delete=$nomina->where('id','=',$request->input('id'))->update([
+    'estado'=>0
+		]);
+  	if ($delete) {
+  		  	return response()->json(['respuesta'=>true],200);
+  	}else{
+  		return response()->json(['respuesta'=>false],200);
+  	}
+  }
+
+   public function get_nomina(Request $request){
+
+   	// $items = Item::paginate(10);
+
+  	$nomina=new Nomina();
+	$datos=$nomina->paginate($request->input('items'));
+
+  		  	return response()->json(['respuesta'=>$datos],200);
+  	
   }
 }
