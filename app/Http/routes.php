@@ -87,5 +87,6 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('deleteNomina', 'NominaController@delete_nomina');
            // --------------------------------------- Get Nomina -----------
         Route::get('getNomina', 'NominaController@get_nomina');
+        // Route::get('getNomina2', 'NominaController@get_nomina2');
         });
     });
