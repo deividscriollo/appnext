@@ -113,6 +113,17 @@ return [
             'prefix' => '',
             'schema' => 'factura_next',
         ],
+         'mod_radioconex' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '192.168.100.17'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'appnext'),
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', 'rootdow'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'registro',
+        ],
 
     ],
 

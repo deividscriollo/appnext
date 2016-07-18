@@ -19,6 +19,7 @@ Route::get('/', function ()
 // Route::get('/home', 'HomeController@index');
 Route::group(['middleware' => 'cors'], function ()
     {
+                Route::post('changePass', 'perzonalizacionController@change_pass');
     Route::post('registroEmpresas', 'registroController@registrarEmpresa');
     Route::post('registroPersonas', 'registroController@registrarPersona');
     Route::post('registroColaboradores', 'registroController@registroColaborador');
@@ -39,7 +40,7 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('addExtra', 'perzonalizacionController@addExtra');
         // /////////////////////////////////////////////////////////////////////////////////// PASSWORD ///////////////////////////////
         // ************************************ CAMBIAR PASSWORD ***********************;
-        Route::post('changePass', 'perzonalizacionController@change_pass');
+        // Route::post('changePass', 'perzonalizacionController@change_pass');
         // ************************************ ESTADO PASSWORD ***********************;
         Route::post('PassState', 'perzonalizacionController@pass_state');
         // ************************************ VERIFICAR PASSWORD ***********************;
