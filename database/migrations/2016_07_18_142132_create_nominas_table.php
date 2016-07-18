@@ -12,15 +12,14 @@ class CreateNominasTable extends Migration
      */
     public function up()
     {
-        Schema::connection('mod_radioconex')->create('nomina', function (Blueprint $table) {
+        Schema::connection('mod_radioconex')->create('nominas', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('periodicidad');
             $table->string('registro_patronal');
             $table->string('dias');
             $table->date('fecha_inicio');
             $table->string('id_sucursal');
-            // $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
-            // $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
+            $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
             $table->integer('estado');
             $table->timestamps();
         });
@@ -33,6 +32,6 @@ class CreateNominasTable extends Migration
      */
     public function down()
     {
-        Schema::connection('mod_radioconex')->drop('nomina');
+        Schema::connection('mod_radioconex')->drop('nominas');
     }
 }

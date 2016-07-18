@@ -182,6 +182,7 @@ class registroController extends Controller
 
        switch ($tipocuenta) {
            case 'EEE':
+                   echo $tipocuenta;
                $tabla = new Empresas();
                $tabla_pass      = new passwrdsE();
                $tablaPersonareg = new regpersona_empresas();
@@ -245,7 +246,7 @@ switch ($tipocuenta) {
                 $tabla::where('id_persona', '=',$id_user)->update(['estado' => "1"]);
                 break;
         }
-        return redirect()->away('http://192.168.100.3/nextbook');
+        return redirect()->away('http://192.168.100.17/nextbook');
            // return response()->json(array('status' => '200'));
         }else{
             return response()->json(false, 500);

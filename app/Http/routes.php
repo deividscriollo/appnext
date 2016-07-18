@@ -19,7 +19,6 @@ Route::get('/', function ()
 // Route::get('/home', 'HomeController@index');
 Route::group(['middleware' => 'cors'], function ()
     {
-                Route::post('changePass', 'perzonalizacionController@change_pass');
     Route::post('registroEmpresas', 'registroController@registrarEmpresa');
     Route::post('registroPersonas', 'registroController@registrarPersona');
     Route::post('registroColaboradores', 'registroController@registroColaborador');
@@ -40,7 +39,7 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('addExtra', 'perzonalizacionController@addExtra');
         // /////////////////////////////////////////////////////////////////////////////////// PASSWORD ///////////////////////////////
         // ************************************ CAMBIAR PASSWORD ***********************;
-        // Route::post('changePass', 'perzonalizacionController@change_pass');
+        Route::post('changePass', 'perzonalizacionController@change_pass');
         // ************************************ ESTADO PASSWORD ***********************;
         Route::post('PassState', 'perzonalizacionController@pass_state');
         // ************************************ VERIFICAR PASSWORD ***********************;
@@ -79,5 +78,10 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getDatosPropietario', 'persona_q_registraController@get_datos');
         // --------------------------------------- Guardar datos personales y cambio de contraseña -----------
         Route::post('setDatosPropietario', 'persona_q_registraController@set_datos');
+        // /////////////////////////////////////////////////////////////////////// NOMINA ///////////////////
+        // --------------------------------------- add Nomina -----------
+        Route::post('addNomina', 'NominaController@add_nomina');
+        // --------------------------------------- Actualizar Nomina -----------
+        Route::post('updateNomina', 'NominaController@update_nomina');
         });
     });
