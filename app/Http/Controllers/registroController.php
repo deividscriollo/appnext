@@ -94,7 +94,7 @@ class registroController extends Controller
             else{
                     $nombre_comercial=$request->input('nombre_comercial');
             }
-        $data = ["codigo"=>$activation_code,"cuenta"=>"EEE",'nombre_comercial'=>$nombre_comercial];
+        $data = ["correo"=>$request->input('correo'),"codigo"=>$activation_code,"cuenta"=>"EEE",'nombre_comercial'=>$nombre_comercial];
         $correo_enviar=$request->input('correo');
         
         Mail::send('email_registro', $data, function($message)use ($correo_enviar,$nombre_comercial)
@@ -186,7 +186,6 @@ class registroController extends Controller
                $tabla_pass      = new passwrdsE();
                $tablaPersonareg = new regpersona_empresas();
                $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','Ruc','estado')->where('codigo_activacion', $codigo_email)->get();
-               print($datos);
                break;
            
            case 'PPP':
@@ -196,19 +195,22 @@ class registroController extends Controller
                break;
        }
 
+
     if (empty($datos[0]['estado'])) {   
+$correo_enviar=$request->input('correo');
 
 switch ($tipocuenta) {
            case 'EEE':
                $datospersonaregE = $tablaPersonareg->select('correo')->where('id_empresa', $datos[0]['id_empresa'])->orderBy('created_at')->first();
-               $correo_enviar=$datospersonaregE['correo'];
+               // $correo_enviar=$datospersonaregE['correo'];
                $id_user=$datos[0]['id_empresa'];
                 $nombre_comercial=$datos[0]['nombre_comercial'];
                 $documento=$datos[0]['Ruc'];
+                // echo $datos[0]['id_empresa'];
                break;
            
            case 'PPP':
-           $correo_enviar=$datos[0]['correo'];
+           // $correo_enviar=$datos[0]['correo'];
               $id_user=$datos[0]['id_persona'];
             $nombre_comercial=$datos[0]['Nombres_apellidos'];
             $documento=$datos[0]['cedula'];
@@ -236,7 +238,7 @@ switch ($tipocuenta) {
         Mail::send('credenciales_ingreso', $data, function($message)use ($correo_enviar,$nombre_comercial)
             {
                 $message->from("registro@facturanext.com",'Nextbook');
-                $message->to('fallsouls@hotmail.com', $nombre_comercial)->subject('Credenciales de Ingreso');
+                $message->to($correo_enviar, $nombre_comercial)->subject('Credenciales de Ingreso');
             });
         
         switch ($tipocuenta) {

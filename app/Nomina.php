@@ -2,10 +2,10 @@
 
 namespace App;
 
-// use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
-class Nomina extends \Eloquent
+class Nomina extends Model
 {
      use SearchableTrait;
 
@@ -28,9 +28,5 @@ class Nomina extends \Eloquent
         ]
     ];
 
-    public function posts()
-    {
-        return $this->hasMany('Post');
-    }
 
 }
