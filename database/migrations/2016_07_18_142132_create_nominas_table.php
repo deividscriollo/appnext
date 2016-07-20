@@ -14,11 +14,12 @@ class CreateNominasTable extends Migration
     {
         Schema::connection('mod_radioconex')->create('nominas', function (Blueprint $table) {
             $table->string('id')->primary();
+            $table->string('descripcion');
             $table->string('periodicidad');
             $table->string('registro_patronal');
             $table->string('dias');
             $table->date('fecha_inicio');
-            $table->string('id_sucursal');
+            $table->string('sucursal');
             // $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
             $table->integer('estado');
             $table->timestamps();
