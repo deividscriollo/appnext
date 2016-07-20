@@ -19,7 +19,7 @@ class CreateNominasTable extends Migration
             $table->string('dias');
             $table->date('fecha_inicio');
             $table->string('id_sucursal');
-            $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
+            // $table->foreign('id_sucursal')->references('registro.sucursales')->onDelete('cascade');
             $table->integer('estado');
             $table->timestamps();
         });

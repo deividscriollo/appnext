@@ -75,7 +75,11 @@ class NominaController extends Controller
       return $currentPage;
       });
     $nomina = new Nomina();
-    $datos = $nomina->search($request->input('filter'))->get();
+    if ($request->input('filter')!=null) {
+         $datos = $nomina->search($request->input('filter'))->get();
+    }else{    $datos = $nomina->get();}
+      // $datos = $nomina->get();
+
     $currentPage = LengthAwarePaginator::resolveCurrentPage();
     // Create a new Laravel collection from the array data
     $collection = new Collection($datos);
