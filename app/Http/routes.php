@@ -54,6 +54,7 @@ Route::group(['middleware' => 'cors'], function ()
         // ************************************ DESCARGAR ARCHIVOS XML ***********************;
         Route::post('Downloadlink', 'facturaController@gen_download_link');
         Route::get('Downloadfac', 'facturaController@Download_fac');
+        // ////////////////////////////////////////////////// IMAGENES DE PERFIL //////////////
         // --------------------------------------- AÑADIR IMAGEN DE PERFIL -----------
         Route::post('addImgPerfil', 'PerfilesController@add_img_perfil');
         // --------------------------------------- SELECCIONAR IMAGEN DE PERFIL -----------
@@ -62,6 +63,15 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsPerfil', 'PerfilesController@load_imgs_perfil');
         // --------------------------------------- GET IMAGENES PERFIL -----------
         Route::get('getImgPerfil', 'PerfilesController@get_img_perfil');
+        // ////////////////////////////////////////////////// IMAGENES DE POSTADA //////////////
+        // --------------------------------------- AÑADIR IMAGEN DE POSTADA -----------
+        Route::post('addImgPortada', 'PortadasController@add_img_portada');
+        // --------------------------------------- SELECCIONAR IMAGEN DE POSTADA -----------
+        Route::post('setImgPortada', 'PortadasController@set_img_portada');
+        // --------------------------------------- CARGAR IMAGENES POSTADA -----------
+        Route::get('loadImgsPortada', 'PortadasController@load_imgs_portada');
+        // --------------------------------------- GET IMAGENES POSTADA -----------
+        Route::get('getImgPortada', 'PortadasController@get_img_portada');
         // /////////////////////////////////////////////////////////////////////// CLIENTES ///////////////////
         // --------------------------------------- AÑADIR CLIENTE -----------
         Route::post('addCliente', 'ClientesController@save');

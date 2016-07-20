@@ -25,7 +25,7 @@ class NominaController extends Controller
     $nomina->registro_patronal = $request->input('registro_patronal');
     $nomina->dias = $request->input('dias');
     $nomina->fecha_inicio = $request->input('fecha_inicio');
-    $nomina->id_sucursal = $request->input('id_sucursal');
+    $nomina->sucursal = $request->input('sucursal');
     $nomina->estado = 1;
     $save = $nomina->save();
     if ($save)

@@ -18,7 +18,7 @@ class Nomina extends Model
     'registro_patronal', 
     'dias',
     'estado', 
-    'fecha_inicio','id_sucursal'];
+    'fecha_inicio','sucursal'];
     protected $hidden = ['created_at','updated_at','id_sucursal','estado'];
 
       protected $searchable = [
