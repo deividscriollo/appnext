@@ -27,29 +27,23 @@ public function __construct()
 	if (!is_dir("perfiles/".$user['id_user'])) {
     mkdir("perfiles/".$user['id_user']);      
     }
-    $img=explode('/',$request->input('img'));
-    $img=explode('.', $img[count($img)-1]);
-    $idimg=$img[0];
+	$base64_string = base64_decode($request->input('img'));
+	$image_name= $id_img.'.png';
+	$path = public_path() . "/perfiles/".$user['id_user']."/".$image_name;
+ 	$ifp = fopen($path, "wb"); 
+    $data = explode(',', $base64_string);
+    fwrite($ifp, base64_decode($data[1])); 
+    fclose($ifp);
+    $tabla_img=new img_perfiles();
+    $tabla_img->id_img_perfil=$id_img;
+    $tabla_img->img="http://192.168.100.17/appnext/public/perfiles/".$user['id_user']."/".$image_name;
+    $tabla_img->estado='1';
+    $tabla_img->id_empresa=$user['id_user'];
+    $save=$tabla_img->save();
 
-echo $idimg;
-
-	// $base64_string = base64_decode($request->input('img'));
-	// $image_name= $id_img.'.png';
-	// $path = public_path() . "/perfiles/".$user['id_user']."/".$image_name;
- // 	$ifp = fopen($path, "wb"); 
- //    $data = explode(',', $base64_string);
- //    fwrite($ifp, base64_decode($data[1])); 
- //    fclose($ifp);
- //    $tabla_img=new img_perfiles();
- //    $tabla_img->id_img_perfil=$id_img;
- //    $tabla_img->img="http://192.168.100.17/appnext/public/perfiles/".$user['id_user']."/".$image_name;
- //    $tabla_img->estado='1';
- //    $tabla_img->id_empresa=$user['id_user'];
- //    $save=$tabla_img->save();
-
- //    if ($save) {
- //    	return response()->json(["img"=>$image_name]);
- //    }
+    if ($save) {
+    	return response()->json(["img"=>$image_name]);
+    }
     
     }
 
