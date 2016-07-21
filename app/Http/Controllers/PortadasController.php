@@ -30,7 +30,7 @@ class PortadasController extends Controller
     fclose($ifp);
     $tabla_img=new Portadas();
     $tabla_img->id_img_portada=$id_img;
-    $tabla_img->img="http://192.168.100.17/appnext/public/portadas/".$user['id_user']."/".$image_name;
+    $tabla_img->img="http://192.168.100.20/appnext/public/portadas/".$user['id_user']."/".$image_name;
     $tabla_img->estado='1';
     $tabla_img->id_empresa=$user['id_user'];
     $save=$tabla_img->save();

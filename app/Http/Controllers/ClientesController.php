@@ -56,7 +56,7 @@ class ClientesController extends Controller
 		// ----------------------------------guardar Imagen--------------------
 		// $extension = $file->getClientOriginalExtension();
 		// $file->move(public_path() . "/clientes/" . $user['id_user'], $id_cliente . "." . $extension);
-		// $table->where('id', '=', $ultimo_cliente)->update(['imagen' => "http://192.168.100.17/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension]);
+		// $table->where('id', '=', $ultimo_cliente)->update(['imagen' => "http://192.168.100.20/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension]);
 		if ($resultado)
 			{
 			return response()->json(['respuesta' => true], 200);
@@ -78,7 +78,7 @@ class ClientesController extends Controller
 			$file = $request->file('imagen');
 			$extension = $file->getClientOriginalExtension();
 			$file->move(public_path() . "/clientes/" . $user['id_user'], $id_cliente . "." . $extension);
-			$img = "http://192.168.100.17/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension;
+			$img = "http://192.168.100.20/appnext/public/clientes/" . $user['id_user'] . '/' . $id_cliente . "." . $extension;
 			$table->where('id', '=', $id_cliente)->update(['imagen' => $img]);
 			}
 		$resultado = $table->where('id', '=', $id_cliente)->update(['nombre_comercial' => $request->input('nombre_comercial') , 'actividad_economica' => $request->input('actividad_economica') , 'razon_social' => $request->input('razon_social') , 'representante_legal' => $request->input('representante_legal') , 'cedula_representante' => $request->input('cedula_representante') , 'celular' => $request->input('celular') , 'telefono' => $request->input('telefono') , 'direccion' => $request->input('direccion') , 'correo' => $request->input('correo') , 'sitio_web' => $request->input('sitio_web') , 'facebook' => $request->input('facebook') , 'twitter' => $request->input('twitter') , 'google' => $request->input('google') , 'observaciones' => $request->input('observaciones') ]);

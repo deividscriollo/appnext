@@ -36,7 +36,7 @@ public function __construct()
     fclose($ifp);
     $tabla_img=new img_perfiles();
     $tabla_img->id_img_perfil=$id_img;
-    $tabla_img->img="http://192.168.100.17/appnext/public/perfiles/".$user['id_user']."/".$image_name;
+    $tabla_img->img="http://192.168.100.20/appnext/public/perfiles/".$user['id_user']."/".$image_name;
     $tabla_img->estado='1';
     $tabla_img->id_empresa=$user['id_user'];
     $save=$tabla_img->save();
