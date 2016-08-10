@@ -21,7 +21,7 @@ class existenciaController extends Controller
 		{
 		$table = new Clientes();
 		$user = JWTAuth::parseToken()->authenticate();
-		// ------------------------------ Eliminar Cliente --------------------
+		// ------------------------------ existencia Cliente --------------------
 		$resultado = $table->select('id')->where('ruc_empresa', '=', $request->input('ruc_empresa'))->orderBy('id', 'DESC')->get();
 		if (count($resultado) == 0)
 			{
@@ -42,7 +42,7 @@ class existenciaController extends Controller
 		$table = new Empresas();
 		// $user = JWTAuth::parseToken()->authenticate();
 		// ------------------------------ Eliminar Cliente --------------------
-		$resultado = $table->select('Ruc')->where('Ruc', '=', $request->input('ruc'))->get();
+		$resultado = $table->select('ruc')->where('ruc', '=', $request->input('ruc'))->get();
 		if (count($resultado) == 0)
 			{
 			$client = new Client;

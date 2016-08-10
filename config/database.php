@@ -77,6 +77,17 @@ return [
             'prefix' => '',
             'schema' => 'registro',
         ],
+        'localizacionconex' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'appnext'),
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', 'rootdow'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'localizacion',
+        ],
 
         'ingresoconex' => [
             'driver' => 'pgsql',
@@ -113,17 +124,7 @@ return [
             'prefix' => '',
             'schema' => 'factura_next',
         ],
-         'mod_radioconex' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'appnext'),
-            'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', 'rootdow'),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'registro',
-        ],
+
 
     ],
 

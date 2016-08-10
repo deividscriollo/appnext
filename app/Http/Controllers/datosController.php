@@ -13,6 +13,7 @@ use App\Sucursales;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
+
 class datosController extends Controller
 {
     public function __construct()
@@ -20,20 +21,7 @@ class datosController extends Controller
         $this->middleware('jwt.auth', ['except' => ['authenticate']]);
     }
     
-    public function getsucursales(Request $request)
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        $tabla  = new Sucursales();
-        $tablaE = new PasswrdsE();
-        // $datos  = $tablaE->select('id_user')->where('remember_token', '=', $request->input('token'))->get();
-        if (count($user) !== 0) {
-            $sucursales = $tabla->select('*')->where('id_empresa', '=', $user['id_user'])->get();
-            
-            return response()->json(array(
-                'sucursales' => $sucursales
-            ));
-        }
-    }
+
     
     public function getDatosE(Request $request)
     {       

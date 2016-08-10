@@ -4,10 +4,10 @@
 
 	"default": {
 
-		"host": "ftp.example.com",
-		"username": "your_login",  // or null for anonymous login
-		"password": "your_password",
-		"path": "/",
+		"host": "nextbook.ec",
+		"username": "nextbook",  // or null for anonymous login
+		"password": "EiCZTO.ePLFIP",
+		//"path": "/public_html/servicios",
 
 		"upload_on_save": true, // set *false* if you do not want to upload on save!
 

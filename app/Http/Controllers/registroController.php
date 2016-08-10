@@ -11,8 +11,8 @@ use App\Personas;
 use App\Extras;
 use App\Colaboradores;
 use App\Sucursales;
-use App\passwrdsE;
-use App\passwrdsP;
+use App\PasswrdsE;
+use App\PasswrdsP;
 use App\libs\Funciones;
 use App\libs\xmlapi;
 use Mail;
@@ -31,7 +31,7 @@ class registroController extends Controller
         $tablaE                        = new Empresas();
         $tablaPersonareg               = new regpersona_empresas();
         $tablaE->id_empresa            = $id;
-        $tablaE->Ruc                   = $request->input('ruc');
+        $tablaE->ruc                   = $request->input('ruc');
         $tablaE->razon_social          = $request->input('razon_social');
         $tablaE->nombre_comercial      = $request->input('nombre_comercial');
         $tablaE->estado_contribuyente  = $request->input('estado_contribuyente');
@@ -39,7 +39,7 @@ class registroController extends Controller
         $tablaE->obligado_contabilidad = $request->input('obligado_llevar_contabilidad');
         $tablaE->actividad_economica   = $request->input('actividad_economica');
         $tablaE->codigo_activacion     = $activation_code;
-        $tablaE->estado                = 0;
+        $tablaE->estado                = 1;
         $tablaE->id_provincia          = '----';
         $saveE=$tablaE->save();
         $id_empresa=$tablaE->id_empresa;
@@ -55,53 +55,55 @@ class registroController extends Controller
         // $tablaPersonareg->id_empresa            = $id;
         // $saveS=$tablaPersonareg->save();
 
-        $telefonos=$request->input('telefonos');
-        foreach ($telefonos as $key => $value) {
-        $tabla = new Extras();
-        $tabla->tipo = 'telefono';
-        $tabla->dato = $value;
-        $tabla->id_empresa = $id_empresa;
-        $tabla->save();
-        }
+        // $telefonos=$request->input('telefonos');
+        // foreach ($telefonos as $key => $value) {
+        // $tabla = new Extras();
+        // $tabla->tipo = 'telefono';
+        // $tabla->dato = $value;
+        // $tabla->id_empresa = $id_empresa;
+        // $tabla->save();
+        // }
 
-        $tabla = new Extras();
-        $tabla->tipo = 'celular';
-        $tabla->dato = $request->input('celular');
-        $tabla->id_empresa = $id_empresa;
-        $saveS = $tabla->save();
+        // $tabla = new Extras();
+        // $tabla->tipo = 'celular';
+        // $tabla->dato = $request->input('celular');
+        // $tabla->id_empresa = $id_empresa;
+        // $saveS = $tabla->save();
 
-        //****************************************************** Registrar sucursales***********************
+        // //****************************************************** Registrar sucursales***********************
 
-         $establecimientos=$request->input('sucursales')['sucursal'];
-            foreach ($establecimientos as $sucursal) {
-                $tabla_sucursal=new Sucursales();
-                $tabla_sucursal->codigo =$sucursal['codigo'];
-                $tabla_sucursal->direccion =$sucursal['direccion'];
-                $tabla_sucursal->estado =$sucursal['estado'];
-                $tabla_sucursal->nombre_sucursal =$sucursal['nombre_sucursal'];
-                $tabla_sucursal->id_empresa =$id;
-                $tabla_sucursal->save();
-            }
-            $tabla_sucursal=new Sucursales();
-            $tabla_sucursal->select('direccion')->where('codigo','=','001')->where('id_empresa','=',$id_empresa);
-            $direccion=explode('/', $tabla_sucursal['direccion']);
-            $tablaE->where('id_empresa','=',$id_empresa)->update(['id_provincia'=>$direccion[0]]);
+        //  $establecimientos=$request->input('sucursales')['sucursal'];
+        //     foreach ($establecimientos as $sucursal) {
+        //         $tabla_sucursal=new Sucursales();
+        //         $tabla_sucursal->codigo =$sucursal['codigo'];
+        //         $tabla_sucursal->direccion =$sucursal['direccion'];
+        //         $tabla_sucursal->estado =$sucursal['estado'];
+        //         $tabla_sucursal->nombre_sucursal =$sucursal['nombre_sucursal'];
+        //         $tabla_sucursal->id_empresa =$id;
+        //         $tabla_sucursal->categoria ='';
+        //         $tabla_sucursal->descripcion=null;
+        //         $tabla_sucursal->save();
+        //     }
+        //     $tabla_sucursal=new Sucursales();
+        //     $tabla_sucursal->select('direccion')->where('codigo','=','001')->where('id_empresa','=',$id_empresa);
+        //     $direccion=explode('/', $tabla_sucursal['direccion']);
+        //     $tablaE->where('id_empresa','=',$id_empresa)->update(['id_provincia'=>$direccion[0]]);
 
-        //******************************************* Enviar email de verificacion**************************
-            if ($request->input('nombre_comercial')=='no disponible') {
-                    $nombre_comercial=$request->input('razon_social');
-            }
-            else{
-                    $nombre_comercial=$request->input('nombre_comercial');
-            }
-        $data = ["correo"=>$request->input('correo'),"codigo"=>$activation_code,"cuenta"=>"EEE",'nombre_comercial'=>$nombre_comercial];
-        $correo_enviar=$request->input('correo');
+        // //******************************************* Enviar email de verificacion**************************
+        //     if ($request->input('nombre_comercial')=='no disponible') {
+        //             $nombre_comercial=$request->input('razon_social');
+        //     }
+        //     else{
+        //             $nombre_comercial=$request->input('nombre_comercial');
+        //     }
+        // $data = ["correo"=>$request->input('correo'),"codigo"=>$activation_code,"cuenta"=>"EEE",'nombre_comercial'=>$nombre_comercial];
+        // $correo_enviar=$request->input('correo');
         
-        Mail::send('email_registro', $data, function($message)use ($correo_enviar,$nombre_comercial)
-            {
-                $message->from("registro@facturanext.com",'Nextbook');
-                $message->to($correo_enviar,$nombre_comercial)->subject('Verifica tu cuenta');
-            });
+        // Mail::send('email_registro', $data, function($message)use ($correo_enviar,$nombre_comercial)
+        //     {
+        //         $message->from("registro@facturanext.com",'Nextbook');
+        //         $message->to($correo_enviar,$nombre_comercial)->subject('Verifica tu cuenta');
+        //     });
         
         if(!$saveE&&!$saveS){
             App::abort(["respuesta"=>false],200);
@@ -185,7 +187,7 @@ class registroController extends Controller
                $tabla = new Empresas();
                $tabla_pass      = new passwrdsE();
                $tablaPersonareg = new regpersona_empresas();
-               $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','Ruc','estado')->where('codigo_activacion', $codigo_email)->get();
+               $datos = $tabla->select('id_empresa','codigo_activacion','nombre_comercial','ruc','estado')->where('codigo_activacion', $codigo_email)->get();
                break;
            
            case 'PPP':
@@ -205,7 +207,7 @@ switch ($tipocuenta) {
                // $correo_enviar=$datospersonaregE['correo'];
                $id_user=$datos[0]['id_empresa'];
                 $nombre_comercial=$datos[0]['nombre_comercial'];
-                $documento=$datos[0]['Ruc'];
+                $documento=$datos[0]['ruc'];
                 // echo $datos[0]['id_empresa'];
                break;
            

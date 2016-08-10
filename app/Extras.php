@@ -10,5 +10,5 @@ class Extras extends Model
    	protected $table='extras';
     protected $fillable=['id','dato','tipo','id_empresa'];
 
-    protected $hidden = ['tipo','id_empresa','created_at','updated_at'];
+    protected $hidden = ['id_empresa','created_at','updated_at'];
 }

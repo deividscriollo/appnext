@@ -10,6 +10,8 @@ use App\PasswrdsE;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Hash;
+use App\Sucursales;
+use App\Empresas;
 
 class perzonalizacionController extends Controller
 {
@@ -57,11 +59,38 @@ class perzonalizacionController extends Controller
    public function verify_pass(Request $request){
        
         $tablaE = new PasswrdsE();
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate()                                                                                                                    
         $result = $tablaE->select('password')->where('id_user','=',$user['id_user'])->first();
         if (Hash::check($request->input('pass'), $result['password'])) {
            return response()->json(["respuesta"=>true],200);
         }
         else return response()->json(["respuesta"=>false],200);
+   }
+
+   public function update_info(Request $request){
+       
+        $tabla = new Extras();
+        $user = JWTAuth::parseToken()->authenticate();
+        // $tablaE = new PasswrdsE();
+        foreach ($request->input('telefonos') as $key => $telefono) {
+          $resultado=$tabla->where('id','=',$telefono['id'])->update(['dato'=>$telefono['dato']]);
+        }
+
+        $tabla = new Sucursales();
+        $resultado=$tabla->where('id_empresa','=',$user['id_user'])
+                         ->where('codigo','=',$request->input('codigo'))
+                         ->update(['direccion'=>$request->input('direccion')]);
+
+        $tabla = new Empresas();
+        $resultado=$tabla->where('id_empresa','=',$user['id_user'])
+                         ->update(['actividad_economica'=>$request->input('actividad')]);
+
+
+
+if ($resultado) {
+     return response()->json(["respuesta"=>true],200);
+}
+
+ 
    }
 }

@@ -20,10 +20,24 @@ Route::get('/', function ()
 Route::group(['middleware' => 'cors'], function ()
     {
     Route::post('registroEmpresas', 'registroController@registrarEmpresa');
-    Route::post('registroPersonas', 'registroController@registrarPersona');
     Route::post('registroColaboradores', 'registroController@registroColaborador');
     Route::get('activar_cuenta', 'registroController@activar_cuenta');
     Route::post('login', 'loginController@login');
+     // /////////////////////////////////////////////////////////////////////// EMPRESAS ///////////////////
+        // --------------------------------------- get Empresas -----------
+        Route::get('buscarEmpresas', 'BusquedaController@get_empresas');
+
+            // /////////////////////////////////////////////////////////////////////// CATEGORIAS ///////////////////
+        // --------------------------------------- add Categoria -----------
+        Route::post('addCategoria', 'categoriasController@addCategoria');
+         // --------------------------------------- get Categorias -----------
+        Route::get('getCategorias', 'categoriasController@getCategorias');
+    // /////////////////////////////////////////////////////////////////////// PROVINCIAS ///////////////////
+        // --------------------------------------- add Provincia -----------
+        Route::post('addProvincia', 'provinciasController@add_provincia');
+        // --------------------------------------- get Provincias -----------
+        Route::get('getProvincias', 'provinciasController@get_provincias');
+
         // /////////////////////////////////////////////////////////////////////// USUARIOS NEXTBOOK ///////////////////
         // --------------------------------------- Usuario Existe -----------
         Route::get('buscarUsernext', 'existenciaController@usernext_exist');
@@ -33,17 +47,24 @@ Route::group(['middleware' => 'cors'], function ()
         {
         Route::get('getDatosE', 'datosController@getDatosE');
         Route::get('getDatosP', 'datosController@getDatosP');
-        Route::get('getsucursales', 'datosController@getsucursales');
+        // -----------------------------------SUCURSALES --------------------
+        //------------------------------------- GET -------------------------
+        Route::get('getsucursales', 'sucursalesController@getsucursales');
+        //----------------------------------- CAMBIAR CATEGORIA--------------
+        Route::post('setCategoriaSucursal', 'sucursalesController@set_categoria_sucursal');
+        //------------------------------------------ LOGOUT --------------------
         Route::post('logoutE', 'loginController@logoutE');
         // ************************************ AÑADIR EXTRA ***********************;
         Route::post('addExtra', 'perzonalizacionController@addExtra');
-        // /////////////////////////////////////////////////////////////////////////////////// PASSWORD ///////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////// PASSWORD  PERZONALIZACION///////////////////////////////
         // ************************************ CAMBIAR PASSWORD ***********************;
         Route::post('changePass', 'perzonalizacionController@change_pass');
         // ************************************ ESTADO PASSWORD ***********************;
         Route::post('PassState', 'perzonalizacionController@pass_state');
         // ************************************ VERIFICAR PASSWORD ***********************;
-        Route::get('VerficarPass', 'perzonalizacionController@verify_pass');
+        Route::post('VerficarPass', 'perzonalizacionController@verify_pass');
+        // ************************************ Actualizar informacion ***********************;
+        Route::post('updateInfo', 'perzonalizacionController@update_info');
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // ************************************ ADD FACTURAS ***********************;
         Route::get('readFacturas', 'facturaController@add_fac_bdd');
@@ -54,6 +75,8 @@ Route::group(['middleware' => 'cors'], function ()
         // ************************************ DESCARGAR ARCHIVOS XML ***********************;
         Route::post('Downloadlink', 'facturaController@gen_download_link');
         Route::get('Downloadfac', 'facturaController@Download_fac');
+        // ************************************ LEER FACTURAS RECHAZADAS ***********************;
+        Route::get('getFacturasRechazadas', 'facturaController@get_facturas_rechazadas');
         // ////////////////////////////////////////////////// IMAGENES DE PERFIL //////////////
         // --------------------------------------- AÑADIR IMAGEN DE PERFIL -----------
         Route::post('addImgPerfil', 'PerfilesController@add_img_perfil');
@@ -63,14 +86,14 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsPerfil', 'PerfilesController@load_imgs_perfil');
         // --------------------------------------- GET IMAGENES PERFIL -----------
         Route::get('getImgPerfil', 'PerfilesController@get_img_perfil');
-        // ////////////////////////////////////////////////// IMAGENES DE POSTADA //////////////
-        // --------------------------------------- AÑADIR IMAGEN DE POSTADA -----------
+        // ////////////////////////////////////////////////// IMAGENES DE PORTADA //////////////
+        // --------------------------------------- AÑADIR IMAGEN DE PORTADA -----------
         Route::post('addImgPortada', 'PortadasController@add_img_portada');
-        // --------------------------------------- SELECCIONAR IMAGEN DE POSTADA -----------
+        // --------------------------------------- SELECCIONAR IMAGEN DE PORTADA -----------
         Route::post('setImgPortada', 'PortadasController@set_img_portada');
-        // --------------------------------------- CARGAR IMAGENES POSTADA -----------
+        // --------------------------------------- CARGAR IMAGENES PORTADA -----------
         Route::get('loadImgsPortada', 'PortadasController@load_imgs_portada');
-        // --------------------------------------- GET IMAGENES POSTADA -----------
+        // --------------------------------------- GET IMAGENES PORTADA -----------
         Route::get('getImgPortada', 'PortadasController@get_img_portada');
         // /////////////////////////////////////////////////////////////////////// CLIENTES ///////////////////
         // --------------------------------------- AÑADIR CLIENTE -----------
@@ -97,5 +120,37 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('deleteNomina', 'NominaController@delete_nomina');
            // --------------------------------------- Get Nomina -----------
         Route::get('getNomina', 'NominaController@get_nomina');
+
+          // /////////////////////////////////////////////////////////////////////// PROVEEDORES ///////////////////
+        // --------------------------------------- add Proveedores -----------
+        Route::post('addProveedor', 'proveedoresController@add_proveedor');
+        // --------------------------------------- Actualizar Proveedores -----------
+        Route::post('updateProveedor', 'proveedoresController@update_proveedor');
+           // --------------------------------------- Borrar Proveedores -----------
+        Route::post('deleteProveedor', 'proveedoresController@delete_proveedor');
+           // --------------------------------------- Get Proveedores -----------
+        Route::get('getProveedores', 'proveedoresController@get_proveedores');
+
+        // /////////////////////////////////////////////////////////////////////// DEPARTAMENTOS ///////////////////
+        // --------------------------------------- add Departamento -----------
+        Route::post('addDepartamento', 'NominaController@add_departamento');
+        // --------------------------------------- Actualizar Departamento -----------
+        Route::post('updateDepartamento', 'NominaController@update_departamento');
+           // --------------------------------------- Borrar Departamento -----------
+        Route::post('deleteDepartamento', 'NominaController@delete_departamento');
+           // --------------------------------------- Get Departamentos -----------
+        Route::get('getDepartamentos', 'NominaController@get_departamentos');
+
+        // /////////////////////////////////////////////////////////////////////// CARGOS ///////////////////
+        // --------------------------------------- add Departamento -----------
+        Route::post('addCargo', 'NominaController@add_cargo');
+        // --------------------------------------- Actualizar Cargo -----------
+        Route::post('updateCargo', 'NominaController@update_cargo');
+           // --------------------------------------- Borrar Cargo -----------
+        Route::post('deleteCargo', 'NominaController@delete_cargo');
+           // --------------------------------------- Get Cargos -----------
+        Route::get('getCargos', 'NominaController@get_cargos');
+
+
         });
     });

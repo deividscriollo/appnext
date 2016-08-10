@@ -18,7 +18,7 @@ class CreateFacturasTable extends Migration
             $table->string('nombre_comercial');
             $table->string('Ruc_prov');
             $table->string('fecha_emision');
-            $table->string('clave_acceso')->unique();
+            $table->string('clave_acceso');
             $table->string('ambiente');
             $table->string('tipo_doc');
             $table->string('tipo_consumo');

@@ -14,11 +14,13 @@ class CreateSucursalesTable extends Migration
     {
         Schema::connection('pgsql')->create('sucursales', function (Blueprint $table) {
             $table->increments('id_sucursal');
+            $table->string('nombre_sucursal');
             $table->string('codigo');
             $table->string('direccion');
             $table->string('estado');
-            $table->string('nombre_sucursal');
+            $table->string('descripcion',10000)->nullable();;
             $table->string('id_empresa');
+            $table->string('categoria',50)->nullable();;
             $table->foreign('id_empresa')->references('id_empresa')->on('empresas')->onDelete('cascade');
             $table->timestamps();
         });

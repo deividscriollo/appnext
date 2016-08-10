@@ -29,6 +29,8 @@ class PortadasController extends Controller
     fwrite($ifp, base64_decode($data[1])); 
     fclose($ifp);
     $tabla_img=new Portadas();
+    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
+
     $tabla_img->id_img_portada=$id_img;
     $tabla_img->img="http://192.168.100.16/appnext/public/portadas/".$user['id_user']."/".$image_name;
     $tabla_img->estado='1';
@@ -53,9 +55,9 @@ class PortadasController extends Controller
 
     $tabla_img=new Portadas();
     $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
-    $resultado=$tabla_img->where('id_img_perfil','=',$idimg)->update(['estado'=>1]);
+    $resultado=$tabla_img->where('id_img_portada','=',$idimg)->update(['estado'=>1]);
     if ($resultado) {
-        $resultado=$tabla_img->select('img')->where('estado','=',1)->first();
+        $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
         return response()->json(["img"=>$resultado['img']]);
     }
     
@@ -66,7 +68,7 @@ class PortadasController extends Controller
 	$user = JWTAuth::parseToken()->authenticate();
 
     $tabla_img=new Portadas();
-    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->get();
+    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',0)->get();
     // print_r($resultado);
 
     	return response()->json(["imgs"=>$resultado]);
@@ -77,7 +79,7 @@ class PortadasController extends Controller
     $user = JWTAuth::parseToken()->authenticate();
 
     $tabla_img=new Portadas();
-    $resultado=$tabla_img->select('img')->where('estado','=',1)->first();
+    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',1)->first();
     // print_r($resultado);
 
         return response()->json($resultado);

@@ -16,6 +16,7 @@ use App\PasswrdsP;
 use App\regpersona_empresas;
 use Auth;
 use GuzzleHttp\Client;
+use App\Extras;
 
 class loginController extends Controller
 {
@@ -29,12 +30,13 @@ switch ($tipo_user) {
           $tabla =    new PasswrdsP();
   break;
     case 'P':
-               $auth = Auth::guard('web');
+       $auth = Auth::guard('web');
        $tabla =    new PasswrdsP();
        $tablaDatos =    new Personas();
         break;
     
     case 'E':
+              $tablaEx = new extras();
               $auth = Auth::guard('usersE');
               $tabla =    new PasswrdsE();
               $tablaDatos =    new Empresas();
@@ -61,9 +63,12 @@ switch ($tipo_user) {
  //*********************************** Datos persona que registro ********************
   $persona_registroE=$regpersona_empresas->select('*')
               ->where('id_empresa','=',$datos['id_user'])->first();
+  //***************************************************** EXTRAS ***********************
+  $extras = $tablaEx->select('*')->where('id_empresa', '=', $datos['id_user'])->get();
 
    $datosE=$tablaDatos->select('*')
               ->where('id_empresa','=',$datos['id_user'])->first();
+              $datosE['extras']=$extras;
               // if ($datos['remember_token']!='') {
               //   JWTAuth::setToken($datos['remember_token'])->invalidate();
               // }

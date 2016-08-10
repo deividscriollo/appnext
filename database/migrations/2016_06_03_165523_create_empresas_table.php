@@ -14,7 +14,7 @@ class CreateEmpresasTable extends Migration
     {
         Schema::connection('pgsql')->create('empresas', function (Blueprint $table) {
             $table->string('id_empresa')->primary();
-            $table->string('Ruc');
+            $table->string('ruc');
             $table->string('razon_social');
             $table->string('nombre_comercial');
             $table->string('estado_contribuyente');

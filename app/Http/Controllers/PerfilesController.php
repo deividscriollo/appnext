@@ -35,6 +35,7 @@ public function __construct()
     fwrite($ifp, base64_decode($data[1])); 
     fclose($ifp);
     $tabla_img=new img_perfiles();
+    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
     $tabla_img->id_img_perfil=$id_img;
     $tabla_img->img="http://192.168.100.16/appnext/public/perfiles/".$user['id_user']."/".$image_name;
     $tabla_img->estado='1';
@@ -61,7 +62,7 @@ public function __construct()
     $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
     $resultado=$tabla_img->where('id_img_perfil','=',$idimg)->update(['estado'=>1]);
     if ($resultado) {
-        $resultado=$tabla_img->select('img')->where('estado','=',1)->first();
+        $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
         return response()->json(["img"=>$resultado['img']]);
     }
     
@@ -72,7 +73,7 @@ public function __construct()
 	$user = JWTAuth::parseToken()->authenticate();
 
     $tabla_img=new img_perfiles();
-    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->get();
+    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',0)->orderBy('created_at','ASC')->get();
     // print_r($resultado);
 
     	return response()->json(["imgs"=>$resultado]);
@@ -83,7 +84,7 @@ public function __construct()
     $user = JWTAuth::parseToken()->authenticate();
 
     $tabla_img=new img_perfiles();
-    $resultado=$tabla_img->select('img')->where('estado','=',1)->first();
+    $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
     // print_r($resultado);
 
         return response()->json($resultado);

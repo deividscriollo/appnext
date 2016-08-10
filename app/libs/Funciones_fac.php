@@ -1,10 +1,11 @@
 <?php
 
 namespace App\libs;
-use App\Facturas;
+use App\facturas;
 use App\FacturasRechazadas;
 use App\Empresas;
 use App\PasswrdsE;
+use App\Proveedores;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -181,12 +182,12 @@ public function getmail($xml){
 public function leer($usuario,$pass,$iduser){
         
 /* connect to gmail with your credentials */
-$hostname = '{s411b.panelboxmanager.com:993/imap/ssl}INBOX';
+$hostname = '{s411b.panelboxmanager.com:993/imap/ssl/novalidate-cert}INBOX';
 $username = $usuario;
 $password = $pass;
 
 /* try to connect */
-$inbox = imap_open($hostname, $username, $password) or die('No se puede conectar a Nextbook: ' . imap_last_error());
+$inbox = imap_open($hostname, $username, $password) or die('No se puede conectar a Nextbook: ' .  print_r(imap_errors(), true));
 
 $emails = imap_search($inbox, 'UNSEEN');
 
@@ -328,7 +329,9 @@ return $respuesta;
         $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
         $doc_name=$doc_name;
  if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
-    mkdir("facturas/".$datosPass[0]['id_user']);      
+  $old = umask(0);
+mkdir("facturas/".$datosPass[0]['id_user'], 0777);
+umask($old);    
     }
         $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
@@ -341,6 +344,7 @@ $clave_acceso = $file_xml->infoTributaria->claveAcceso;
 $ambiente = $file_xml->infoTributaria->ambiente;
 $tipo_doc=$file_xml->infoTributaria[0]->codDoc;
 $nombre_comercial = $file_xml->infoTributaria->nombreComercial;
+$dir_matriz =$file_xml->infoTributaria->dirMatriz;
 $ruc_comercial = $file_xml->infoTributaria->ruc;
 
 
@@ -403,7 +407,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
               
               $id_fact = $funciones->generarID();
               $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
-              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
+              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->where('id_empresa','=',$datosPass[0]['id_user'])->get();
               if(count($res) == 0 ){
                 $tblFacturas->id_factura = $id_factura;
                 $tblFacturas->num_factura = $num_fac;
@@ -426,6 +430,8 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                   fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
                 }
+                //----------------------------------------------- guardar proveedor ------------------
+                $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
                     }else
                         return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
@@ -610,6 +616,23 @@ function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon){
 
 }
 
+function save_proveedor($ruc,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$id_empresa){
+$tabla=new Proveedores();
+$sql=$tabla->where('ruc','=',$ruc)->get();
+    if (count($sql)==0) {
+    $funciones = new Funciones();
+    $tabla->id = $funciones->generarId();
+    $tabla->razon_social = $razon_social;
+    $tabla->nombre_comercial = $nombre_comercial;
+    $tabla->ruc = $ruc;
+    $tabla->dir_matriz = $dir_matriz;
+    $tabla->dir_establecimiento = $dir_establecimiento;
+    $tabla->id_empresa = $id_empresa;
+    $tabla->estado = 1;
+    $resultado = $tabla->save();
+  }
+}
+
 function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo){
         $tblFacturas=new Facturas();
         $tblFacturas_rechazadas=new FacturasRechazadas();
@@ -632,14 +655,16 @@ $clave_acceso = $file_xml->infoTributaria->claveAcceso;
 $ambiente = $file_xml->infoTributaria->ambiente;
 $tipo_doc=$file_xml->infoTributaria[0]->codDoc;
 $nombre_comercial = $file_xml->infoTributaria->nombreComercial;
+$dir_matriz =$file_xml->infoTributaria->dirMatriz;
 $ruc_comercial = $file_xml->infoTributaria->ruc;
+$razon_social = $file_xml->infoTributaria->razonSocial;
 
 
 $respuesta=$this->verificar_autorizacion($clave_acceso);
 // print_r($respuesta) ;
 
-if (count($respuesta[0]['autorizaciones'])!=0) {
-    $estado=$respuesta[0]['autorizaciones']['autorizacion']['estado'];
+if (count($respuesta['respuesta']['autorizaciones'])!=0) {
+    $estado=$respuesta['respuesta']['autorizaciones']['autorizacion']['estado'];
 
             if($estado == 'AUTORIZADO') {
 
@@ -651,6 +676,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
             $razon_social = $xmlComp->infoNotaCredito->razonSocial;
+            $dir_establecimiento =$xmlComp->infoNotaCredito->dirEstablecimiento;
             $cod_doc = $xmlComp->infoNotaCredito->codDoc;
             $total = $xmlComp->infoNotaCredito->valorModificacion;
             $datos = explode('@', $email);
@@ -668,12 +694,12 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
 
     break;  
 
-     case '01':
-                  
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+     case '01':    
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
             $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
-            $razon_social = $xmlComp->infoFactura->razonSocial;
+            //$razon_social = $xmlComp->infoFactura->razonSocial;
+            $dir_establecimiento =$xmlComp->infoFactura->dirEstablecimiento;
             $cod_doc = $xmlComp->infoFactura->codDoc;
             $total = $xmlComp->infoFactura->importeTotal;
             $datos = explode('@', $email);
@@ -694,7 +720,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
               
               $id_fact = $funciones->generarID();
               $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
-              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->get();
+              $res =$tblFacturas->select('id_factura')->where('clave_acceso','=',(string)$clave_acceso)->where('id_empresa','=',$datosPass[0]['id_user'])->get();
               if(count($res) == 0 ){
                 $tblFacturas->id_factura = $id_factura;
                 $tblFacturas->num_factura = $num_fac;
@@ -706,7 +732,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                 $tblFacturas->tipo_doc = $tipo_doc;
                 $tblFacturas->tipo_consumo = $tipo_consumo;
                 $tblFacturas->total = $total;
-                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $save=$tblFacturas->save();
                 if ($save) {
@@ -717,6 +743,8 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                   fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
                 }
+                //----------------------------------------------- guardar proveedor ------------------
+                $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
                     }else
                         return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
@@ -734,24 +762,25 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
 public function gen_pdf($xmlmaster,$iduser,$idfac){
 
 $xmlData = new \SimpleXMLElement($xmlmaster);
-if(!is_object($xmlData)){
-    $xmlString = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $xmlmaster);
-    $xmlAut = new \SimpleXMLElement($xmlString);         
-    
-    $nroAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->numeroAutorizacion;
-    $fechAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->fechaAutorizacion;
-    $ambi = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->ambiente;
 
-    $xmlAut = utf8_decode($xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->comprobante);                
-  }else{    
+// if(!is_object($xmlData)){
+//     $xmlString = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $xmlmaster);
+//     $xmlAut = new \SimpleXMLElement($xmlString);         
+    
+//     $nroAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->numeroAutorizacion;
+//     $fechAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->fechaAutorizacion;
+//     $ambi = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->ambiente;
+//     $xmlAut = utf8_decode($xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->comprobante);           
+//   }else{    
     $nroAut = $xmlData->numeroAutorizacion; 
     $fechAut = $xmlData->fechaAutorizacion; 
     $ambi = utf8_decode($xmlData->ambiente);  
-    $xmlAut = $this->uncdata($xmlData->comprobante); 
-  }         
-
-  $xmlAut =  new \SimpleXMLElement($xmlAut); 
-  // print_r($xmlAut);              
+//     $xmlAut = $this->uncdata($xmlData->comprobante); 
+//   }         
+// print_r($xmlAut);  
+  // $xmlAut =  new \SimpleXMLElement($xmlData); 
+    $xmlAut =  $xmlData; 
+              
   
   if($xmlAut->infoTributaria->tipoEmision == 1){
     $emi = 'Normal';  

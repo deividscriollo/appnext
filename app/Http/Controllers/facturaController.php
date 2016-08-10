@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use App\Facturas;
+use App\facturas;
 use Auth;
 use App\PasswrdsP;
 use App\PasswrdsE;
 use App\libs\Funciones;
 use App\libs\Funciones_fac;
+use App\FacturasRechazadas;
 use Zipper;
 // use Codedge\Fpdf\Fpdf\FPDF;
 use File;
@@ -76,20 +77,59 @@ public function get_facturas(Request $request){
             }
 
         $resultado=$facturas->select('*')->where('id_empresa','=',$datos[0]['id_user'])->get();
+        $i=0;
+        foreach ($resultado as $key => $value) {
+            switch ($resultado[$i]['tipo_doc']) {
+                case '01':
+                   $resultado[$i]['tipo_doc']="Factura";
+                    break;
+                case '02':
+                    $resultado[$i]['tipo_doc']="Nota de Venta";
+                    break;
+                case '03':
+                    $resultado[$i]['tipo_doc']="Liquidación de Compra de Bienes o Prestación de Servicios";
+                    break;
+                     case '04':
+                    $resultado[$i]['tipo_doc']="Nota de Crédito";
+                    break;
+                     case '05':
+                    $resultado[$i]['tipo_doc']="Nota de Débito";
+                    break;
+                     case '06':
+                    $resultado[$i]['tipo_doc']="Guía de remisión";
+                    break;
+                     case '07':
+                    $resultado[$i]['tipo_doc']="Comprobante de Retención";
+                    break;
+                     case '08':
+                    $resultado[$i]['tipo_doc']="Entradas a Espectáculos Públicos";
+                    break;
+            }
+            $i++;
+        }
 
             return response()->json(array("misfacturas"=>$resultado),200);
     }
+
+        public function get_facturas_rechazadas(Request $request){
+             $user = JWTAuth::parseToken()->authenticate();
+             $facturas= new FacturasRechazadas();
+            $resultado=$facturas->select('*')->where('id_empresa','=',$user['id_user'])->get();
+
+     return response()->json(array("misfacturas_rechazadas"=>$resultado),200);
+    }
+
 
 
 public function upload_xmlfile(Request $request){
         $Funciones_fac=new Funciones_fac();
         $respuesta=$Funciones_fac->verificar_autorizacion($request->input('clave'));
-        $autorizaciones=$respuesta[0]['autorizaciones'];
-                     $user = JWTAuth::parseToken()->authenticate();
-        if (count($autorizaciones)!=0) {
-                 $mensajes=$respuesta[0]['autorizaciones']['autorizacion']['mensajes'];
-                         if(count($mensajes)==0){
-            $comprobante=$respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+        $autorizaciones=$respuesta['respuesta']['autorizaciones'];
+        $user = JWTAuth::parseToken()->authenticate();
+        if (count($autorizaciones)!='respuesta') {
+                 $mensajes=$respuesta['respuesta']['autorizaciones']['autorizacion']['mensajes'];
+                         if(count($mensajes)=='respuesta'){
+            $comprobante=$respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
             $resultado=$Funciones_fac->save_xml_file($comprobante,$user['email'],"999.xml",$request->input('tipo'));
             }
             // else{
@@ -139,7 +179,7 @@ public function Download_fac(Request $request)
              $user = JWTAuth::parseToken()->authenticate();
              $this->gen_zip($user['id_user'],$request->input('id'));
 
-             return response()->json(["link"=>"http://localhost/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
+             return response()->json(["link"=>"http://192.168.100.16/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
              
         }
 
