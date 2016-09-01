@@ -175,19 +175,13 @@ public function upload_xmlfile(Request $request){
             $comprobante=$respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
             $resultado=$this->Funciones_fac->save_xml_file($comprobante,$this->user['email'],"999.xml",$request->input('tipo'),$this->id_sucursal);
             }
-            // else{
-            // $resultado=$this->Funciones_fac->save_fac_rechazada("",$this->user['email'],$request->input('clave'),"Documento Vacio");
-            //     }
                          }else{
                             $resultado=array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri');
                          }
-// echo $request->input('tipo');
                          if (count($resultado)==0) {
                              return response()->json(["respuesta"=>true]);
                          }else  return response()->json(["respuesta"=>$resultado]);
-           
     }
-
 
 public function gen_zip($iduser,$idfac)
         {
@@ -205,31 +199,14 @@ public function gen_zip($iduser,$idfac)
                return true;
             }
         }
+public function update_tipo_consumo(Request $request){
+  $update=$this->facturas->where('id_factura',$request->input('id_factura'))->update(['tipo_consumo'=>$request->input('tipo_consumo')]);
+  if ($update) {
+    return response()->json(['respuesta'=>$request->all()],200);
+  }
+}
 
-public function get_buscar_facturas(Request $request)
-        {
 
 
-            
-        }
-
-
-// public function Download_fac(Request $request)
-//         {
-//             $headers = array(
-//                         'Content-Type' => 'application/octet-stream',
-//                         'Content-Disposition' => 'attachment; filename="fac.zip'
-//                     );
-//              return response()->download(public_path().'/facturas/'.$this->user['id_user'].'/'.$request->input('id').".zip",$request->input('id').".zip",$headers);
-//         }
-
-//         public function gen_download_link(Request $request)
-//         {
-             
-//              $this->gen_zip($this->user['id_user'],$request->input('id'));
-
-//              return response()->json(["link"=>"http://192.168.100.20/appnext/public/Downloadfac?id=".$request->input('id')."&token=".$request->input('token').""]);
-             
-//         }
 
 }

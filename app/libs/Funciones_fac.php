@@ -439,7 +439,7 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $tblFacturas->clave_acceso = (string)$clave_acceso;
                 $tblFacturas->ambiente = (string)$ambiente;
                 $tblFacturas->tipo_doc = $tipo_doc;
-                $tblFacturas->tipo_consumo = '-------';
+                $tblFacturas->tipo_consumo = 'Sin-Asignar';
                 $tblFacturas->total = $total;
                 $tblFacturas->subtotal_12= $subtotal_12;
                 $tblFacturas->subtotal_0= $subtotal_0;
@@ -626,7 +626,7 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->clave_acceso = (string)$clave_acceso;
                 $tblFacturas->ambiente = (string)$ambiente;
                 $tblFacturas->tipo_doc = $tipo_doc;
-                $tblFacturas->tipo_consumo = '-------';
+                $tblFacturas->tipo_consumo = 'Sin-Asignar';
                 $tblFacturas->total = $total;
                 $tblFacturas->subtotal_12= $subtotal_12;
                 $tblFacturas->subtotal_0= $subtotal_0;
@@ -691,7 +691,7 @@ function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon,$id_sucur
     // $tblFacturas_rechazadas->tipo_doc = "no-disponible";
     // $tblFacturas_rechazadas->total = "no-disponible";
     $tblFacturas_rechazadas->clave_acceso = $clave_acceso;
-    $tblFacturas_rechazadas->tipo_consumo = '-------';
+    $tblFacturas_rechazadas->tipo_consumo = 'Sin-Asignar';
     $tblFacturas_rechazadas->razon_rechazo = $razon;
     $tblFacturas_rechazadas->contenido_fac = $xmlmaster;
     $tblFacturas_rechazadas->id_empresa = $datosPass[0]['id_user'];

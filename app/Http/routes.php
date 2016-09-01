@@ -79,6 +79,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getFacturas', 'facturaController@get_facturas');
         // ************************************ SUBIR ARCHIVOS XML ***********************;
         Route::post('uploadFactura', 'facturaController@upload_xmlfile');
+        // ************************************ ACTUALIZAR TIPO DE CONSUMO ***********************;
+        Route::post('updateTipoConsumo', 'facturaController@update_tipo_consumo');
         // // ************************************ DESCARGAR ARCHIVOS XML ***********************;
         // Route::post('Downloadlink', 'facturaController@gen_download_link');
         // Route::get('Downloadfac', 'facturaController@Download_fac');
