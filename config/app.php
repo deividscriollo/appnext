@@ -151,6 +151,8 @@ return [
         Barryvdh\Cors\ServiceProvider::class,
         'Chumper\Zipper\ZipperServiceProvider',
         Codedge\Fpdf\FpdfServiceProvider::class,
+        'Barryvdh\DomPDF\ServiceProvider',
+        'Collective\Html\HtmlServiceProvider',
         
 
         /*
@@ -211,6 +213,9 @@ return [
         'Funciones_fac' =>App\libs\Funciones_fac::class,
         'Zipper' => 'Chumper\Zipper\Zipper',
         'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
+        'PDF' => 'Barryvdh\DomPDF\Facade',
+        'Form' => 'Collective\Html\FormFacade',
+        'Html' => 'Collective\Html\HtmlFacade',
 
     ],
 

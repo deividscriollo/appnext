@@ -334,11 +334,11 @@ function save_xml_mail($xmlmaster,$emailuser,$doc_name,$idsucursal){
         $passE=new PasswrdsE();
         $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
         $doc_name=$doc_name;
- if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
-  $old = umask(0);
-mkdir("facturas/".$datosPass[0]['id_user'], 0777);
-umask($old);    
-    }
+//  if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
+//   $old = umask(0);
+// mkdir("facturas/".$datosPass[0]['id_user'], 0777);
+// umask($old);    
+//     }
         $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
@@ -509,9 +509,9 @@ function save_zip_mail($xmlmaster,$emailuser,$doc_name,$idsucursal){
   $tblFacturas_rechazadas=new FacturasRechazadas();
   $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
 
- if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
-    mkdir("facturas/".$datosPass[0]['id_user']);      
-    }
+ // if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
+ //    mkdir("facturas/".$datosPass[0]['id_user']);      
+ //    }
     $id=$funciones->generarID();
     $url_destination = "facturas/".$datosPass[0]['id_user']."/".$id.'.zip';                 
     $fp = fopen($url_destination, "wr+");
@@ -725,9 +725,9 @@ function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo,$id_sucursa
         $passE=new PasswrdsE();
         $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
         $doc_name=$doc_name;
- if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
-    mkdir("facturas/".$datosPass[0]['id_user']);      
-    }
+ // if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
+ //    mkdir("facturas/".$datosPass[0]['id_user']);      
+ //    }
     $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);

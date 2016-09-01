@@ -1,4 +1,3 @@
-
 <?php
 /*
 |--------------------------------------------------------------------------
@@ -12,13 +11,21 @@
 */
 Route::get('/', function ()
     {
-    return view('email_registro');
+    return view('welcome');
     });
 // Route::auth();
 // Route::get('/', 'HomeController@index');
 // Route::get('/home', 'HomeController@index');
 Route::group(['middleware' => 'cors'], function ()
     {
+
+    Route::get('pdf', 'Pdf_XML_Controller@generar_pdf');
+    Route::get('xml', 'Pdf_XML_Controller@generar_xml');
+    // Route::get('pdf', function ()
+    // {
+    // return view('invoice');
+    // });
+        
     Route::post('registroEmpresas', 'registroController@registrarEmpresa');
     Route::post('registroColaboradores', 'registroController@registroColaborador');
     Route::get('activar_cuenta', 'registroController@activar_cuenta');
@@ -72,9 +79,9 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getFacturas', 'facturaController@get_facturas');
         // ************************************ SUBIR ARCHIVOS XML ***********************;
         Route::post('uploadFactura', 'facturaController@upload_xmlfile');
-        // ************************************ DESCARGAR ARCHIVOS XML ***********************;
-        Route::post('Downloadlink', 'facturaController@gen_download_link');
-        Route::get('Downloadfac', 'facturaController@Download_fac');
+        // // ************************************ DESCARGAR ARCHIVOS XML ***********************;
+        // Route::post('Downloadlink', 'facturaController@gen_download_link');
+        // Route::get('Downloadfac', 'facturaController@Download_fac');
         // ************************************ LEER FACTURAS RECHAZADAS ***********************;
         Route::get('getFacturasRechazadas', 'facturaController@get_facturas_rechazadas');
         // ////////////////////////////////////////////////// IMAGENES DE PERFIL //////////////
@@ -105,7 +112,7 @@ Route::group(['middleware' => 'cors'], function ()
         // --------------------------------------- GET CLIENTES -----------
         Route::get('getClientes', 'ClientesController@get');
         // --------------------------------------- Cliente Existe -----------
-        Route::get('buscarCliente', 'existenciaController@cliente_exist');
+        // Route::get('buscarCliente', 'existenciaController@cliente_exist');
          // /////////////////////////////////////////////////////////////////////// PERSONA QUE REGISTRA ///////////////////
         // --------------------------------------- Persona Existe -----------
         Route::get('getDatosPropietario', 'persona_q_registraController@get_datos');
@@ -124,33 +131,98 @@ Route::group(['middleware' => 'cors'], function ()
           // /////////////////////////////////////////////////////////////////////// PROVEEDORES ///////////////////
         // --------------------------------------- add Proveedores -----------
         Route::post('addProveedor', 'proveedoresController@add_proveedor');
-        // --------------------------------------- Actualizar Proveedores -----------
-        Route::post('updateProveedor', 'proveedoresController@update_proveedor');
-           // --------------------------------------- Borrar Proveedores -----------
-        Route::post('deleteProveedor', 'proveedoresController@delete_proveedor');
+        // // --------------------------------------- Actualizar Proveedores -----------
+        // Route::post('updateProveedor', 'proveedoresController@update_proveedor');
+        //    // --------------------------------------- Borrar Proveedores -----------
+        // Route::post('deleteProveedor', 'proveedoresController@delete_proveedor');
            // --------------------------------------- Get Proveedores -----------
         Route::get('getProveedores', 'proveedoresController@get_proveedores');
+        // --------------------------------------- Get Datos Proveedores by Ruc -----------
+        Route::get('getProveedorbyRuc', 'proveedoresController@get_datos_proveedor_by_Ruc');
 
-        // /////////////////////////////////////////////////////////////////////// DEPARTAMENTOS ///////////////////
-        // --------------------------------------- add Departamento -----------
-        Route::post('addDepartamento', 'NominaController@add_departamento');
-        // --------------------------------------- Actualizar Departamento -----------
-        Route::post('updateDepartamento', 'NominaController@update_departamento');
-           // --------------------------------------- Borrar Departamento -----------
-        Route::post('deleteDepartamento', 'NominaController@delete_departamento');
-           // --------------------------------------- Get Departamentos -----------
-        Route::get('getDepartamentos', 'NominaController@get_departamentos');
+        // ------------------------------------------- GRUPOS ---------------------------------------------
+        //------------------------------------- Añadir grupo ------------------------
+        Route::post('addGrupo', 'inventario\grupoController@add_grupo');
+        //------------------------------------- modificar grupo ------------------------
+        Route::post('updateGrupo', 'inventario\grupoController@update_grupo');
+        //------------------------------------- eliminar grupo ------------------------
+        Route::post('deleteGrupo', 'inventario\grupoController@delete_grupo');
+        //------------------------------------- modificar grupo ------------------------
+        Route::get('getGrupos', 'inventario\grupoController@get_grupos');
+        //------------------------------------- ultimo codigo grupo ------------------------
+        Route::get('ultimoCodeGrupo', 'inventario\grupoController@ultimo_code_grupo');
 
-        // /////////////////////////////////////////////////////////////////////// CARGOS ///////////////////
-        // --------------------------------------- add Departamento -----------
-        Route::post('addCargo', 'NominaController@add_cargo');
-        // --------------------------------------- Actualizar Cargo -----------
-        Route::post('updateCargo', 'NominaController@update_cargo');
-           // --------------------------------------- Borrar Cargo -----------
-        Route::post('deleteCargo', 'NominaController@delete_cargo');
-           // --------------------------------------- Get Cargos -----------
-        Route::get('getCargos', 'NominaController@get_cargos');
+        // ------------------------------------------- MODO ADQUISICION ---------------------------------------------
+        //------------------------------------- Añadir modo_adquisicion ------------------------
+        Route::post('addmodo_adquisicion', 'inventario\modo_adquisicionController@add_modo_adquisicion');
+        //------------------------------------- modificar modo_adquisicion ------------------------
+        Route::post('updatemodo_adquisicion', 'inventario\modo_adquisicionController@update_modo_adquisicion');
+        //------------------------------------- eliminar modo_adquisicion ------------------------
+        Route::post('deletemodo_adquisicion', 'inventario\modo_adquisicionController@delete_modo_adquisicion');
+        //------------------------------------- modificar modo_adquisicion ------------------------
+        Route::get('getmodo_adquisiciones', 'inventario\modo_adquisicionController@get_modo_adquisiciones');
+        //------------------------------------- ultimo codigo modo_adquisicion ------------------------
+        Route::get('ultimoCodemodo_adquisicion', 'inventario\modo_adquisicionController@ultimo_code_modo_adquisicion');
 
+        // ------------------------------------------- ESTADO DEL BIEN ---------------------------------------------
+        //------------------------------------- Añadir estado del bien ------------------------
+        Route::post('addestadobn', 'inventario\estadobnController@add_estadobn');
+        //------------------------------------- modificar estado del bien ------------------------
+        Route::post('updateestadobn', 'inventario\estadobnController@update_estadobn');
+        //------------------------------------- eliminar estado del bien ------------------------
+        Route::post('deleteestadobn', 'inventario\estadobnController@delete_estadobn');
+        //------------------------------------- modificar estado del bien ------------------------
+        Route::get('getestadobnes', 'inventario\estadobnController@get_estadobnes');
+        //------------------------------------- ultimo codigo estado del bien ------------------------
+        Route::get('ultimoCodeestadobn', 'inventario\estadobnController@ultimo_code_estadobn');
+
+           // ------------------------------------------- UBICACIONES ---------------------------------------------
+        //------------------------------------- Añadir ubicaciones ------------------------
+        Route::post('addUbicacion', 'inventario\ubicacionesController@add_ubicacion');
+        //------------------------------------- modificar ubicaciones ------------------------
+        Route::post('updateUbicacion', 'inventario\ubicacionesController@update_ubicacion');
+        //------------------------------------- eliminar ubicaciones ------------------------
+        Route::post('deleteUbicacion', 'inventario\ubicacionesController@delete_ubicacion');
+        //------------------------------------- modificar ubicaciones ------------------------
+        Route::get('getUbicaciones', 'inventario\ubicacionesController@get_ubicaciones');
+        //------------------------------------- ultimo codigo ubicaciones ------------------------
+        Route::get('ultimoCodeUbicacion', 'inventario\ubicacionesController@ultimo_code_ubicacion');
+
+        // ------------------------------------------- MOTIVOS BAJAS ---------------------------------------------
+        //------------------------------------- Añadir motivos bajas ------------------------
+        Route::post('addMotivosBajas', 'inventario\motivosbajasController@add_motivosbajas');
+        //------------------------------------- modificar motivos bajas ------------------------
+        Route::post('updateMotivosBajas', 'inventario\motivosbajasController@update_motivosbajas');
+        //------------------------------------- eliminar motivos bajas ------------------------
+        Route::post('deleteMotivosBajas', 'inventario\motivosbajasController@delete_motivosbajas');
+        //------------------------------------- get motivos bajas ------------------------
+        Route::get('getMotivosBajas', 'inventario\motivosbajasController@get_motivosbajas');
+        //------------------------------------- ultimo codigo motivos bajas ------------------------
+        Route::get('ultimoCodeMotivosBajas', 'inventario\motivosbajasController@ultimo_code_motivosbajas');
+
+        // ------------------------------------------- BAJAS ---------------------------------------------
+        //------------------------------------- Añadir bajas ------------------------
+        Route::post('addBajas', 'inventario\bajasController@add_bajas');
+        //------------------------------------- modificar bajas ------------------------
+        Route::post('updateBajas', 'inventario\bajasController@update_bajas');
+        //------------------------------------- eliminar bajas ------------------------
+        Route::post('deleteBajas', 'inventario\bajasController@delete_bajas');
+        //------------------------------------- modificar bajas ------------------------
+        Route::get('getBajas', 'inventario\bajasController@get_bajas');
+        //------------------------------------- ultimo codigo bajas ------------------------
+        Route::get('ultimoCodeBajas', 'inventario\bajasController@ultimo_code_bajas');
+
+        // ------------------------------------------- MAESTRO ARTICULO ---------------------------------------------
+        //------------------------------------- Añadir  ------------------------
+        Route::post('addMaestroArticulo', 'inventario\maestro_articuloController@add_maestro_articulo');
+        //------------------------------------- modificar  ------------------------
+        Route::post('updateMaestroArticulo', 'inventario\maestro_articuloController@update_maestro_articulo');
+        //------------------------------------- eliminar  ------------------------
+        Route::post('deleteMaestroArticulo', 'inventario\maestro_articuloController@delete_maestro_articulo');
+        //------------------------------------- get  ------------------------
+        Route::get('getMaestroArticulo', 'inventario\maestro_articuloController@get_maestro_articulos');
+        //------------------------------------- ultimo codigo  ------------------------
+        Route::get('ultimoCodeMaestroArticulo', 'inventario\maestro_articuloController@ultimo_code_maestro_articulo');
 
         });
     });

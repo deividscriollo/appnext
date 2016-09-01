@@ -10,9 +10,11 @@
         "tymon/jwt-auth": "0.5.*",
         "guzzlehttp/guzzle": "^6.2",
         "barryvdh/laravel-cors": "^0.8.0",
-        "chumper/zipper": "0.6.x",
         "codedge/laravel-fpdf": "^1.0",
-        "nicolaslopezj/searchable": "1.*"
+        "nicolaslopezj/searchable": "1.*",
+        "barryvdh/laravel-dompdf": "0.6.*",
+        "laravelcollective/html": "~5.0",
+        "chumper/zipper": "0.6.x"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

@@ -149,16 +149,16 @@
                                                             <table class="header-row" width="378" cellspacing="0" cellpadding="0" border="0" style="table-layout: fixed;">
                                                                 <tbody>
                                                                     <tr>
-                                                                        <td class="header-row-td" width="378" style="font-family: Arial, sans-serif; font-weight: normal; line-height: 19px; color: #478fca; margin: 0px; font-size: 18px; padding-bottom: 10px; padding-top: 15px;" valign="top" align="left">Gracias por registrarte 🙂
+                                                                        <td class="header-row-td" width="378" style="font-family: Arial, sans-serif; font-weight: normal; line-height: 19px; color: #478fca; margin: 0px; font-size: 18px; padding-bottom: 10px; padding-top: 15px;" valign="top" align="left">Nueva Factura 🙂
                                                                         </td>
                                                                     </tr>
                                                                 </tbody>
                                                             </table>
 
                                                             <div style="font-family: Arial, sans-serif; line-height: 20px; color: #444444; font-size: 13px;">
-                                                                <b style="color: #777777;">Estamos muy contentos de que te unas a nosotros en la comunidad nexbook, una red de negocios.</b>
+                                                                <b style="color: #777777;">Saludos Estimado@ <!-- {{$nombre_comercial}} --></b><br>
 
-                                                                <br> Por favor confirmar su registro para continuar
+                                                                <br> Haz recibido una nueva factura con los siguientes datos:
 
                                                             </div>
 
@@ -218,8 +218,14 @@
                                                         <td class="table-col-td" width="378" style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; font-weight: normal; width: 378px;" valign="top" align="left">
 
                                                             <div style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; text-align: center;">
-                                                                <a href="http://localhost/nextbook/#/activarcuenta/{{$cuenta}}&{{$codigo}}&{{$correo}}" style="color: #ffffff; text-decoration: none; margin: 0px; text-align: center; vertical-align: baseline; padding: 4px 9px; font-size: 15px; line-height: 21px; background-color: #3F51B5;">&nbsp; Confirmar &nbsp;</a>
+                                                                Clave de Acceso: {{$clave_acceso}}<br>
+                                                                Razon Social: {{$razon_social}}<br><br>
+                                                                Fecha de Emisión: {{$fecha_emision}}<br><br>
+                                                                Total: {{$total}}<br><br>
 
+                                                            </div>
+                                                            <div style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; text-align: center;">
+                                                                <a href="http://pruebas.nextbook.ec" style="color: #ffffff; text-decoration: none; margin: 0px; text-align: center; vertical-align: baseline; padding: 4px 9px; font-size: 15px; line-height: 21px; background-color: #3F51B5;">&nbsp; Ver &nbsp;</a>
                                                             </div>
 
                                                             <table class="table-space" height="16" style="height: 16px; font-size: 0px; line-height: 0; width: 378px; background-color: #ffffff;" width="378" bgcolor="#FFFFFF" cellspacing="0" cellpadding="0" border="0">
