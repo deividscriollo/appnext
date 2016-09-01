@@ -5,40 +5,52 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+//------------------------------------ Autenticacion --------------------
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+//------------------------------------ Funciones --------------------
 use App\libs\Funciones;
+//------------------------------------ Modelos --------------------
 use App\Portadas;
 
 class PortadasController extends Controller
 {
-     public function add_img_portada(Request $request){
-    
-	$user = JWTAuth::parseToken()->authenticate();
-	$funciones= new Funciones();
-	$id_img=$funciones->generarID();
 
-	if (!is_dir("portadas/".$user['id_user'])) {
-    mkdir("portadas/".$user['id_user']);      
+    public function __construct()
+    {
+        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+        //----------------------------------------------- Modelos --------------
+        $this->tabla_img=new Portadas();
+        // --------------------------------------- Autenticacion --------------------
+        $this->user = JWTAuth::parseToken()->authenticate();
+        //----------------------------------- Funciones -------------------------------
+        $this->funciones=new Funciones();
+    }
+
+    public function add_img_portada(Request $request){
+    
+	$id_img=$this->funciones->generarID();
+
+	if (!is_dir("portadas/".$this->user['id_user'])) {
+    mkdir("portadas/".$this->user['id_user']);      
     } 
 	$base64_string = base64_decode($request->input('img'));
 	$image_name= $id_img.'.png';
-	$path = public_path() . "/portadas/".$user['id_user']."/".$image_name;
+	$path = public_path() . "/portadas/".$this->user['id_user']."/".$image_name;
  	$ifp = fopen($path, "wb"); 
     $data = explode(',', $base64_string);
     fwrite($ifp, base64_decode($data[1])); 
     fclose($ifp);
-    $tabla_img=new Portadas();
-    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
+    $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
 
-    $tabla_img->id_img_portada=$id_img;
-    $tabla_img->img="http://192.168.100.16/appnext/public/portadas/".$user['id_user']."/".$image_name;
-    $tabla_img->estado='1';
-    $tabla_img->id_empresa=$user['id_user'];
-    $save=$tabla_img->save();
+    $this->tabla_img->id_img_portada=$id_img;
+    $this->tabla_img->img="http://192.168.100.20/appnext/public/portadas/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->estado='1';
+    $this->tabla_img->id_empresa=$this->user['id_user'];
+    $save=$this->tabla_img->save();
 
     if ($save) {
-    	return response()->json(["img"=>$image_name]);
+    return response()->json(["img"=>$image_name]);
     }
     
     }
@@ -49,39 +61,25 @@ class PortadasController extends Controller
     $img=explode('.', $img[count($img)-1]);
     $idimg=$img[0];
 
-	$user = JWTAuth::parseToken()->authenticate();
-	$funciones= new Funciones();
-	$id_img=$funciones->generarID();
+	$id_img=$this->funciones->generarID();
 
-    $tabla_img=new Portadas();
-    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
-    $resultado=$tabla_img->where('id_img_portada','=',$idimg)->update(['estado'=>1]);
+    $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
+    $resultado=$this->tabla_img->where('id_img_portada','=',$idimg)->update(['estado'=>1]);
     if ($resultado) {
-        $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
+        $resultado=$this->tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
         return response()->json(["img"=>$resultado['img']]);
     }
     
     }
 
     public function load_imgs_portada(Request $request){
-    
-	$user = JWTAuth::parseToken()->authenticate();
 
-    $tabla_img=new Portadas();
-    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',0)->get();
-    // print_r($resultado);
-
+    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->get();
     	return response()->json(["imgs"=>$resultado]);
     }
 
     public function get_img_portada(Request $request){
-    
-    $user = JWTAuth::parseToken()->authenticate();
-
-    $tabla_img=new Portadas();
-    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',1)->first();
-    // print_r($resultado);
-
+    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',1)->first();
         return response()->json($resultado);
     
     }

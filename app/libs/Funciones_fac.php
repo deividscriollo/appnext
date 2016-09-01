@@ -6,12 +6,17 @@ use App\FacturasRechazadas;
 use App\Empresas;
 use App\PasswrdsE;
 use App\Proveedores;
+use App\regpersona_empresas;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use GuzzleHttp\Client;
 use App\libs\Funciones;
-use Codedge\Fpdf\Fpdf\FPDF;
+//-------------------------------- extras --------------
+use Mail;
+use File;
+use Storage;
+use Zipper;
 
 
 include_once('fpdf/barcode.inc.php');
@@ -24,6 +29,7 @@ class Funciones_fac
         set_time_limit(3000);
         date_default_timezone_set('America/Guayaquil'); //puedes cambiar Guayaquil por tu Ciudad
         setlocale(LC_TIME, 'spanish');
+        $this->persona_q_registra=new regpersona_empresas();
     }
 
 public static function generateValidXmlFromArray($array, $node_block='nodes', $node_name='node') {
@@ -179,7 +185,7 @@ public function getmail($xml){
         return $ruc;
     }
 
-public function leer($usuario,$pass,$iduser){
+public function leer($usuario,$pass,$iduser,$idsucursal){
         
 /* connect to gmail with your credentials */
 $hostname = '{s411b.panelboxmanager.com:993/imap/ssl/novalidate-cert}INBOX';
@@ -284,12 +290,12 @@ if ($emails) {
                 // echo strtolower($file_ext[1]);
                 if (strtolower($file_ext[1]) == "xml") {
                  // echo "XML";
-                 $res_xml = $this->save_xml_mail($attachment['attachment'],$username,$filename);
+                 $res_xml = $this->save_xml_mail($attachment['attachment'],$username,$filename,$idsucursal);
                   // print_r($res_xml);
                 }
                 if (strtolower($file_ext[1]) == "zip") {
                  // echo "ZIP";
-                 $res_zip = $this->save_zip_mail($attachment['attachment'],$username,$filename);
+                 $res_zip = $this->save_zip_mail($attachment['attachment'],$username,$filename,$idsucursal);
                   // print_r($res_zip);
                 }
             }
@@ -311,7 +317,7 @@ imap_close($inbox);
     }
 function verificar_autorizacion($clave_acceso){
         $client = new Client;
-$res = $client->request('POST', 'http://localhost/appserviciosnext/public/estado_factura', [
+$res = $client->request('POST', 'http://apiservicios.nextbook.ec/public/estado_factura', [
     'json' => ["clave"=>(string)$clave_acceso]
 ]);
 
@@ -320,7 +326,7 @@ return $respuesta;
 }
 
 
-    function save_xml_mail($xmlmaster,$emailuser,$doc_name){
+function save_xml_mail($xmlmaster,$emailuser,$doc_name,$idsucursal){
         $tblFacturas=new Facturas();
         $tblFacturas_rechazadas=new FacturasRechazadas();
         $funciones=new Funciones();
@@ -336,6 +342,10 @@ umask($old);
         $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
+        $xmlDatamaster=str_replace('&lt;', '<', $xmlDatamaster);
+        $xmlDatamaster=str_replace('&gt;', '>', $xmlDatamaster);
+        $xmlDatamaster=str_replace('&quot;', '"', $xmlDatamaster);
+        $xmlDatamaster=str_replace('&amp;', '&', $xmlDatamaster);
         $file_xml = new \SimpleXMLElement($xmlDatamaster);
 }else{
         $file_xml = new \SimpleXMLElement($xmlmaster);     
@@ -347,12 +357,11 @@ $nombre_comercial = $file_xml->infoTributaria->nombreComercial;
 $dir_matriz =$file_xml->infoTributaria->dirMatriz;
 $ruc_comercial = $file_xml->infoTributaria->ruc;
 
-
 $respuesta=$this->verificar_autorizacion($clave_acceso);
-// print_r($respuesta) ;
+ //print_r($respuesta['respuesta']) ;
 
-if (count($respuesta[0]['autorizaciones'])!=0) {
-    $estado=$respuesta[0]['autorizaciones']['autorizacion']['estado'];
+if (count($respuesta['respuesta']['autorizaciones'])!=0) {
+    $estado=$respuesta['respuesta']['autorizaciones']['autorizacion']['estado'];
 
             if($estado == 'AUTORIZADO') {
 
@@ -360,7 +369,7 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
     //****************************************************** NOTA DE CREDITO
   case '04':
                   
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
             $razon_social = $xmlComp->infoNotaCredito->razonSocial;
@@ -383,16 +392,29 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
 
      case '01':
                   
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
             $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
             $razon_social = $xmlComp->infoFactura->razonSocial;
+            $dir_establecimiento =$xmlComp->infoFactura->dirEstablecimiento;
             $cod_doc = $xmlComp->infoFactura->codDoc;
+            //-------------------------------------------------- totales ---------------------------
             $total = $xmlComp->infoFactura->importeTotal;
+            $totales=$this->get_totales($xmlmaster);
+            $subtotal_12=$totales['subtotal_12'];
+            $subtotal_0=$totales['subtotal_0'];
+            $subtotal_no_sujeto=$totales['subtotal_no_sujeto'];
+            $subtotal_exento_iva=$totales['subtotal_exento_iva'];
+            $subtotal_sin_impuestos=$totales['subtotal_sin_impuestos'];
+            $descuento=$totales['descuento'];
+            $ice=$totales['ice'];
+            $iva_12=$totales['iva_12'];
+            $propina=$totales['propina'];
+            //--------------------------------------------- fin ----------------------------------------
             $datos = explode('@', $email);
             $ruc = $datos[0];         
             $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
-            //******************************** Datos Nota de Credito/************************
+            //******************************** Datos Factura/************************
 
             $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
             $var_fe = $xmlComp->infoFactura->fechaEmision;
@@ -419,33 +441,68 @@ if (count($respuesta[0]['autorizaciones'])!=0) {
                 $tblFacturas->tipo_doc = $tipo_doc;
                 $tblFacturas->tipo_consumo = '-------';
                 $tblFacturas->total = $total;
-                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->subtotal_12= $subtotal_12;
+                $tblFacturas->subtotal_0= $subtotal_0;
+                $tblFacturas->subtotal_no_sujeto= $subtotal_no_sujeto;
+                $tblFacturas->subtotal_exento_iva= $subtotal_exento_iva;
+                $tblFacturas->subtotal_sin_impuestos= $subtotal_sin_impuestos;
+                $tblFacturas->descuento= $descuento;
+                $tblFacturas->ice= $ice;
+                $tblFacturas->iva_12= $iva_12;
+                $tblFacturas->propina= $propina;
+                $tblFacturas->estado= 1;
+                $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                $tblFacturas->id_sucursal = $idsucursal;
                 $save=$tblFacturas->save();
                 if ($save) {
                   // echo "OK XML--";
-                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
-                  $fp_fac = fopen($url_destination_xml, "wr+");
-                  fwrite($fp_fac, $xmlmaster);
-                  fclose($fp_fac);
+                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
+                  Storage::disk('facturas')->put($url_destination_xml, $xmlmaster);
+                  // File::put($url_destination_xml,$xmlmaster);
+                 
+                  // $fp_fac = fopen($url_destination_xml, "wr+");
+                  // fwrite($fp_fac, $xmlmaster);
+                  // fclose($fp_fac);
+                  //------------------------------------------------ Enviar Correo ---------------------------------------------
+                  $data = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon_social'=>$razon_social,
+                    'fecha_emision'=>$fecha_aut,
+                    'total'=>$total,
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+
+                  $this->send_notificacion($datosPass[0]['id_user'],$data);      
+
                   // return array('valid' => 'true', 'methods' => 'full');
                 }
                 //----------------------------------------------- guardar proveedor ------------------
                 $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
                     }else
-                        return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
+                        return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
                     $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
-                    // return array('valid' => 'false', 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
+                    // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
             }else
             $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
-                // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
+                // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
         $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
-            // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
+            // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }
 
-function save_zip_mail($xmlmaster,$emailuser,$doc_name){
+function send_notificacion($id_user,$datos){
+  $datos_representante=$this->persona_q_registra->where('id_empresa',$id_user)->first();
+  $correo_enviar=$datos_representante->correo;
+        Mail::send('email_factura_inbox', $datos, function($message)use ($correo_enviar)
+            {
+                $message->from("registro@facturanext.com",'Nextbook | Nueva Factura');
+                $message->to($correo_enviar)->subject('Nueva Factura');
+            });
+}
+
+function save_zip_mail($xmlmaster,$emailuser,$doc_name,$idsucursal){
   $funciones=new Funciones();
   $passE=new PasswrdsE();
   $tblFacturas=new Facturas();
@@ -486,18 +543,18 @@ function save_zip_mail($xmlmaster,$emailuser,$doc_name){
           $clave_acceso = $file_xml->infoTributaria->claveAcceso;
           $ambiente = $file_xml->infoTributaria->ambiente;
           $tipo_doc=$file_xml->infoTributaria[0]->codDoc;
-        $respuesta=$this->verificar_autorizacion($clave_acceso);
+          $respuesta=$this->verificar_autorizacion($clave_acceso);
 
           // print_r($respuesta);
-          if (count($respuesta[0]['autorizaciones']) != 0) {
-          $estado = $respuesta[0]['autorizaciones']['autorizacion']['estado'];
+          if (count($respuesta['respuesta']['autorizaciones']) != 0) {
+          $estado = $respuesta['respuesta']['autorizaciones']['autorizacion']['estado'];
           if($estado == 'AUTORIZADO') {
 
 switch ((string)$tipo_doc) {
     //****************************************************** NOTA DE CREDITO
   case '04':
                   
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
             $razon_social = $xmlComp->infoNotaCredito->razonSocial;
@@ -520,12 +577,25 @@ switch ((string)$tipo_doc) {
 
      case '01':
                   
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $this->getmail($xmlComp);
-            $fecha_aut = $xmlComp->infoFactura->fechaEmision;                   
+            $fecha_aut = $xmlComp->infoFactura->fechaEmision;
+            $dir_establecimiento =$xmlComp->infoFactura->dirEstablecimiento;                   
             $razon_social = $xmlComp->infoFactura->razonSocial;
             $cod_doc = $xmlComp->infoFactura->codDoc;
-             $total = $xmlComp->infoFactura->importeTotal;
+            //-------------------------------------------------- totales ---------------------------
+            $total = $xmlComp->infoFactura->importeTotal;
+            $totales=$this->get_totales($buf);
+            $subtotal_12=$totales['subtotal_12'];
+            $subtotal_0=$totales['subtotal_0'];
+            $subtotal_no_sujeto=$totales['subtotal_no_sujeto'];
+            $subtotal_exento_iva=$totales['subtotal_exento_iva'];
+            $subtotal_sin_impuestos=$totales['subtotal_sin_impuestos'];
+            $descuento=$totales['descuento'];
+            $ice=$totales['ice'];
+            $iva_12=$totales['iva_12'];
+            $propina=$totales['propina'];
+            //--------------------------------------------- fin ----------------------------------------
             $datos = explode('@', $email);
             $ruc = $datos[0];         
             $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
@@ -558,29 +628,42 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->tipo_doc = $tipo_doc;
                 $tblFacturas->tipo_consumo = '-------';
                 $tblFacturas->total = $total;
-                $tblFacturas->contenido_fac = $respuesta[0]['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->subtotal_12= $subtotal_12;
+                $tblFacturas->subtotal_0= $subtotal_0;
+                $tblFacturas->subtotal_no_sujeto= $subtotal_no_sujeto;
+                $tblFacturas->subtotal_exento_iva= $subtotal_exento_iva;
+                $tblFacturas->subtotal_sin_impuestos= $subtotal_sin_impuestos;
+                $tblFacturas->descuento= $descuento;
+                $tblFacturas->ice= $ice;
+                $tblFacturas->iva_12= $iva_12;
+                $tblFacturas->propina= $propina;
+                $tblFacturas->estado= 1;
+                $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
+                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $save=$tblFacturas->save();
                 if ($save) {
                   // echo "OK ZIP--";
-                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
-                  $fp_fac = fopen($url_destination_xml, "wr+");
-                  fwrite($fp_fac, $buf);
-                  fclose($fp_fac);
+                  // File::put($path,$contents);
+                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
+                  Storage::disk('facturas')->put($url_destination_xml, $buf);                 
+                  // $fp_fac = fopen($url_destination_xml, "wr+");
+                  // fwrite($fp_fac, $buf);
+                  // fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
                 }
 
               }
             }else
-            return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
+            return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
             }else
              $this->save_fac_rechazada($buf,$emailuser,'no-definido','no-autorizado');
-            // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
+            // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
         $this->save_fac_rechazada($buf,$emailuser,'no-definido','registro-no-existente-sri');
       }else
       $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio'); //************** si el XML esta vacio
-          // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
+          // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
            }//*************************************************** FIN si el archivo es XML******************************
 
         }
@@ -591,7 +674,7 @@ switch ((string)$tipo_doc) {
     unlink($url_destination);
   }
 
-function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon){
+function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon,$id_sucursal){
   $tblFacturas_rechazadas=new FacturasRechazadas();
   $passE=new PasswrdsE();
   $datosPass=$passE->select('id_user')->where('email','=',$emailuser)->get();
@@ -612,13 +695,14 @@ function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon){
     $tblFacturas_rechazadas->razon_rechazo = $razon;
     $tblFacturas_rechazadas->contenido_fac = $xmlmaster;
     $tblFacturas_rechazadas->id_empresa = $datosPass[0]['id_user'];
+    $tblFacturas_rechazadas->id_sucursal = $id_sucursal;
     $save=$tblFacturas_rechazadas->save();
 
 }
 
 function save_proveedor($ruc,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$id_empresa){
 $tabla=new Proveedores();
-$sql=$tabla->where('ruc','=',$ruc)->get();
+$sql=$tabla->where('ruc','=',$ruc)->where('id_empresa','=',$id_empresa)->get();
     if (count($sql)==0) {
     $funciones = new Funciones();
     $tabla->id = $funciones->generarId();
@@ -633,7 +717,7 @@ $sql=$tabla->where('ruc','=',$ruc)->get();
   }
 }
 
-function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo){
+function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo,$id_sucursal){
         $tblFacturas=new Facturas();
         $tblFacturas_rechazadas=new FacturasRechazadas();
         $funciones=new Funciones();
@@ -644,7 +728,7 @@ function save_xml_file($xmlmaster,$emailuser,$doc_name,$tipo_consumo){
  if (!is_dir("facturas/".$datosPass[0]['id_user'])) {
     mkdir("facturas/".$datosPass[0]['id_user']);      
     }
-        $xmlData_sub = new \SimpleXMLElement($xmlmaster);
+    $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
         $file_xml = new \SimpleXMLElement($xmlDatamaster);
@@ -672,7 +756,7 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
     //****************************************************** NOTA DE CREDITO
   case '04':
                   
-            $xmlComp = new \SimpleXMLElement($respuesta[0]['autorizaciones']['autorizacion']['comprobante']);
+            $xmlComp = new \SimpleXMLElement($respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante']);
             $email = $xmlComp->infoAdicional->campoAdicional;
             $fecha_aut = $xmlComp->infoNotaCredito->fechaEmision;                   
             $razon_social = $xmlComp->infoNotaCredito->razonSocial;
@@ -701,12 +785,23 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
             //$razon_social = $xmlComp->infoFactura->razonSocial;
             $dir_establecimiento =$xmlComp->infoFactura->dirEstablecimiento;
             $cod_doc = $xmlComp->infoFactura->codDoc;
+            //-------------------------------------------------- totales ---------------------------
             $total = $xmlComp->infoFactura->importeTotal;
+            $totales=$this->get_totales($xmlmaster);
+            $subtotal_12=$totales['subtotal_12'];
+            $subtotal_0=$totales['subtotal_0'];
+            $subtotal_no_sujeto=$totales['subtotal_no_sujeto'];
+            $subtotal_exento_iva=$totales['subtotal_exento_iva'];
+            $subtotal_sin_impuestos=$totales['subtotal_sin_impuestos'];
+            $descuento=$totales['descuento'];
+            $ice=$totales['ice'];
+            $iva_12=$totales['iva_12'];
+            $propina=$totales['propina'];
+            //--------------------------------------------- fin ----------------------------------------
             $datos = explode('@', $email);
             $ruc = $datos[0];         
             $identificacionComprador= $xmlComp->infoFactura->identificacionComprador;    
             //******************************** Datos Nota de Credito/************************
-
             $num_fac = $xmlComp->infoTributaria->estab. '-'.$xmlComp->infoTributaria->ptoEmi. '-'.$xmlComp->infoTributaria->secuencial;
             $var_fe = $xmlComp->infoFactura->fechaEmision;
             $tipo_doc = $xmlComp->infoTributaria->codDoc;
@@ -732,665 +827,165 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $tblFacturas->tipo_doc = $tipo_doc;
                 $tblFacturas->tipo_consumo = $tipo_consumo;
                 $tblFacturas->total = $total;
+                $tblFacturas->subtotal_12= $subtotal_12;
+                $tblFacturas->subtotal_0= $subtotal_0;
+                $tblFacturas->subtotal_no_sujeto= $subtotal_no_sujeto;
+                $tblFacturas->subtotal_exento_iva= $subtotal_exento_iva;
+                $tblFacturas->subtotal_sin_impuestos= $subtotal_sin_impuestos;
+                $tblFacturas->descuento= $descuento;
+                $tblFacturas->ice= $ice;
+                $tblFacturas->iva_12= $iva_12;
+                $tblFacturas->propina= $propina;
+                $tblFacturas->estado= 1;
                 $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
+                $tblFacturas->id_sucursal = $id_sucursal;
                 $save=$tblFacturas->save();
                 if ($save) {
                   // echo "OK XML--";
-                  $url_destination_xml = "facturas/".$datosPass[0]['id_user']."/".$id_factura.'.xml';                 
-                  $fp_fac = fopen($url_destination_xml, "wr+");
-                  fwrite($fp_fac, $xmlmaster);
-                  fclose($fp_fac);
+                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml'; 
+                  Storage::disk('facturas')->put($url_destination_xml, $xmlmaster);                
+                  // $fp_fac = fopen($url_destination_xml, "wr+");
+                  // fwrite($fp_fac, $xmlmaster);
+                  // fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
                 }
                 //----------------------------------------------- guardar proveedor ------------------
                 $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
+                 //------------------------------------------------ Enviar Correo ---------------------------------------------
+                  $data = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon_social'=>$razon_social,
+                    'fecha_emision'=>$fecha_aut,
+                    'total'=>$total,
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+                $this->send_notificacion($datosPass[0]['id_user'],$data);
                     }else
-                        return array('valid' => 'false', 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
+                        return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
                 }else 
                     $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
-                    // return array('valid' => 'false', 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
+                    // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
             }else
             $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
-                // return array('valid' => 'false', 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
+                // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else
         $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
-            // return array('valid' => 'false', 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
+            // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }
-
-    // --------------------------------------GENERAR PDF----------------------
-public function gen_pdf($xmlmaster,$iduser,$idfac){
-
-$xmlData = new \SimpleXMLElement($xmlmaster);
-
-// if(!is_object($xmlData)){
-//     $xmlString = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $xmlmaster);
-//     $xmlAut = new \SimpleXMLElement($xmlString);         
-    
-//     $nroAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->numeroAutorizacion;
-//     $fechAut = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->fechaAutorizacion;
-//     $ambi = $xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->ambiente;
-//     $xmlAut = utf8_decode($xmlAut->soapBody->ns2autorizacionComprobanteResponse->RespuestaAutorizacionComprobante->autorizaciones->autorizacion->comprobante);           
-//   }else{    
-    $nroAut = $xmlData->numeroAutorizacion; 
-    $fechAut = $xmlData->fechaAutorizacion; 
-    $ambi = utf8_decode($xmlData->ambiente);  
-//     $xmlAut = $this->uncdata($xmlData->comprobante); 
-//   }         
-// print_r($xmlAut);  
-  // $xmlAut =  new \SimpleXMLElement($xmlData); 
-    $xmlAut =  $xmlData; 
-              
-  
-  if($xmlAut->infoTributaria->tipoEmision == 1){
-    $emi = 'Normal';  
-  }else{
-    $emi = 'Indisponibilidad del Sistema';  
+//----------------------------------------------- Generar codigo de barras ---------------------------------------
+  public function gen_codigo_barras($clave_acceso){
+    new barCodeGenrator($clave_acceso,1,'temp.gif', 475, 60, true);///img codigo barras  
   }
+//----------------------------------------------- obtener totales ------------------------------------------------
+  public function get_totales($xml){
 
-     $fpdf= new FPDF('P','mm','a4');
-        $fpdf->AddPage();
-        $fpdf->SetMargins(10,0,0,0);        
-        $fpdf->AliasNbPages();
-        $fpdf->SetAutoPageBreak(true, 10);
-        $fpdf->SetFont('Arial','B',16);
+        $xmlData = new \SimpleXMLElement($xml);
+        if (count($xmlData->infoTributaria->ambiente)!=0) {
+        $xmlData = new \SimpleXMLElement($xml);
+        $tipoambiente=(string)$xmlData->infoTributaria->ambiente;
+        }else{
+        $xmlDatamaster=$xmlData->comprobante;
+        $xmlDatamaster=str_replace(array('<![CDATA[',']]>'), '', $xmlDatamaster);
+        $xmlData = new \SimpleXMLElement($xmlDatamaster);
+        }
 
-        if($xmlAut->infoTributaria->codDoc == '01'){
-    $doc = "FACTURA";     
-    $fpdf->Rect(3, 8, 100, 43 , 'D');//1 empresa imagen
-      $fpdf->Text(5, 50, substr(utf8_decode($xmlAut->infoTributaria->razonSocial),0,48).'..');//NOMBRE proveedor
-      $fpdf->Text(5, 50, substr(utf8_decode($xmlAut->infoTributaria->razonSocial),0,48).'..');//NOMBRE proveedor
-      //////////////////////1/////////////////////////
-
-    $fpdf->Rect(3, 53, 100, 45 , 'D');//2 datos personales 
-    $fpdf->SetY(55);
-    $fpdf->SetX(4);  
-    $fpdf->multiCell( 98, 5, $xmlAut->infoTributaria->razonSocial,0 );//NOMBRE proveedor 
-    $fpdf->SetY(66);
-    $fpdf->SetX(4);  
-    $fpdf->multiCell( 98, 5, 'Dir Matriz: ' .utf8_decode($xmlAut->infoTributaria->dirMatriz),0 );//   direccion  
-    $fpdf->Text(5, 86, utf8_decode('Contribuyente Especial Resolución Nro: '.$xmlAut->infoFactura->contribuyenteEspecial));//contribuyente
-    $fpdf->Text(5, 93, utf8_decode('Obligado a llevar Contabilidad: '.$xmlAut->infoFactura->obligadoContabilidad));//obligado
-
-    $est = $xmlAut->infoTributaria->estab . '-'. $xmlAut->infoTributaria->ptoEmi . '-'. $xmlAut->infoTributaria->secuencial;
-    
-      $fpdf->Rect(106, 8, 102, 90 , 'D');//3 DATOS EMPRESA
-      $fpdf->Text(108, 15, 'RUC: '. $xmlAut->infoTributaria->ruc);//ruc
-      $fpdf->Text(108, 22, $doc);//tipo comprobante
-      $fpdf->Text(108, 29, 'No. ' . $est);//tipo comprobante
-      $fpdf->Text(108, 36, utf8_decode('NÚMERO DE AUTORIZACIÓN'));//nro autorizacion TEXT
-      $fpdf->Text(108, 43, $nroAut);//nro autorizacion
-      $fpdf->Text(108, 50, utf8_decode('FECHA Y HORA DE AUTORIZACIÓN'));//fecha y hora de autorizacion TEXT
-      $fpdf->Text(108, 57, $fechAut);//nro autorizacion
-      $fpdf->Text(108, 64, utf8_decode('AMBIENTE: '. utf8_encode($ambi)));//ambiente
-      $fpdf->Text(108, 71, utf8_decode('EMISIÓN: '. $emi));//tipo de emision
-      $fpdf->Text(108, 80, utf8_decode('CLAVE DE ACCESO: '));//tipo de emision
-      $code_number = $xmlAut->infoTributaria->claveAcceso;//////cpdigo de barras    
-    new barCodeGenrator($code_number,1,'temp.gif', 475, 60, true);///img codigo barras    
-    $fpdf->Image('temp.gif',108,82,96,15);       
-      /////////////////////////////Datos Factura///////////////////
-      $fpdf->Rect(3, 101, 205, 20 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->SetY(101);
-      $fpdf->SetX(3);
-    $fpdf->multiCell( 130, 6, utf8_decode('Razón Social / Nombres y Apellidos: ' . $xmlAut->infoFactura->razonSocialComprador ),0 );//NOMBRE cliente 
-      $fpdf->Text(135, 105, utf8_decode('RUC / CI: ' . $xmlAut->infoFactura->identificacionComprador ));//ruc cliente
-      $fpdf->Text(5, 117, utf8_decode('Fecha de Emisión: ' . $xmlAut->infoFactura->fechaEmision ));//fecha de emision cliente
-      $fpdf->Text(136, 117, utf8_decode('Guía de Remisión: ' .$xmlAut->infoFactura->guiaRemision ));//guia remision 
-
-      if(is_object($xmlAut->detalles->detalle[0]->detallesAdicionales->detAdicional[2])){
-      print_r($xmlAut->detalles->detalle[0]->detallesAdicionales->detAdicional[1]->attributes()->nombre); 
-    }
-    
-    //  //////////////////detalles factura/////////////
-      // $fpdf->SetFont('Amble-Regular','',8);               
-      $fpdf->SetY(125);
-    $fpdf->SetX(3);
-    $fpdf->multiCell( 20, 10, utf8_decode('Cod. Principal'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(23);
-    $fpdf->multiCell( 21, 10, utf8_decode('Cod. Auxiliar'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(44);
-    $fpdf->multiCell( 12, 10, utf8_decode('Cant.'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(56);
-    $fpdf->multiCell( 60, 10, utf8_decode('Descripción'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(116);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(131);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(146);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(161);
-    $fpdf->multiCell( 16, 5, utf8_decode('Precio Unitario'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(177);
-    $fpdf->multiCell( 16, 10, utf8_decode('Descuento'),1 );
-    $fpdf->SetY(125);
-    $fpdf->SetX(193);
-    $fpdf->multiCell( 15, 5, utf8_decode('Precio Total'),1 );            
-   
-    for ($i=0; $i < sizeof($xmlAut->detalles->detalle); $i++) { 
-      $fpdf->SetX(3);
-      $fpdf->Cell(20, 6, utf8_decode($xmlAut->detalles->detalle[$i]->codigoPrincipal),1,0, 'C',0);                   
-      $fpdf->Cell(21, 6, utf8_decode($xmlAut->detalles->detalle[$i]->codigoAuxiliar),1,0, 'C',0);
-      $fpdf->Cell(12, 6, utf8_decode($xmlAut->detalles->detalle[$i]->cantidad),1,0, 'C',0); 
-      $fpdf->Cell(60, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->descripcion),0,36),1,0, 'L',0);  
-      if(is_object($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[0])){
-        $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[0]->attributes()),0,9),1,0, 'C',0);                          
-      }else{
-        $fpdf->Cell(15, 6, '',1,0, 'C',0);                                   
-      }
-      if(is_object($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[1])){
-        $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[1]->attributes()),0,9),1,0, 'C',0);                          
-      }else{
-        $fpdf->Cell(15, 6, '',1,0, 'C',0);                                   
-      }
-      if(is_object($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[2])){        
-        $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional[2]->attributes()),0,9),1,0, 'C',0);                  
-      }else{
-        $fpdf->Cell(15, 6, '',1,0, 'C',0);                             
-      }     
-      $fpdf->Cell(16, 6, utf8_decode($xmlAut->detalles->detalle[$i]->precioUnitario),1,0, 'C',0);                  
-      $fpdf->Cell(16, 6, utf8_decode($xmlAut->detalles->detalle[$i]->descuento),1,0, 'C',0);                   
-      $fpdf->Cell(15, 6, utf8_decode($xmlAut->detalles->detalle[$i]->precioTotalSinImpuesto),1,1, 'C',0);                                  
-    
-    }
-    /////////////////pie de pagina//////////
-    // $fpdf->SetFont('Amble-Regular','',9);              
-    $fpdf->Ln(5);
-    $fpdf->SetX(3);
-    
-      $fpdf->Rect($fpdf->GetX(), $fpdf->GetY(), 115, 0 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->Rect($fpdf->GetX() + 115, $fpdf->GetY(), 90, 0 , 'D');////3 INFO TRIBUTARIA
-    $y =  $fpdf->GetY();
-    $x =  $fpdf->GetX();
-    $y_1 =  $fpdf->GetY();
-    $x_1 =  $fpdf->GetX();
-    $fpdf->Text($x_1 + 3, $y_1 + 3, utf8_decode('INFORMACIÓN ADICIONAL'));//informacion adicional  
-    $fpdf->Ln(3);
-    $y = $y + 6;    
-    $tam = 0;
-    $tam =  $tam + 6;
-    for ($i=0; $i < sizeof($xmlAut->infoAdicional->campoAdicional); $i++) {     
-      $fpdf->SetX(5);
-      $fpdf->MultiCell( 105, 5, utf8_decode($xmlAut->infoAdicional->campoAdicional[$i]->attributes() . ' : ' . $xmlAut->infoAdicional->campoAdicional[$i]),0 );            
-      $y = $y + 6;
-      $tam =  $tam + 6;
-    } 
-    $fpdf->Rect($x_1, $y_1, 110, $tam , 'D');////4 TOTALES
-    $y_1 = $y_1;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);    
-    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL 12 %'),1,0, 'L',0);                              
-    $tam = sizeof($xmlAut->infoFactura->totalConImpuestos->totalImpuesto);
+     $tam = sizeof($xmlData->infoFactura->totalConImpuestos->totalImpuesto);
+//---------------------------------------- base 12-------------------------------------------
     $cont = 0;
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 2){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);                                      
-        $fpdf->SetX(115);  
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 2){
+        $subtotal_12=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible;
         $cont = 1;
       }   
     }
-    if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 1                                            
-      $fpdf->SetX(115);  
-    }         
-    $cont = 0;    
-    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL 0 %'),1,0, 'L',0);                                       
+     if($cont == 0){
+        $subtotal_12="0.00";
+    }
+    //---------------------------------------- base 0-------------------------------------------
+     $cont = 0;                                        
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 0){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);                                                      
-        $fpdf->SetX(115);
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 0){
+        $subtotal_0=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible;
         $cont = 1;
       }     
     }
     if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);///CODIGO 2      
-      $fpdf->SetX(115);  
-    }         
-    $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1,0, 'L',0);                
+    $subtotal_0="0.00";
+    } 
+    //------------------------- No sujeto IVA ------------------------------------------------
+    $cont = 0;              
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 6){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);        
-        $fpdf->SetX(115);
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 6){
+        $subtotal_no_sujeto=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible;      
         $cont = 1;
       }     
     }   
     if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 2      
-      $fpdf->SetX(115);  
-    }         
-    $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL Exento de IVA'),1,0, 'L',0);                         
+      $subtotal_no_sujeto="0.00";
+    }
+    //------------------------------------------- Exento de IVA ------------------------------
+    $cont = 0;                        
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 7){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible,1,1, 'L',0);                        
-        $fpdf->SetX(115);
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 7){
+        $subtotal_exento_iva=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->baseImponible;
         $cont = 1;
       }     
     }
     if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 2            
-      $fpdf->SetX(115);  
+        $subtotal_exento_iva="0.00";
       $cont = 1;
-    }         
-    $cont = 0;
-    $fpdf->Cell(70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1,0, 'L',0);                             
-    $fpdf->Cell(23, 5, utf8_decode($xmlAut->infoFactura->totalSinImpuestos),1,1, 'L',0);                                 
-    $fpdf->SetX(115);
+    }
+    //----------------------------------------------- Subtotal sin inpuestos ----------------------------
+    $cont = 0;                          
+    $subtotal_sin_impuestos=(string)$xmlData->infoFactura->totalSinImpuestos;
 
-    $fpdf->Cell(70, 5, utf8_decode('DESCUENTOS'),1,0, 'L',0);                                    
-    $fpdf->Cell(23, 5, utf8_decode($xmlAut->infoFactura->totalDescuento),1,1, 'L',0);                                          
-    $fpdf->SetX(115);
-
-    $fpdf->Cell(70, 5, utf8_decode('ICE'),1,0, 'L',0);                                         
-    
+    //----------------------------------------------- Descuentos ----------------------------                                   
+    $descuentos=(string)$xmlData->infoFactura->totalDescuento;                                          
+    //----------------------------------------------------- ICE ------------------------------                                     
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje >= 3000 && $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje < 4000 ){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->valor,1,1, 'L',0);                
-        $fpdf->SetX(115);
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje >= 3000 && $xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje < 4000 ){
+        $ice=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->valor;
         $cont = 1;
       }     
     }   
     if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 2            
-      $fpdf->SetX(115);
+      $ice="0.00";
       $cont = 1;  
-    }         
-    $cont = 0;
-    
-    $fpdf->Cell(70, 5, utf8_decode('IVA 12 %'),1,0, 'L',0);                                        
+    }
+//------------------------------------------ IVA 12 -----------------------------
+    $cont = 0;                                    
     for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 2){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->valor,1,1, 'L',0);                                  
-        $fpdf->SetX(115);
+      if($xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje == 2){
+        $iva_12=(string)$xmlData->infoFactura->totalConImpuestos->totalImpuesto[$i]->valor;
         $cont = 1;
       }     
     }
     if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 2                          
-      $fpdf->SetX(115);  
+      $iva_12="0.00";
       $cont = 1;
-    }         
+    }
+        //------------------------------------------------------ PROPINA -------------------------------
+        $propina=(string)$xmlData->infoFactura->propina;
+        //--------------------------------------- VALOR TOTAL ---------------------
+        $valor_total=(string)$xmlData->infoFactura->importeTotal;
 
-    $cont = 0;  
+        $totales=[
+        'subtotal_12'=>$subtotal_12,
+        'subtotal_0'=>$subtotal_0,
+        'subtotal_no_sujeto'=>$subtotal_no_sujeto,
+        'subtotal_exento_iva'=>$subtotal_exento_iva,
+        'subtotal_sin_impuestos'=>$subtotal_sin_impuestos,
+        'descuento'=> $descuentos,
+        'ice'=> $ice,
+        'iva_12'=> $iva_12,
+        'propina'=>$propina,
+        'valor_total'=>$valor_total];
+        return $totales;
 
-    $fpdf->Cell(70, 5, utf8_decode('IRBPNR'),1,0, 'L',0);              
-    for($i = 0; $i < $tam;$i++){
-      if($xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->codigoPorcentaje >= 5000){
-        $fpdf->Cell(23, 5, $xmlAut->infoFactura->totalConImpuestos->totalImpuesto[$i]->valor,1,1, 'L',0);                                                      
-        $fpdf->SetX(115);
-        $cont = 1;
-      }     
-    } 
-    if($cont == 0){
-      $fpdf->Cell(23, 5, '0.00',1,1, 'L',0);// CODIGO 2                                
-      $fpdf->SetX(115);  
-      $cont = 1;
-    }         
-    $cont = 0;      
-    $fpdf->Cell(70, 5, utf8_decode('PROPINA'),1,0, 'L',0);                   
-    $fpdf->Cell(23, 5,utf8_decode($xmlAut->infoFactura->propina),1,1, 'L',0);                                                                
-    $fpdf->SetX(115);
-
-    $fpdf->Cell(70, 5, utf8_decode('VALOR TOTAL'),1,0, 'L',0);                       
-    $fpdf->Cell(23, 5,utf8_decode($xmlAut->infoFactura->importeTotal),1,1, 'L',0);        
   }
 
-  if($xmlAut->infoTributaria->codDoc == '04'){
-    // echo "NOTA DE CRÉDITO";
-    $doc = "NOTA DE CRÉDITO";     
-    $fpdf->Rect(3, 8, 100, 43 , 'D');//1 empresa imagen
-      $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
-      $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
-      //////////////////////1/////////////////////////
-
-      $fpdf->Rect(3, 53, 100, 45 , 'D');//2 datos personales 
-    $fpdf->SetY(55);
-    $fpdf->SetX(4);  
-      $fpdf->multiCell( 98, 5, $xmlAut->infoTributaria->razonSocial,0 );//NOMBRE proveedor 
-    $fpdf->SetY(66);
-    $fpdf->SetX(4);  
-    $fpdf->multiCell( 98, 5, utf8_decode('Dir Matriz: ' .$xmlAut->infoTributaria->dirMatriz),0 );//   direccion  
-    $fpdf->Text(5, 86, utf8_decode('Contribuyente Especial Resolución Nro: '.$xmlAut->infoFactura->contribuyenteEspecial));//contribuyente
-    $fpdf->Text(5, 93, utf8_decode('Obligado a llevar Contabilidad: '.$xmlAut->infoFactura->obligadoContabilidad));//obligado
-
-    $est = $xmlAut->infoTributaria->estab . '-'. $xmlAut->infoTributaria->ptoEmi . '-'. $xmlAut->infoTributaria->secuencial;
-    
-      $fpdf->Rect(106, 8, 102, 90 , 'D');//3 DATOS EMPRESA
-      $fpdf->Text(108, 15, 'RUC: '. $xmlAut->infoTributaria->ruc);//ruc
-      $fpdf->Text(108, 22, $doc);//tipo comprobante
-      $fpdf->Text(108, 29, 'No. ' . $est);//tipo comprobante
-      $fpdf->Text(108, 36, utf8_decode('NÚMERO DE AUTORIZACIÓN'));//nro autorizacion TEXT
-      $fpdf->Text(108, 43, $nroAut);//nro autorizacion
-      $fpdf->Text(108, 50, utf8_decode('FECHA Y HORA DE AUTORIZACIÓN'));//fecha y hora de autorizacion TEXT
-      $fpdf->Text(108, 57, $fechAut);//nro autorizacion
-      $fpdf->Text(108, 64, utf8_decode('AMBIENTE: '. $ambi));//ambiente
-      $fpdf->Text(108, 71, utf8_decode('EMISIÓN: '. $emi));//tipo de emision
-      $fpdf->Text(108, 80, utf8_decode('CLAVE DE ACCESO: '));//tipo de emision
-      $code_number = $xmlAut->infoTributaria->claveAcceso;//////cpdigo de barras    
-    new barCodeGenrator($code_number,1,'temp.gif', 475, 60, true);///img codigo barras    
-    $fpdf->Image('temp.gif',108,82,96,15);       
-      /////////////////////////////Datos Factura///////////////////
-      $fpdf->Rect(3, 101, 205, 44 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->SetY(101);
-    $fpdf->SetX(3);
-    $fpdf->multiCell( 130, 6, utf8_decode('Razón Social / Nombres y Apellidos: ' . $xmlAut->infoNotaCredito->razonSocialComprador ),0 );//NOMBRE cliente 
-      $fpdf->Text(135, 105, utf8_decode('Identificación: ' . $xmlAut->infoNotaCredito->identificacionComprador ));//ruc cliente
-      $fpdf->Text(5, 117, utf8_decode('Fecha de Emisión: ' . $xmlAut->infoNotaCredito->fechaEmision ));//fecha de emision cliente      
-    $fpdf->Line(5,122,205,122);
-    //01 factura ver en la base de datos $xmlAut->infoNotaCredito->codDocModificado
-    $fpdf->Text(5, 128, utf8_decode('Comprobante que se modifica: ' .  'FACTURA'));//
-    $fpdf->Text(150, 128, utf8_decode($xmlAut->infoNotaCredito->numDocModificado ));//
-      $fpdf->Text(5, 136, utf8_decode('Fecha Emisión (Comprobante a modificar): ' . $xmlAut->infoNotaCredito->fechaEmisionDocSustento));//
-      $fpdf->Text(5, 143, utf8_decode('Razón de Modificación: ' . $xmlAut->infoNotaCredito->motivo));//
-      
-       //////////////////detalles factura/////////////
-      // $fpdf->SetFont('Amble-Regular','',8);               
-      $fpdf->SetY(145);
-    $fpdf->SetX(3);
-    $fpdf->multiCell( 15, 10, utf8_decode('Código'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(18);
-    $fpdf->multiCell( 13, 5, utf8_decode('Código Auxiliar'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(31);
-    $fpdf->multiCell( 14, 10, utf8_decode('Cantidad'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(45);
-    $fpdf->multiCell( 71, 10, utf8_decode('Descripción'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(116);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(131);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(146);
-    $fpdf->multiCell( 15, 5, utf8_decode('Detalle Adicional'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(161);
-    $fpdf->multiCell( 16, 10, utf8_decode('Descuento'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(177);
-    $fpdf->multiCell( 16, 5, utf8_decode('Precio Unitario'),1 );
-    $fpdf->SetY(145);
-    $fpdf->SetX(193);
-    $fpdf->multiCell( 15, 5, utf8_decode('Precio Total'),1 );             
-    $desc = 0;
-      for ($i=0; $i < sizeof($xmlAut->detalles->detalle); $i++) { 
-      $fpdf->SetX(3);
-      $fpdf->Cell(15, 6, utf8_decode($xmlAut->detalles->detalle[$i]->codigoInterno),1,0, 'C',0);                   
-      $fpdf->Cell(13, 6, utf8_decode($xmlAut->detalles->detalle[$i]->codigoAdicional),1,0, 'C',0);
-      $fpdf->Cell(14, 6, utf8_decode($xmlAut->detalles->detalle[$i]->cantidad),1,0, 'C',0); 
-      $fpdf->Cell(71, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->descripcion),0,46),1,0, 'L',0);                  
-      $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional),0,9),1,0, 'C',0);                   
-      $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional),0,9),1,0, 'C',0);                   
-      $fpdf->Cell(15, 6, substr(utf8_decode($xmlAut->detalles->detalle[$i]->detallesAdicionales->detAdicional),0,9),1,0, 'C',0);                   
-      $fpdf->Cell(16, 6, utf8_decode($xmlAut->detalles->detalle[$i]->precioUnitario),1,0, 'C',0);                  
-      $fpdf->Cell(16, 6, utf8_decode($xmlAut->detalles->detalle[$i]->descuento),1,0, 'C',0);                   
-      $fpdf->Cell(15, 6, utf8_decode($xmlAut->detalles->detalle[$i]->precioTotalSinImpuesto),1,1, 'C',0);                                  
-      $desc = $desc + $xmlAut->detalles->detalle[$i]->descuento;
-    }
-    /////////////////pie de pagina//////////
-    // $fpdf->SetFont('Amble-Regular','',9);              
-    $fpdf->Ln(4);
-    $fpdf->SetX(3);
-    
-      $fpdf->Rect($fpdf->GetX(), $fpdf->GetY(), 115, 0 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->Rect($fpdf->GetX() + 115, $fpdf->GetY(), 90, 0 , 'D');////3 INFO TRIBUTARIA
-    $y =  $fpdf->GetY();
-    $x =  $fpdf->GetX();
-    $y_1 =  $fpdf->GetY();
-    $x_1 =  $fpdf->GetX();
-    $fpdf->Text($x_1 + 3, $y_1 + 3, utf8_decode('INFORMACIÓN ADICIONAL'));//informacion adicional  
-    $fpdf->Ln(3);
-    $y = $y + 6;    
-    $tam = 0;
-    $tam =  $tam + 6;
-    for ($i=0; $i < sizeof($xmlAut->infoAdicional->campoAdicional); $i++) {     
-      $fpdf->SetX(5);
-      $fpdf->MultiCell( 105, 5, utf8_decode($xmlAut->infoAdicional->campoAdicional[$i]->attributes() . ' : ' . $xmlAut->infoAdicional->campoAdicional[$i]),0 );            
-      $y = $y + 6;
-      $tam =  $tam + 6;
-    } 
-    ////////////////////////////////////////////////////
-    $fpdf->Rect($x_1, $y_1, 110, $tam , 'D');////4 TOTALES
-    $y_1 = $y_1;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 12 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[0]->baseImponible,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 0 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[0]->baseImponible,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->baseImponible,1, 'C' );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL Exento de IVA'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->baseImponible,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaCredito->totalSinImpuestos),1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('TOTAL DESCUENTOS'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $desc,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('ICE'),1);
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    if($xmlAut->infoNotaCredito->ice == ''){
-      $ice = '0.00';
-    }else{
-      $ice = $xmlAut->infoNotaCredito->ice;
-    }
-    $fpdf->multiCell( 23, 5, utf8_decode($ice),1 ,'C' );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('IVA 12 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5,  $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->valor,1 , 'C');
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('IRBPNR'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaCredito->totalConImpuestos->totalImpuesto[1]->valor,1,'C' );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('VALOR TOTAL'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaCredito->valorModificacion),1 ,'C');
-
-    ////////////////////////////////////////////
-
-  }
-  if($xmlAut->infoTributaria->codDoc == '05'){
-    $doc = "NOTA DE DÉBITO";      
-    $fpdf->Rect(3, 8, 100, 43 , 'D');//1 empresa imagen
-      $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
-      $fpdf->Text(5, 50, utf8_decode($xmlAut->infoTributaria->razonSocial));//NOMBRE proveedor
-      //////////////////////1/////////////////////////
-
-      $fpdf->Rect(3, 53, 100, 45 , 'D');//2 datos personales 
-    $fpdf->SetY(55);
-    $fpdf->SetX(4);  
-      $fpdf->multiCell( 98, 5, $xmlAut->infoTributaria->razonSocial,0 );//NOMBRE proveedor 
-    $fpdf->SetY(66);
-    $fpdf->SetX(4);  
-    $fpdf->multiCell( 98, 5, utf8_decode('Dir Matriz: ' .$xmlAut->infoTributaria->dirMatriz),0 );//   direccion  
-    $fpdf->Text(5, 86, utf8_decode('Contribuyente Especial Resolución Nro: '.$xmlAut->infoFactura->contribuyenteEspecial));//contribuyente
-    $fpdf->Text(5, 93, utf8_decode('Obligado a llevar Contabilidad: '.$xmlAut->infoFactura->obligadoContabilidad));//obligado
-
-    $est = $xmlAut->infoTributaria->estab . '-'. $xmlAut->infoTributaria->ptoEmi . '-'. $xmlAut->infoTributaria->secuencial;
-    
-      $fpdf->Rect(106, 8, 102, 90 , 'D');//3 DATOS EMPRESA
-      $fpdf->Text(108, 15, 'RUC: '. $xmlAut->infoTributaria->ruc);//ruc
-      $fpdf->Text(108, 22, $doc);//tipo comprobante
-      $fpdf->Text(108, 29, 'No. ' . $est);//tipo comprobante
-      $fpdf->Text(108, 36, utf8_decode('NÚMERO DE AUTORIZACIÓN'));//nro autorizacion TEXT
-      $fpdf->Text(108, 43, $nroAut);//nro autorizacion
-      $fpdf->Text(108, 50, utf8_decode('FECHA Y HORA DE AUTORIZACIÓN'));//fecha y hora de autorizacion TEXT
-      $fpdf->Text(108, 57, $fechAut);//nro autorizacion
-      $fpdf->Text(108, 64, utf8_decode('AMBIENTE: '. $ambi));//ambiente
-      $fpdf->Text(108, 71, utf8_decode('EMISIÓN: '. $emi));//tipo de emision
-      $fpdf->Text(108, 80, utf8_decode('CLAVE DE ACCESO: '));//tipo de emision
-      $code_number = $xmlAut->infoTributaria->claveAcceso;//////cpdigo de barras    
-    new barCodeGenrator($code_number,1,'temp.gif', 475, 60, true);///img codigo barras    
-    $fpdf->Image('temp.gif',108,82,96,15);       
-      /////////////////////////////Datos Factura///////////////////
-      $fpdf->Rect(3, 101, 205, 40 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->SetY(101);
-    $fpdf->SetX(3);
-    $fpdf->multiCell( 130, 6, utf8_decode('Razón Social / Nombres y Apellidos: ' . $xmlAut->infoNotaDebito->razonSocialComprador ),0 );//NOMBRE cliente  
-      $fpdf->Text(135, 105, utf8_decode('Identificación: ' . $xmlAut->infoNotaDebito->identificacionComprador ));//ruc cliente
-      $fpdf->Text(5, 117, utf8_decode('Fecha de Emisión: ' . $xmlAut->infoNotaDebito->fechaEmision ));//fecha de emision cliente     
-    $fpdf->Line(5,122,205,122);
-    //01 factura ver en la base de datos $xmlAut->infoNotaDebito->codDocModificado
-    $fpdf->Text(5, 128, utf8_decode('Comprobante que se modifica: ' .  'FACTURA'));//ruc cliente
-    $fpdf->Text(150, 128, utf8_decode($xmlAut->infoNotaDebito->numDocModificado ));//ruc cliente
-      $fpdf->Text(5, 136, utf8_decode('Fecha Emisión: ' . $xmlAut->infoNotaDebito->fechaEmisionDocSustento));//ruc cliente
-      //detalles nota debito
-      $fpdf->SetFont('Amble-Regular','',12);               
-      $fpdf->SetY(141);
-    $fpdf->SetX(3);
-    $fpdf->multiCell( 127, 8, utf8_decode('RAZÓN DE LA MODIFICACIÓN'),1,'C' );
-    $fpdf->SetY(141);
-    $fpdf->SetX(130);
-    $fpdf->multiCell( 78, 8, utf8_decode('VALOR DE LA MODIFICACIÓN'),1, 'C' );
-    // $fpdf->SetFont('Amble-Regular','',9);               
-    for ($i=0; $i < sizeof($xmlAut->motivos->motivo); $i++) { 
-      $fpdf->SetX(3);
-      $fpdf->Cell(127, 6, utf8_decode($xmlAut->motivos->motivo[$i]->razon),1,0, 'L',0);                  
-      $fpdf->Cell(78, 6, utf8_decode($xmlAut->motivos->motivo[$i]->valor),1,0, 'R',0);                                         
-    }
-      /////////////////pie de pagina//////////
-    // $fpdf->SetFont('Amble-Regular','',9);              
-    $fpdf->Ln(8);
-    $fpdf->SetX(3);
-    
-      $fpdf->Rect($fpdf->GetX(), $fpdf->GetY(), 115, 0 , 'D');////3 INFO TRIBUTARIA
-      $fpdf->Rect($fpdf->GetX() + 115, $fpdf->GetY(), 90, 0 , 'D');////3 INFO TRIBUTARIA
-    $y =  $fpdf->GetY();
-    $x =  $fpdf->GetX();
-    $y_1 =  $fpdf->GetY();
-    $x_1 =  $fpdf->GetX();
-    $fpdf->Text('', '', utf8_decode('INFORMACIÓN ADICIONAL'));//informacion adicional  
-    $fpdf->Ln(3);
-    $y = $y + 6;    
-    $tam = 0;
-    $tam =  $tam + 6;
-    for ($i=0; $i < sizeof($xmlAut->infoAdicional->campoAdicional); $i++) {     
-      $fpdf->SetX(5);
-      $fpdf->MultiCell( 105, 5, utf8_decode($xmlAut->infoAdicional->campoAdicional[$i]->attributes() . ' : ' . $xmlAut->infoAdicional->campoAdicional[$i]),0 );            
-      $y = $y + 6;
-      $tam =  $tam + 6;
-    } 
-    $fpdf->Rect($x_1, $y_1, 110, $tam , 'D');////4 TOTALES
-    $y_1 = $y_1;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 12 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaDebito->totalSinImpuestos,1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL 0 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, '0.00',1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL No sujeto de IVA'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, '0.00',1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL Exento IVA'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaDebito->totalSinImpuestos),1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('SUBTOTAL SIN IMPUESTOS'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaDebito->totalSinImpuestos),1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);    
-    $fpdf->multiCell( 70, 5, utf8_decode('VALOR ICE'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    if($xmlAut->infoNotaDebito->ice == ''){
-      $ice = '0.00';
-    }else{
-      $ice = $xmlAut->infoNotaDebito->ice;
-    }
-    $fpdf->multiCell( 23, 5, utf8_decode($ice),1 );
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);
-    $fpdf->multiCell( 70, 5, utf8_decode('IVA 12 %'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, $xmlAut->infoNotaDebito->impuestos->impuesto->valor ,1 );//REVISAR CON OTROS DATOS
-    $y_1 = $y_1 + 5;
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115);        
-    $fpdf->multiCell( 70, 5, utf8_decode('VALOR TOTAL'),1 );
-    $fpdf->SetY($y_1);
-    $fpdf->SetX(115 + 70);
-    $fpdf->multiCell( 23, 5, utf8_decode($xmlAut->infoNotaDebito->valorTotal),1 );
-    
-
-  }
-  $filename=public_path().'/facturas/'.$iduser.'/'.$idfac.".pdf";
-  $fpdf->Output($filename,'F');
-
-}
 
 }
 

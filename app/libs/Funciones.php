@@ -2,6 +2,11 @@
 
 namespace App\libs;
 
+//----------------------- paginador --------
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+
 /* --------------------------------------- Funciones --------------------------------*/
 class Funciones
 {
@@ -55,5 +60,21 @@ class Funciones
         $dash_str .= $password;
         return $dash_str;
     }
+
+    function paginarDatos($datos,$currentPage,$perPage){
+     
+    Paginator::currentPageResolver(function () use($currentPage)
+      {
+      return $currentPage;
+      });
+    $currentPage = LengthAwarePaginator::resolveCurrentPage();
+    $collection = new Collection($datos);
+    $currentPageSearchResults = $collection->forPage($currentPage, $perPage)->all();
+    $paginatedSearchResults = new LengthAwarePaginator($currentPageSearchResults, count($collection) , $perPage);
+
+    return $paginatedSearchResults;
+    }
+
+
 }
 ?>

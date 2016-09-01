@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+//-------------------------------------- Autenticacion --------------
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+//-------------------------------------- Funciones --------------
 use App\libs\Funciones;
+//-------------------------------------- Modelos --------------
 use App\img_perfiles;
 
 class PerfilesController extends Controller
@@ -16,34 +19,37 @@ class PerfilesController extends Controller
 public function __construct()
     {
         $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+        //----------------------------------------------- Modelos --------------
+        $this->tabla_img=new img_perfiles();
+        // --------------------------------------- Autenticacion --------------------
+        $this->user = JWTAuth::parseToken()->authenticate();
+        //----------------------------------- Funciones -------------------------------
+        $this->funciones=new Funciones();
     }
 
     public function add_img_perfil(Request $request){
     
-	$user = JWTAuth::parseToken()->authenticate();
-	$funciones= new Funciones();
-	$id_img=$funciones->generarID();
+	$id_img=$this->funciones->generarID();
 
-	if (!is_dir("perfiles/".$user['id_user'])) {
-    mkdir("perfiles/".$user['id_user']);      
+	if (!is_dir("perfiles/".$this->user['id_user'])) {
+    mkdir("perfiles/".$this->user['id_user']);      
     }
 	$base64_string = base64_decode($request->input('img'));
 	$image_name= $id_img.'.png';
-	$path = public_path() . "/perfiles/".$user['id_user']."/".$image_name;
+	$path = public_path() . "/perfiles/".$this->user['id_user']."/".$image_name;
  	$ifp = fopen($path, "wb"); 
     $data = explode(',', $base64_string);
     fwrite($ifp, base64_decode($data[1])); 
     fclose($ifp);
-    $tabla_img=new img_perfiles();
-    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
-    $tabla_img->id_img_perfil=$id_img;
-    $tabla_img->img="http://192.168.100.16/appnext/public/perfiles/".$user['id_user']."/".$image_name;
-    $tabla_img->estado='1';
-    $tabla_img->id_empresa=$user['id_user'];
-    $save=$tabla_img->save();
+    $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
+    $this->tabla_img->id_img_perfil=$id_img;
+    $this->tabla_img->img="http://192.168.100.20/appnext/public/perfiles/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->estado='1';
+    $this->tabla_img->id_empresa=$this->user['id_user'];
+    $save=$this->tabla_img->save();
 
     if ($save) {
-    	return response()->json(["img"=>$image_name]);
+    return response()->json(["img"=>$image_name]);
     }
     
     }
@@ -54,40 +60,27 @@ public function __construct()
     $img=explode('.', $img[count($img)-1]);
     $idimg=$img[0];
 
-	$user = JWTAuth::parseToken()->authenticate();
-	$funciones= new Funciones();
-	$id_img=$funciones->generarID();
+	$id_img=$this->funciones->generarID();
 
-    $tabla_img=new img_perfiles();
-    $tabla_img->where('id_empresa','=',$user['id_user'])->update(['estado'=>0]);
-    $resultado=$tabla_img->where('id_img_perfil','=',$idimg)->update(['estado'=>1]);
+    $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
+    $resultado=$this->tabla_img->where('id_img_perfil','=',$idimg)->update(['estado'=>1]);
     if ($resultado) {
-        $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
-        return response()->json(["img"=>$resultado['img']]);
+    $resultado=$this->tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
+    return response()->json(["img"=>$resultado['img']]);
     }
     
     }
 
     public function load_imgs_perfil(Request $request){
-    
-	$user = JWTAuth::parseToken()->authenticate();
 
-    $tabla_img=new img_perfiles();
-    $resultado=$tabla_img->select('img')->where('id_empresa','=',$user['id_user'])->where('estado','=',0)->orderBy('created_at','ASC')->get();
-    // print_r($resultado);
-
-    	return response()->json(["imgs"=>$resultado]);
+    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->orderBy('created_at','ASC')->get();
+    return response()->json(["imgs"=>$resultado]);
     }
 
     public function get_img_perfil(Request $request){
     
-    $user = JWTAuth::parseToken()->authenticate();
-
-    $tabla_img=new img_perfiles();
-    $resultado=$tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$user['id_user'])->first();
-    // print_r($resultado);
-
-        return response()->json($resultado);
+    $resultado=$this->tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
+    return response()->json($resultado);
     
     }
 

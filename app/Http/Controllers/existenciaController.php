@@ -5,48 +5,32 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Clientes;
+//-------------------------------- Modelos ---
 use App\Empresas;
+//-------------------------------- Funciones ---
 use App\libs\Funciones;
+//-------------------------------- Autenticacion ---
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+//-------------------------------- Extras ---
 use GuzzleHttp\Client;
 
 class existenciaController extends Controller
-
 	{
-	// ----------------------------------------------- CERIFICAR EXISTENCIA CLIENTE ----------------------------
-	public function cliente_exist(Request $request)
 
-		{
-		$table = new Clientes();
-		$user = JWTAuth::parseToken()->authenticate();
-		// ------------------------------ existencia Cliente --------------------
-		$resultado = $table->select('id')->where('ruc_empresa', '=', $request->input('ruc_empresa'))->orderBy('id', 'DESC')->get();
-		if (count($resultado) == 0)
-			{
-			$client = new Client;
-			$res = $client->request('GET', 'http://192.168.100.16/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc_empresa') ]]);
-			$respuesta = json_decode($res->getBody() , true);
-			return response()->json(["respuesta" => $respuesta], 200);
-			}
-		  else
-			{
-			return response()->json(["respuesta" => true], 200);
-			}
-		}
+	public function __construct(Request $request){
+		//------------------------------------------ Modelos -----------------
+	    	$this->tableEmpresas= new Empresas();
+	    	$this->client = new Client;
+    }
 	// ----------------------------------------------- CERIFICAR EXISTENCIA USER NEXTBOOK ----------------------------
 	public function usernext_exist(Request $request)
-
 		{
-		$table = new Empresas();
-		// $user = JWTAuth::parseToken()->authenticate();
 		// ------------------------------ Eliminar Cliente --------------------
-		$resultado = $table->select('ruc')->where('ruc', '=', $request->input('ruc'))->get();
+		$resultado = $this->tableEmpresas->select('ruc')->where('ruc', '=', $request->input('ruc'))->get();
 		if (count($resultado) == 0)
 			{
-			$client = new Client;
-			$res = $client->request('GET', 'http://192.168.100.16/appserviciosnext/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
+			$res = $this->client->request('GET', 'http://apiservicios.nextbook.ec/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
 			$respuesta = json_decode($res->getBody() , true);
 			return response()->json(["respuesta" => $respuesta], 200);
 			}
