@@ -17,7 +17,7 @@ class CreateProveedoresTable extends Migration
             $table->string('razon_social');
             $table->string('nombre_comercial');
             $table->string('ruc');
-            $table->string('dir_matriz');
+            $table->string('dir_matriz')->nullable();
             $table->string('dir_establecimiento');
             $table->string('id_empresa');
             $table->integer('estado');

@@ -59,6 +59,21 @@ return [
             'root' => storage_path('app/facturas'),
             'visibility' => 'private',
         ],
+         'imgsPerfil' => [
+            'driver' => 'local',
+            'root' => storage_path('app/perfiles'),
+            'visibility' => 'private',
+        ],
+        'imgsPortada' => [
+            'driver' => 'local',
+            'root' => storage_path('app/portadas'),
+            'visibility' => 'private',
+        ],
+         'imgsClientes' => [
+            'driver' => 'local',
+            'root' => storage_path('app/clientes'),
+            'visibility' => 'private',
+        ],
 
         's3' => [
             'driver' => 's3',

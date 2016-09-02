@@ -150,7 +150,6 @@ return [
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
         'Chumper\Zipper\ZipperServiceProvider',
-        Codedge\Fpdf\FpdfServiceProvider::class,
         'Barryvdh\DomPDF\ServiceProvider',
         'Collective\Html\HtmlServiceProvider',
         

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b250c30c75b9a07645361d654a72e547",
-    "content-hash": "03029d8bbb156459e54d0f04b9146414",
+    "hash": "102ec38da149d6b41dd0ed63974f5084",
+    "content-hash": "08b9b19251ef962c48896e8bab643d1c",
     "packages": [
         {
             "name": "barryvdh/laravel-cors",
@@ -211,53 +211,6 @@
                 "preload"
             ],
             "time": "2015-11-09 22:51:51"
-        },
-        {
-            "name": "codedge/laravel-fpdf",
-            "version": "1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/codedge/laravel-fpdf.git",
-                "reference": "0ee16238e9a2c04eb641f82abc7bbf7f078c64be"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/codedge/laravel-fpdf/zipball/0ee16238e9a2c04eb641f82abc7bbf7f078c64be",
-                "reference": "0ee16238e9a2c04eb641f82abc7bbf7f078c64be",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "5.*",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Codedge\\Fpdf\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Holger Lösken",
-                    "email": "holger.loesken@codedge.de"
-                }
-            ],
-            "description": "Laravel 5 package for use with Fpdf. It ships with Fpdf 1.81.",
-            "keywords": [
-                "fpdf",
-                "laravel",
-                "pdf"
-            ],
-            "time": "2016-06-21 08:26:10"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",

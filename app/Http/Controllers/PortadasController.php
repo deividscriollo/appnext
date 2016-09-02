@@ -12,7 +12,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\libs\Funciones;
 //------------------------------------ Modelos --------------------
 use App\Portadas;
-
+//---------------------------- Extras 
+use Storage;
 class PortadasController extends Controller
 {
 
@@ -25,18 +26,20 @@ class PortadasController extends Controller
         $this->user = JWTAuth::parseToken()->authenticate();
         //----------------------------------- Funciones -------------------------------
         $this->funciones=new Funciones();
+        //------------------------------------ Paths -------------------------------
+        $this->imgsPortada  = Storage::disk('imgsPortada')->getDriver()->getAdapter()->getPathPrefix();
     }
 
     public function add_img_portada(Request $request){
     
 	$id_img=$this->funciones->generarID();
 
-	if (!is_dir("portadas/".$this->user['id_user'])) {
-    mkdir("portadas/".$this->user['id_user']);      
+	if (!is_dir($this->imgsPortada.$this->user['id_user'])) {
+    mkdir($this->imgsPortada.$this->user['id_user']);      
     } 
 	$base64_string = base64_decode($request->input('img'));
 	$image_name= $id_img.'.png';
-	$path = public_path() . "/portadas/".$this->user['id_user']."/".$image_name;
+	$path = $this->imgsPortada.$this->user['id_user']."/".$image_name;
  	$ifp = fopen($path, "wb"); 
     $data = explode(',', $base64_string);
     fwrite($ifp, base64_decode($data[1])); 
@@ -44,7 +47,7 @@ class PortadasController extends Controller
     $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
 
     $this->tabla_img->id_img_portada=$id_img;
-    $this->tabla_img->img="http://192.168.100.20/appnext/public/portadas/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->img="http://192.168.100.20/appnext/storage/app/portadas/".$this->user['id_user']."/".$image_name;
     $this->tabla_img->estado='1';
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();

@@ -18,8 +18,6 @@ use File;
 use Storage;
 use Zipper;
 
-
-include_once('fpdf/barcode.inc.php');
 /* --------------------------------------- Funciones --------------------------------*/
 class Funciones_fac
 {

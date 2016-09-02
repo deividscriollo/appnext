@@ -14,12 +14,15 @@ class CreateRegpersonaEmpresasTable extends Migration
     {
         Schema::connection('pgsql')->create('regpersona_empresas', function (Blueprint $table) {
             $table->string('idp_regE')->primary();
-            $table->string('nombres_apellidos');
-            $table->string('fecha_nacimiento');
-            $table->string('correo');
-            $table->string('telefono');
-            $table->string('celular');
-            $table->integer('estado');
+            $table->string('cedula')->nullable();
+            $table->string('nombres_apellidos')->nullable();
+            $table->string('fecha_nacimiento')->nullable();
+            $table->string('correo')->nullable();
+            $table->string('provincia')->nullable();
+            $table->string('canton')->nullable();
+            $table->string('telefono')->nullable();
+            // $table->string('celular')->nullable();
+            $table->integer('estado')->nullable();
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('empresas')->onDelete('cascade');
             $table->timestamps();

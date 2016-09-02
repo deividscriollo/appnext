@@ -32,7 +32,6 @@ class perzonalizacionController extends Controller
         $datos=$this->sucursal->select('id_sucursal')->where('codigo','=',$request->input('sucursal'))->where('id_empresa','=',$this->user['id_user'])->get();
         $this->id_sucursal=$datos[0]['id_sucursal'];
         }
-        //--------------------------------------- Funciones --------------------------------
 
     }
    public function addExtra(Request $request){

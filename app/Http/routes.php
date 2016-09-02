@@ -44,6 +44,11 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('addProvincia', 'provinciasController@add_provincia');
         // --------------------------------------- get Provincias -----------
         Route::get('getProvincias', 'provinciasController@get_provincias');
+    // /////////////////////////////////////////////////////////////////////// GASTOS ///////////////////
+        // --------------------------------------- add Provincia -----------
+        Route::post('addGasto', 'gastosController@add_gasto');
+        // --------------------------------------- get Provincias -----------
+        Route::get('getGastos', 'gastosController@get_gastos');
 
         // /////////////////////////////////////////////////////////////////////// USUARIOS NEXTBOOK ///////////////////
         // --------------------------------------- Usuario Existe -----------

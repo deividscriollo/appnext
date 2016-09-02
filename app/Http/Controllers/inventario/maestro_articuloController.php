@@ -55,6 +55,7 @@ class maestro_articuloController extends Controller
 		$this->maestro_articulo->valor_compra=$request->input('valor_compra');
 		$this->maestro_articulo->modo_adquisicion=$request->input('modo_adquisicion');
 		$this->maestro_articulo->estado_bn=$request->input('estado_bn');
+        $this->maestro_articulo->vida_util=$request->input('vida_util');
 		$this->maestro_articulo->observaciones=$request->input('observaciones');
 		$this->maestro_articulo->fecha_inicio=$request->input('fecha_inicio');
 		$this->maestro_articulo->estado=1; 
@@ -84,6 +85,7 @@ class maestro_articuloController extends Controller
 		'valor_compra'=>$request->input('valor_compra'),
 		'modo_adquisicion'=>$request->input('modo_adquisicion'),
 		'estado_bn'=>$request->input('estado_bn'),
+        'vida_util'=>$request->input('vida_util'),
 		'observaciones'=>$request->input('observaciones'),
 		'fecha_inicio'=>$request->input('fecha_inicio')
     		]);
