@@ -122,7 +122,7 @@ public function get_facturas(Request $request){
     }
 
     foreach ($resultado as $key => $value) {
-       $resultado[$key]['url']='http://192.168.100.20/appnext/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
+       $resultado[$key]['url']='http://192.168.0.101/appnext/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
       // $resultado[$key]['url']='http://servicios.nextbook.ec/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
     }
 
@@ -174,7 +174,7 @@ public function upload_xmlfile(Request $request){
             $mensajes=$respuesta['respuesta']['autorizaciones']['autorizacion']['mensajes'];
             if(count($mensajes)=='respuesta'){
             $comprobante=$respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
-            $resultado=$this->Funciones_fac->save_xml_file($comprobante,$this->user['email'],"999.xml",$request->input('tipo'),$this->id_sucursal);
+            $resultado=$this->Funciones_fac->save_xml_file($comprobante,$this->user['email'],"999.xml",$request->input('descripcion'),$this->id_sucursal);
             }
                          }else{
                             $resultado=array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri');
@@ -201,7 +201,7 @@ public function gen_zip($iduser,$idfac)
             }
         }
 public function update_tipo_consumo(Request $request){
-  $update=$this->facturas->where('id_factura',$request->input('id_factura'))->update(['tipo_consumo'=>$request->input('tipo_consumo')]);
+  $update=$this->facturas->where('id_factura',$request->input('id_factura'))->update(['descripcion'=>$request->input('descripcion')]);
   if ($update) {
     return response()->json(['respuesta'=>$request->all()],200);
   }

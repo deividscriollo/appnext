@@ -58,7 +58,7 @@ public function login(Request $request) {
    if (!$token = $this->auth->attempt($credentials)) {
 
    //    $client = new Client;
-   //    $res = $client->request('POST', 'http://192.168.100.20/serviciosradio/public/login', [
+   //    $res = $client->request('POST', 'http://192.168.111.35/serviciosradio/public/login', [
    //        'json' => ['email' => $request->input('email'), 'password' => $request->input('password')]
    //    ]);
    //    $respuesta= json_decode($res->getBody(), true);

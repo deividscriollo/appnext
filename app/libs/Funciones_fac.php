@@ -17,7 +17,7 @@ use Mail;
 use File;
 use Storage;
 use Zipper;
-
+require_once('barcode.inc.php');
 /* --------------------------------------- Funciones --------------------------------*/
 class Funciones_fac
 {
@@ -337,6 +337,8 @@ function save_xml_mail($xmlmaster,$emailuser,$doc_name,$idsucursal){
 // mkdir("facturas/".$datosPass[0]['id_user'], 0777);
 // umask($old);    
 //     }
+if (strlen($xmlmaster)>150) {
+        
         $xmlData_sub = new \SimpleXMLElement($xmlmaster);
 if ($xmlData_sub->comprobante) {
         $xmlDatamaster = $this->uncdata($xmlData_sub->comprobante);
@@ -477,23 +479,70 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 }
                 //----------------------------------------------- guardar proveedor ------------------
                 $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
-                    }else
-                        return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
-                }else 
+                    }else{
+                      $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'La Factura ya se encuentra registrada en el sistema',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+                  $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+                  return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
+                }   
+                }else{ 
+                  $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento no puede ser procesado debido a que el sistema acepta facturas dirigidad al Ruc : '.$ruc,
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
                     $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
+                    $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+                    }
                     // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
-            }else
+            }else{
+              $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'Documento no autorizado por el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
             $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            }
                 // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
-        }else
+        }else{
+           $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento no se encuentra registrado en el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
         $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
+        $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+        }
+      }else{
+           $data_error = [
+                    'clave_acceso'=>'Sin clave de acceso',
+                    'razon'=>'El documento esta vacío',
+                    'nombre_comercial'=>'Sin nombre comercial'
+                  ];
+        // $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio');
+        $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+      }
             // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }
-
+//------------------------------------------------------------------------------------------ NOTIFICACIONES ---------------------------------------------------
 function send_notificacion($id_user,$datos){
   $datos_representante=$this->persona_q_registra->where('id_empresa',$id_user)->first();
   $correo_enviar=$datos_representante->correo;
         Mail::send('email_factura_inbox', $datos, function($message)use ($correo_enviar)
+            {
+                $message->from("registro@facturanext.com",'Nextbook | Nueva Factura');
+                $message->to($correo_enviar)->subject('Nueva Factura');
+            });
+}
+
+function send_notificacion_error($id_user,$datos){
+  $datos_representante=$this->persona_q_registra->where('id_empresa',$id_user)->first();
+  $correo_enviar=$datos_representante->correo;
+        Mail::send('email_factura_error', $datos, function($message)use ($correo_enviar)
             {
                 $message->from("registro@facturanext.com",'Nextbook | Nueva Factura');
                 $message->to($correo_enviar)->subject('Nueva Factura');
@@ -641,26 +690,58 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $save=$tblFacturas->save();
                 if ($save) {
-                  // echo "OK ZIP--";
-                  // File::put($path,$contents);
-                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
-                  Storage::disk('facturas')->put($url_destination_xml, $buf);                 
-                  // $fp_fac = fopen($url_destination_xml, "wr+");
-                  // fwrite($fp_fac, $buf);
-                  // fclose($fp_fac);
-                  // return array('valid' => 'true', 'methods' => 'full');
-                }
 
+                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
+                  Storage::disk('facturas')->put($url_destination_xml, $buf); 
+
+                  $data = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon_social'=>$razon_social,
+                    'fecha_emision'=>$fecha_aut,
+                    'total'=>$total,
+                    'nombre_comercial'=>$nombre_comercial
+                  ];       
+                  $this->send_notificacion($datosPass[0]['id_user'],$data);          
+
+                }
               }
-            }else
-            return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar   
-            }else
-             $this->save_fac_rechazada($buf,$emailuser,'no-definido','no-autorizado');
+            }else{
+                  $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'La Factura ya se encuentra registrada en el sistema',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+                  $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe
+            }
+            }else{
+              $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'Documento no autorizado por el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+            $this->save_fac_rechazada($buf,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            }
             // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
-        }else
+        }else{
+        $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento no se encuentra registrado en el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+        $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
         $this->save_fac_rechazada($buf,$emailuser,'no-definido','registro-no-existente-sri');
-      }else
-      $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio'); //************** si el XML esta vacio
+      }
+      }else{
+         $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento vacio',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+      $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+      $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio');
+      } //************** si el XML esta vacio
           // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
            }//*************************************************** FIN si el archivo es XML******************************
 
@@ -680,14 +761,6 @@ function save_fac_rechazada($xmlmaster,$emailuser,$clave_acceso,$razon,$id_sucur
  $funciones=new Funciones();
 
     $tblFacturas_rechazadas->id_factura_r = $funciones->generarID();
-    // $tblFacturas_rechazadas->num_factura = "no-disponible";
-    // $tblFacturas_rechazadas->nombre_comercial = "no-disponible";
-    // $tblFacturas_rechazadas->Ruc_prov = "no-disponible";
-    // $tblFacturas_rechazadas->fecha_emision = "no-disponible";
-    // $tblFacturas_rechazadas->clave_acceso = "no-disponible";
-    // $tblFacturas_rechazadas->ambiente = "no-disponible";
-    // $tblFacturas_rechazadas->tipo_doc = "no-disponible";
-    // $tblFacturas_rechazadas->total = "no-disponible";
     $tblFacturas_rechazadas->clave_acceso = $clave_acceso;
     $tblFacturas_rechazadas->tipo_consumo = 'Sin-Asignar';
     $tblFacturas_rechazadas->razon_rechazo = $razon;
@@ -848,10 +921,7 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                   // fwrite($fp_fac, $xmlmaster);
                   // fclose($fp_fac);
                   // return array('valid' => 'true', 'methods' => 'full');
-                }
-                //----------------------------------------------- guardar proveedor ------------------
-                $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
-                 //------------------------------------------------ Enviar Correo ---------------------------------------------
+                }                 //------------------------------------------------ Enviar Correo ---------------------------------------------
                   $data = [
                     'clave_acceso'=>(string)$clave_acceso,
                     'razon_social'=>$razon_social,
@@ -860,16 +930,46 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'nombre_comercial'=>$nombre_comercial
                   ];
                 $this->send_notificacion($datosPass[0]['id_user'],$data);
-                    }else
-                        return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- valido y listo para procesar       
-                }else 
+                //----------------------------------------------- guardar proveedor ------------------
+                $this->save_proveedor($ruc_comercial,$razon_social,$nombre_comercial,$dir_matriz,$dir_establecimiento,$datosPass[0]['id_user']);
+                    }else{
+                      $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'La Factura ya se encuentra registrada en el sistema',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
+                  $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+                  return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
+                }   
+                }else{ 
+                  $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento no puede ser procesado debido a que el sistema acepta facturas dirigidad al Ruc : '.$ruc,
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
                     $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
+                    $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+                    }
                     // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
-            }else
+            }else{
+              $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'Documento no autorizado por el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
             $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+            }
                 // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
-        }else
+        }else{
+           $data_error = [
+                    'clave_acceso'=>(string)$clave_acceso,
+                    'razon'=>'El documento no se encuentra registrado en el SRI',
+                    'nombre_comercial'=>$nombre_comercial
+                  ];
         $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
+        $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+        }
             // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }
 //----------------------------------------------- Generar codigo de barras ---------------------------------------

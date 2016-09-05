@@ -47,7 +47,7 @@ class PortadasController extends Controller
     $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
 
     $this->tabla_img->id_img_portada=$id_img;
-    $this->tabla_img->img="http://192.168.100.20/appnext/storage/app/portadas/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->img="http://192.168.111.35/appnext/storage/app/portadas/".$this->user['id_user']."/".$image_name;
     $this->tabla_img->estado='1';
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();

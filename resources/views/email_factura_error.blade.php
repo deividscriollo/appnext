@@ -158,7 +158,7 @@
                                                             <div style="font-family: Arial, sans-serif; line-height: 20px; color: #444444; font-size: 13px;">
                                                                 <b style="color: #777777;">Saludos Estimado@ {{$nombre_comercial}}</b><br>
 
-                                                                <br> Haz recibido una nueva factura con los siguientes datos:
+                                                                <br> Error, no hemos podido leer el documento debido a las siguientes razones:
 
                                                             </div>
 
@@ -219,9 +219,7 @@
 
                                                             <div style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; text-align: center;">
                                                                 Clave de Acceso: {{$clave_acceso}}<br>
-                                                                Razon Social: {{$razon_social}}<br><br>
-                                                                Fecha de Emisión: {{$fecha_emision}}<br><br>
-                                                                Total: {{$total}}<br><br>
+                                                                Razon : {{$razon}}<br><br>
 
                                                             </div>
                                                             <div style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; text-align: center;">
