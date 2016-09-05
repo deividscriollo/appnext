@@ -223,7 +223,7 @@
 
                                                             </div>
                                                             <div style="font-family: Arial, sans-serif; line-height: 19px; color: #444444; font-size: 13px; text-align: center;">
-                                                                <a href="http://localhost/nextbook/" style="color: #ffffff; text-decoration: none; margin: 0px; text-align: center; vertical-align: baseline; padding: 4px 9px; font-size: 15px; line-height: 21px; background-color: #3F51B5;">&nbsp; Acceder &nbsp;</a>
+                                                                <a href="http://pruebas2.nextbook.ec" style="color: #ffffff; text-decoration: none; margin: 0px; text-align: center; vertical-align: baseline; padding: 4px 9px; font-size: 15px; line-height: 21px; background-color: #3F51B5;">&nbsp; Acceder &nbsp;</a>
 
                                                             </div>
 
