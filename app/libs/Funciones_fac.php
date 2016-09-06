@@ -544,7 +544,7 @@ function send_notificacion_error($id_user,$datos){
   $correo_enviar=$datos_representante->correo;
         Mail::send('email_factura_error', $datos, function($message)use ($correo_enviar)
             {
-                $message->from("registro@facturanext.com",'Nextbook | Nueva Factura');
+                $message->from("registro@facturanext.com",'Nextbook | Error Factura');
                 $message->to($correo_enviar)->subject('Nueva Factura');
             });
 }

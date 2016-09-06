@@ -122,7 +122,7 @@ public function get_facturas(Request $request){
     }
 
     foreach ($resultado as $key => $value) {
-       $resultado[$key]['url']='http://192.168.0.101/appnext/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
+       $resultado[$key]['url']=config('global.appnext').'/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
       // $resultado[$key]['url']='http://servicios.nextbook.ec/public/xml?iddocumento='.$resultado[$key]['id_factura'].'&token='.$request->input('token');
     }
 

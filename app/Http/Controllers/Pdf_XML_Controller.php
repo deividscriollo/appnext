@@ -46,7 +46,7 @@ class Pdf_XML_Controller extends Controller
         $pdf->loadHTML($view);
         $pdf->save($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.'.pdf');
         }
-        return response()->json(['respuesta'=>true,'url'=>'http://192.168.0.101/appnext/storage/app/facturas/'.$this->user['id_user'].'/'.$iddocumento.'.pdf']);
+        return response()->json(['respuesta'=>true,'url'=>config('global.appnext').'/storage/app/facturas/'.$this->user['id_user'].'/'.$iddocumento.'.pdf']);
     }
  
     public function getData($iddocumento) 

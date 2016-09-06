@@ -47,7 +47,8 @@ public function __construct()
     fclose($ifp);
     $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
     $this->tabla_img->id_img_perfil=$id_img;
-    $this->tabla_img->img="http://192.168.111.35/appnext/storage/app/perfiles/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->img=config('global.appnext')."/storage/app/perfiles/".$this->user['id_user']."/".$image_name;
+        // $this->tabla_img->img="http://192.168.111.35/appnext/storage/app/perfiles/".$this->user['id_user']."/".$image_name;
     $this->tabla_img->estado='1';
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();

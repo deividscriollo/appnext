@@ -30,7 +30,7 @@ class existenciaController extends Controller
 		$resultado = $this->tableEmpresas->select('ruc')->where('ruc', '=', $request->input('ruc'))->get();
 		if (count($resultado) == 0)
 			{
-			$res = $this->client->request('GET', 'http://apiservicios.nextbook.ec/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
+			$res = $this->client->request('GET', config('global.appnext').'/public/getDatos', ['json' => ['tipodocumento' => 'RUC', 'nrodocumento' => $request->input('ruc') ]]);
 			$respuesta = json_decode($res->getBody() , true);
 			return response()->json(["respuesta" => $respuesta], 200);
 			}
