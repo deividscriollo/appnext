@@ -207,7 +207,21 @@ public function update_tipo_consumo(Request $request){
   }
 }
 
+public function get_new_facturas(Request $request){
+  $resultado=$this->facturas->where('id_sucursal',$this->id_sucursal)->orderBy('created_at','DESC')->get();
 
+  $nro_sin_leer=$this->facturas->where('id_sucursal',$this->id_sucursal)
+                            ->where('estado_view',FALSE)->orderBy('created_at','DESC')->get();
+
+  return response()->json(['respuesta'=>$resultado,'sin_leer'=>count($nro_sin_leer)],200);
+}
+
+public function update_estado_view(Request $request){
+  $update=$this->facturas->where('id_factura',$request->input('id_factura'))->update(['estado_view'=>TRUE]);
+  if ($update) {
+      return response()->json(['respuesta'=>true],200);
+  }
+}
 
 
 }

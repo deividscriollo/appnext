@@ -82,8 +82,12 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('readFacturas', 'facturaController@add_fac_bdd');
         // ************************************ LEER FACTURAS ***********************;
         Route::get('getFacturas', 'facturaController@get_facturas');
+        // ************************************ LEER NUEVAS FACTURAS ***********************;
+        Route::get('getNewFacturas', 'facturaController@get_new_facturas');
         // ************************************ SUBIR ARCHIVOS XML ***********************;
         Route::post('uploadFactura', 'facturaController@upload_xmlfile');
+        // ************************************ ACTUALIZAR ESTADO FACTURA ***********************;
+        Route::post('uploadViewFactura', 'facturaController@update_estado_view');
         // ************************************ ACTUALIZAR TIPO DE CONSUMO ***********************;
         Route::post('updateTipoConsumo', 'facturaController@update_tipo_consumo');
         // // ************************************ DESCARGAR ARCHIVOS XML ***********************;

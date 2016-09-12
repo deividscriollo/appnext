@@ -451,6 +451,7 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $tblFacturas->iva_12= $iva_12;
                 $tblFacturas->propina= $propina;
                 $tblFacturas->estado= 1;
+                $tblFacturas->estado_view= 0;
                 $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $tblFacturas->id_sucursal = $idsucursal;
@@ -485,8 +486,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'La Factura ya se encuentra registrada en el sistema',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-                  $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
-                  return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
+                  // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+                  // return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
                 }   
                 }else{ 
                   $data_error = [
@@ -494,8 +495,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'El documento no puede ser procesado debido a que el sistema acepta facturas dirigidad al Ruc : '.$ruc,
                     'nombre_comercial'=>$nombre_comercial
                   ];
-                    $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
-                    $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+                    // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
+                    // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
                     }
                     // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
             }else{
@@ -504,8 +505,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'Documento no autorizado por el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-            $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
-            $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
             }
                 // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else{
@@ -514,8 +515,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'El documento no se encuentra registrado en el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-        $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
-        $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+        // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
+        // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
         }
       }else{
            $data_error = [
@@ -685,8 +686,8 @@ switch ((string)$tipo_doc) {
                 $tblFacturas->iva_12= $iva_12;
                 $tblFacturas->propina= $propina;
                 $tblFacturas->estado= 1;
+                $tblFacturas->estado_view= 0;
                 $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
-                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $save=$tblFacturas->save();
                 if ($save) {
@@ -711,8 +712,8 @@ switch ((string)$tipo_doc) {
                     'razon'=>'La Factura ya se encuentra registrada en el sistema',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-                  $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
-            return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe
+            //       $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            // return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe
             }
             }else{
               $data_error = [
@@ -720,8 +721,8 @@ switch ((string)$tipo_doc) {
                     'razon'=>'Documento no autorizado por el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-            $this->save_fac_rechazada($buf,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
-            $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+            // $this->save_fac_rechazada($buf,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
             }
             // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else{
@@ -730,8 +731,8 @@ switch ((string)$tipo_doc) {
                     'razon'=>'El documento no se encuentra registrado en el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-        $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
-        $this->save_fac_rechazada($buf,$emailuser,'no-definido','registro-no-existente-sri');
+        // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+        // $this->save_fac_rechazada($buf,$emailuser,'no-definido','registro-no-existente-sri');
       }
       }else{
          $data_error = [
@@ -739,8 +740,8 @@ switch ((string)$tipo_doc) {
                     'razon'=>'El documento vacio',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-      $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
-      $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio');
+      // $this->send_notificacion_error($datosPass[0]['id_user'],$data_error);
+      // $this->save_fac_rechazada("",$emailuser,'no-definido','Documento-Vacio');
       } //************** si el XML esta vacio
           // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
            }//*************************************************** FIN si el archivo es XML******************************
@@ -908,8 +909,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $tblFacturas->iva_12= $iva_12;
                 $tblFacturas->propina= $propina;
                 $tblFacturas->estado= 1;
+                $tblFacturas->estado_view= 1;
                 $tblFacturas->contenido_fac = $respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
-                $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $tblFacturas->id_empresa = $datosPass[0]['id_user'];
                 $tblFacturas->id_sucursal = $id_sucursal;
                 $save=$tblFacturas->save();
@@ -938,8 +939,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'La Factura ya se encuentra registrada en el sistema',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-                  $this->send_notificacion($datosPass[0]['id_user'],$data_error);
-                  return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
+                  // $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+                  // return array('respuesta' => false, 'error' => '5','methods' => 'cla-acc-existente'); // ---------- documento ya existe 
                 }   
                 }else{ 
                   $data_error = [
@@ -947,8 +948,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'El documento no puede ser procesado debido a que el sistema acepta facturas dirigidad al Ruc : '.$ruc,
                     'nombre_comercial'=>$nombre_comercial
                   ];
-                    $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
-                    $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+                    // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'ruc-no-perteneciente');
+                    // $this->send_notificacion($datosPass[0]['id_user'],$data_error);
                     }
                     // return array('respuesta' => false, 'error' => '1', 'methods' => 'ruc-no-perteneciente'); // ---------- ruc no perteneciente a esta cuenta
             }else{
@@ -957,8 +958,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'Documento no autorizado por el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-            $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
-            $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+            // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'Documento-no-autorizado');
+            // $this->send_notificacion($datosPass[0]['id_user'],$data_error);
             }
                 // return array('respuesta' => false, 'error' => '2', 'methods' => 'no-autorizado'); // ------ clave de acceso no autorizado
         }else{
@@ -967,8 +968,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                     'razon'=>'El documento no se encuentra registrado en el SRI',
                     'nombre_comercial'=>$nombre_comercial
                   ];
-        $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
-        $this->send_notificacion($datosPass[0]['id_user'],$data_error);
+        // $this->save_fac_rechazada($xmlmaster,$emailuser,(string)$clave_acceso,'registro-no-existente-sri');
+        // $this->send_notificacion($datosPass[0]['id_user'],$data_error);
         }
             // return array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri'); // ------ no disponible 
     }

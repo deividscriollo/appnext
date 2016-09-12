@@ -13,7 +13,8 @@
         "nicolaslopezj/searchable": "1.*",
         "barryvdh/laravel-dompdf": "0.6.*",
         "laravelcollective/html": "~5.0",
-        "chumper/zipper": "0.6.x"
+        "chumper/zipper": "0.6.x",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

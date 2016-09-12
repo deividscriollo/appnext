@@ -35,6 +35,7 @@ class CreateFacturasTable extends Migration
             $table->string('contenido_fac',20000)->nullable();
             $table->string('id_empresa')->nullable();
             $table->boolean('estado')->nullable();
+            $table->boolean('estado_view')->nullable();
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->string('id_sucursal');
            // $table->foreign('id_sucursal')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
