@@ -235,5 +235,9 @@ Route::group(['middleware' => 'cors'], function ()
         //------------------------------------- ultimo codigo  ------------------------
         Route::get('ultimoCodeMaestroArticulo', 'inventario\maestro_articuloController@ultimo_code_maestro_articulo');
 
+        //---------------------------------------------- CHAT ------------------------------------------------
+        Route::post('sendMensaje', 'chatController@send_mensaje');
+        Route::post('getChats', 'chatController@get_chats');
+
         });
     });
