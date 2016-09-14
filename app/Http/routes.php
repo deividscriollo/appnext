@@ -237,7 +237,7 @@ Route::group(['middleware' => 'cors'], function ()
 
         //---------------------------------------------- CHAT ------------------------------------------------
         Route::post('sendMensaje', 'chatController@send_mensaje');
-        Route::post('getChats', 'chatController@get_chats');
+        Route::get('getChats', 'chatController@get_chats');
 
         });
     });
