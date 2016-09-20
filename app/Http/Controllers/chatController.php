@@ -102,5 +102,33 @@ class chatController extends Controller
     	}
 
     }
+    public function get_mensajes(Request $request){
+    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('created_at','DESC')->get();
+    	$enviados=0;
+    	$recibidos=0;
+    	$mensaje_enviados=array();
+    	$mensaje_recibidos=array();
+
+    	foreach ($mensajes as $key => $value) {
+    		$datos=$this->Empresas->where('id_empresa',$value['user_id'])->first();
+			if ($datos['nombre_comercial']=='no disponible') {
+    				$nombre_user=$datos['razon_social'];
+    			}else{
+    				$nombre_user=$datos['nombre_comercial'];
+    			}
+    		$mensajes[$key]['usuario']=$nombre_user;
+
+    		if ($value['user_id']==$this->user['id_user']) {
+    			$mensaje_enviados[$enviados]=$value;
+    			$enviados++;
+    		}else{
+    			$mensaje_recibidos[$recibidos]=$value;
+    			$recibidos++;
+    		}
+    	}
+
+    	return response()->json(["respuesta"=>true,"enviados"=>$mensaje_enviados,"recibidos"=>$mensaje_recibidos],200);
+    }
+
 
 }

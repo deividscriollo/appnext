@@ -145,6 +145,26 @@ foreach ($bl_proveedores as $key => $value) {
 				}else return response()->json(["respuesta" => false], 200);	
 		}
 
+	public function get_datos_proveedor_buscador(Request $request)
+		{
+	
+	$proveedores=$this->proveedores->select(['id','ruc','razon_social'])->where('id_empresa',$this->user['id_user'])->get();
+
+			// $datos=$this->proveedores->search($request->input('q'))->select(['id','ruc','razon_social','id_empresa'])->get();
+			// $proveedores=[];
+			// $i=0;
+			// foreach ($datos as $key => $value) {
+			// 	if ($value['id_empresa']==$this->user['id_user']) {
+			// 		$proveedores[$i]['id']=$value['id'];
+			// 		$proveedores[$i]['ruc']=$value['ruc'];
+			// 		$proveedores[$i]['razon_social']=$value['razon_social'];
+			// 		$i++;
+			// 	}
+			// }
+	
+	return response()->json(["respuesta" => $proveedores], 200);	
+		}
+
 	}
 
 

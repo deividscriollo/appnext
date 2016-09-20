@@ -150,6 +150,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getProveedores', 'proveedoresController@get_proveedores');
         // --------------------------------------- Get Datos Proveedores by Ruc -----------
         Route::get('getProveedorbyRuc', 'proveedoresController@get_datos_proveedor_by_Ruc');
+        // --------------------------------------- Get Datos Proveedores buscador -----------
+        Route::get('getBuscarProveedor', 'proveedoresController@get_datos_proveedor_buscador');
 
         // ------------------------------------------- GRUPOS ---------------------------------------------
         //------------------------------------- Añadir grupo ------------------------
@@ -238,6 +240,7 @@ Route::group(['middleware' => 'cors'], function ()
         //---------------------------------------------- CHAT ------------------------------------------------
         Route::post('sendMensaje', 'chatController@send_mensaje');
         Route::get('getChats', 'chatController@get_chats');
+        Route::get('getMensajes', 'chatController@get_mensajes');
 
         });
     });

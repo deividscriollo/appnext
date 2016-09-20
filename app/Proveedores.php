@@ -13,7 +13,7 @@ class Proveedores extends Model
     protected $primaryKey="id";
     public $incrementing=false;
     protected $fillable=['id','razon_social','nombre_comercial','ruc','dir_matriz','dir_establecimiento','id_empresa'];
-    protected $hidden = ['created_at','updated_at','id_empresa'];
+    protected $hidden = ['created_at','updated_at'];
 
      protected $searchable = [
         'columns' => [
