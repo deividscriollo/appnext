@@ -46,8 +46,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getProvincias', 'provinciasController@get_provincias');
 
     // ------------------------------------------ Tipo de comsumos y documentos----------------
-        Route::post('addTipoDocumentos', 'tipoController@add_tipo_documentos');
-        Route::get('getTipoDocumentos', 'tipoController@get_tipo_documentos');
+        Route::post('addTipoDocumentos', 'tiposController@add_tipo_documentos');
+        Route::get('getTipoDocumentos', 'tiposController@get_tipo_documentos');
     // /////////////////////////////////////////////////////////////////////// GASTOS ///////////////////
         // --------------------------------------- add Provincia -----------
         Route::post('addGasto', 'gastosController@add_gasto');

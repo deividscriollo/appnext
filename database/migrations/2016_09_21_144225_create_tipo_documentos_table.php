@@ -14,6 +14,7 @@ class CreateTipoDocumentosTable extends Migration
     {
         Schema::connection('facturanexconex')->create('tipo_documentos', function (Blueprint $table) {
             $table->string('id')->primary();
+            $table->string('codigo');
             $table->string('descripcion');
             $table->boolean('estado');
             $table->timestamps();

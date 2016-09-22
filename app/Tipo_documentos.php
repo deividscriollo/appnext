@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tipo_documentos extends Model
 {
-    protected $connection='facturanextconex';
-   	protected $primaryKey='id_sucursal';
-    protected $fillable=array('id_sucursal','codigo','direccion','estado','nombre_sucursal','categoria');
+    protected $connection='facturanexconex';
+   	protected $primaryKey='id';
+   	public $incrementing=false;
+    protected $fillable=array('id','descripcion','estado');
 
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['created_at','updated_at','estado'];
 }

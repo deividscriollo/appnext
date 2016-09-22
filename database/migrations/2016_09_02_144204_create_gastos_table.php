@@ -14,6 +14,7 @@ class CreateGastosTable extends Migration
     {
         Schema::connection('facturanexconex')->create('gastos', function (Blueprint $table) {
             $table->string('id')->primary();
+            $table->string('codigo');
             $table->string('descripcion');
             $table->timestamps();
         });
