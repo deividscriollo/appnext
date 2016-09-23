@@ -64,9 +64,24 @@ class chatController extends Controller
     		$this->chat_mensajes->user_id=$this->user['id_user'];
     		$this->chat_mensajes->mensaje=$request->input('mensaje');
     		$this->chat_mensajes->estado_view=FALSE;
+            $this->chat_mensajes->tipo_mensaje='SEND';
     		$this->chat_mensajes->save();
-
     	return response()->json(["respuesta"=>true],200);
+    }
+
+    public function send_mensaje_from_chatbox(Request $request){
+
+            $id_chat_mensajes=$this->funciones->generarID();
+            $this->chat_mensajes->chat_mensajes_id=$id_chat_mensajes;
+            $this->chat_mensajes->chat_id=$request->input('chat_id');
+            $this->chat_mensajes->user_id=$this->user['id_user'];
+            $this->chat_mensajes->mensaje=$request->input('mensaje');
+            $this->chat_mensajes->estado_view=FALSE;
+            $this->chat_mensajes->tipo_mensaje='SEND';
+            $resultadosend=$this->chat_mensajes->save();
+            if ($resultadosend) {
+               return response()->json(["respuesta"=>true],200);
+            }
     }
 
       public function get_chats(Request $request){
@@ -88,7 +103,12 @@ class chatController extends Controller
     			if ($id_user==$this->user['id_user']) {
     				$user_para=$this->chat_sala->select('user2_id')->where('chat_id',$value->chat_id)->first();
     				$id_user=$user_para['user2_id'];
+                    if ($id_user==$this->user['id_user']) {
+                        $user_para=$this->chat_sala->select('user1_id')->where('chat_id',$value->chat_id)->first();
+                        $id_user=$user_para['user1_id'];
+                    }
     			}
+                // echo($id_user.'--'.$this->user['id_user']);
     			$datos=$this->Empresas->select('nombre_comercial','razon_social')->where('id_empresa',$id_user)->get();
     			$img_perfil=$this->img_perfiles->select('img')->where('id_empresa',$id_user)->where('estado',1)->first();
     			if ($datos[0]['nombre_comercial']=='no disponible') {
@@ -103,31 +123,18 @@ class chatController extends Controller
 
     }
     public function get_mensajes(Request $request){
-    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('created_at','DESC')->get();
-    	$enviados=0;
-    	$recibidos=0;
-    	$mensaje_enviados=array();
-    	$mensaje_recibidos=array();
+    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('created_at','ASC')->get();
 
-    	foreach ($mensajes as $key => $value) {
-    		$datos=$this->Empresas->where('id_empresa',$value['user_id'])->first();
-			if ($datos['nombre_comercial']=='no disponible') {
-    				$nombre_user=$datos['razon_social'];
-    			}else{
-    				$nombre_user=$datos['nombre_comercial'];
-    			}
-    		$mensajes[$key]['usuario']=$nombre_user;
+        foreach ($mensajes as $key => $value) {
 
-    		if ($value['user_id']==$this->user['id_user']) {
-    			$mensaje_enviados[$enviados]=$value;
-    			$enviados++;
-    		}else{
-    			$mensaje_recibidos[$recibidos]=$value;
-    			$recibidos++;
-    		}
-    	}
-
-    	return response()->json(["respuesta"=>true,"enviados"=>$mensaje_enviados,"recibidos"=>$mensaje_recibidos],200);
+            if ($value['user_id']==$this->user['id_user']) {
+               $mensajes[$key]['tipo_mensaje']="SEND";
+            }else{
+                $mensajes[$key]['tipo_mensaje']="RECEIVED";
+            }
+            
+        }
+        return response()->json(["respuesta"=>true,"mensajes"=>$mensajes],200);
     }
 
 

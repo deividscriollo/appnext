@@ -17,6 +17,7 @@ class CreateChatMensajesTable extends Migration
             $table->string('chat_id')->nullable();
             $table->string('user_id')->nullable();
             $table->string('mensaje')->nullable();
+            $table->boolean('tipo_mensaje')->nullable();
             $table->boolean('estado_view')->nullable();
             $table->timestamps();
         });
