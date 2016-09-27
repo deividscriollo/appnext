@@ -11,6 +11,8 @@ server.listen(8080, function(){
 
 io.sockets.on('connection', function (socket) {
     console.log('cliente Conectado');
+    // socket.emit('chat:updatelista', 'update'); 
+
 	socket.on('chat:join', function(data){
 		// store the username in the socket session for this client
 		socket.username = data.user_id;
@@ -21,11 +23,14 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('chat:salir', function(data){
+		console.log('salir de la sala'+socket.room);
 		socket.leave(socket.room);
 	});
 
 	socket.on('chat:sendMensaje', function(data){
 		socket.broadcast.to(socket.room).emit('chat:update', data);
 	});
+
+
 
 });

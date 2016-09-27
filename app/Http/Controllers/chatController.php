@@ -123,7 +123,7 @@ class chatController extends Controller
 
     }
     public function get_mensajes(Request $request){
-    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('created_at','ASC')->get();
+    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('chat_mensajes_id','DESC')->limit(15)->get();
 
         foreach ($mensajes as $key => $value) {
 
@@ -134,6 +134,7 @@ class chatController extends Controller
             }
             
         }
+        $mensajes = array_reverse($mensajes->toArray());
         return response()->json(["respuesta"=>true,"mensajes"=>$mensajes],200);
     }
 
