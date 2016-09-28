@@ -64,6 +64,11 @@ return [
             'root' => storage_path('app/perfiles'),
             'visibility' => 'private',
         ],
+        'imgsLogos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/logos'),
+            'visibility' => 'private',
+        ],
         'imgsPortada' => [
             'driver' => 'local',
             'root' => storage_path('app/portadas'),

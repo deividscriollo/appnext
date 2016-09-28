@@ -108,6 +108,15 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsPerfil', 'PerfilesController@load_imgs_perfil');
         // --------------------------------------- GET IMAGENES PERFIL -----------
         Route::get('getImgPerfil', 'PerfilesController@get_img_perfil');
+                                // ////////////////////////////////////////////////// IMAGENES DE LOGO //////////////
+        // --------------------------------------- AÑADIR IMAGEN DE LOGO -----------
+        Route::post('addImgLogo', 'logosController@add_img_logo');
+        // --------------------------------------- SELECCIONAR IMAGEN DE LOGO -----------
+        Route::post('setImgLogo', 'logosController@set_img_logo');
+        // --------------------------------------- CARGAR IMAGENES LOGO -----------
+        Route::get('loadImgsLogo', 'logosController@load_imgs_logo');
+        // --------------------------------------- GET IMAGENES LOGO -----------
+        Route::get('getImgLogo', 'logosController@get_img_logo');
         // ////////////////////////////////////////////////// IMAGENES DE PORTADA //////////////
         // --------------------------------------- AÑADIR IMAGEN DE PORTADA -----------
         Route::post('addImgPortada', 'PortadasController@add_img_portada');
