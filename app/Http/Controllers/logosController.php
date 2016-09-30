@@ -14,6 +14,7 @@ use App\libs\Funciones;
 use App\logos;
 //---------------------------- Extras 
 use Storage;
+use File;
 
 class logosController extends Controller
 {
@@ -28,27 +29,32 @@ public function __construct()
         //----------------------------------- Funciones -------------------------------
         $this->funciones=new Funciones();
         //------------------------------------ Paths -------------------------------
-        $this->imgsPerfil  = Storage::disk('imgsLogos')->getDriver()->getAdapter()->getPathPrefix();
+        $this->pathImg  = config('global.pathimgLogos');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
 
     public function add_img_logo(Request $request){
     
 	$id_img=$this->funciones->generarID();
 
-	if (!is_dir($this->imgsPerfil.$this->user['id_user'])) {
-    mkdir($this->imgsPerfil.$this->user['id_user']);      
+	if (!is_dir($this->pathLocal.$this->user['id_user'])) {
+       $path = $this->pathLocal.$this->user['id_user'];
+        File::makeDirectory($path);    
+    }
+    if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathImg)) {
+        $path = $this->pathLocal.$this->user['id_user'].$this->pathImg;
+        File::makeDirectory($path); 
     }
 	$base64_string = base64_decode($request->input('img'));
 	$image_name= $id_img.'.png';
-	$path = $this->imgsPerfil . "/".$this->user['id_user']."/".$image_name;
+    $path = $this->pathLocal.$this->user['id_user'].$this->pathImg.$image_name;
  	$ifp = fopen($path, "wb"); 
     $data = explode(',', $base64_string);
     fwrite($ifp, base64_decode($data[1])); 
     fclose($ifp);
     $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
     $this->tabla_img->id_img_logo=$id_img;
-    $this->tabla_img->img=config('global.appnext')."/storage/app/perfiles/".$this->user['id_user']."/".$image_name;
-        // $this->tabla_img->img="http://192.168.111.35/appnext/storage/app/perfiles/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->img="storage/app/".$this->user['id_user'].$this->pathImg.$image_name;
     $this->tabla_img->estado='1';
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();
@@ -84,8 +90,12 @@ public function __construct()
 
     public function get_img_logo(Request $request){
     
-    $resultado=$this->tabla_img->select('img')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
-    return response()->json($resultado);
+    $resultado=$this->tabla_img->select('img','id_img_logo')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
+    if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_logo'].'.png')) {
+        return response()->json(['existe'=>true,"img"=>$resultado['img']]);
+    }else{
+        return response()->json(['existe'=>false,"img"=>$resultado['img']]);
+    }
     
     }
 

@@ -29,14 +29,15 @@ class Pdf_XML_Controller extends Controller
         $this->user = JWTAuth::parseToken()->authenticate();
         //----------------------------------- Funciones -------------------------------
         $this->Funciones_fac=new Funciones_fac();
-        //------------------------------------ paths -------------------------------
-        $this->storagePath  = Storage::disk('facturas')->getDriver()->getAdapter()->getPathPrefix();
+         //------------------------------------ Paths -------------------------------
+        $this->pathFacturas  = config('global.pathFacturas');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
         }
 
     public function generar_pdf(Request $request) 
     {
         $iddocumento=$request->input('iddocumento');
-        if (!File::exists($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.'.pdf'))
+        if (!File::exists($this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.'.pdf'))
         {
         $data = $this->getData($iddocumento);
         $date = date('Y-m-d');
@@ -44,9 +45,9 @@ class Pdf_XML_Controller extends Controller
         $view =  \View::make('invoice', compact('data', 'date', 'invoice'))->render();
         $pdf = \App::make('dompdf.wrapper');
         $pdf->loadHTML($view);
-        $pdf->save($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.'.pdf');
+        $pdf->save($this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.'.pdf');
         }
-        return response()->json(['respuesta'=>true,'url'=>config('global.appnext').'/storage/app/facturas/'.$this->user['id_user'].'/'.$iddocumento.'.pdf']);
+        return response()->json(['respuesta'=>true,'url'=>config('global.appnext').'/storage/app/'.$this->user['id_user'].$this->pathFacturas.$iddocumento.'.pdf']);
     }
  
     public function getData($iddocumento) 
@@ -57,7 +58,7 @@ class Pdf_XML_Controller extends Controller
             // $respuesta = json_decode($res->getBody() , true);
 
         // -------------------------------------------GENERAR PDF ---------------------------------------------------
-        $xml = $this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".xml";
+        $xml = $this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.".xml";
         $xml = file_get_contents($xml);
 
         $xmlData = new \SimpleXMLElement($xml);
@@ -146,12 +147,12 @@ if($xmlData->infoTributaria->tipoEmision == 1){
 
     public function generar_zip($iddocumento) 
     {
-        $xml = glob($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".xml");
-        $zip=Zipper::make($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".zip")->add($xml);
+        $xml = glob($this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.".xml");
+        $zip=Zipper::make($this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.".zip")->add($xml);
     }
 
     public function checkFileExists($iddocumento){
-        if (File::exists($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".zip")) {
+        if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.".zip")) {
                 return false;
             }else{
                 return true;
@@ -170,13 +171,13 @@ if($xmlData->infoTributaria->tipoEmision == 1){
         }
 
         if (!$nofileexists) {
-        $file_path=$this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".zip";
+        $file_path=$this->pathLocal.$this->user['id_user'].$this->pathFacturas.$iddocumento.".zip";
         // return response()->download($file_path, $filename)->deleteFileAfterSend(true);
             $headers = array(
                         'Content-Type' => 'application/octet-stream',
                         'Content-Disposition' => 'attachment; filename="fac.zip'
                     );
-             return response()->download($this->storagePath.'/'.$this->user['id_user'].'/'.$iddocumento.".zip",$iddocumento.".zip",$headers)->deleteFileAfterSend(true);
+             return response()->download($this->pathLocal.'/'.$this->user['id_user'].$this->pathFacturas.$iddocumento.".zip",$iddocumento.".zip",$headers)->deleteFileAfterSend(true);
 
         }
 

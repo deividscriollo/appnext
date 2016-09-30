@@ -20,7 +20,11 @@ class BusquedaController extends Controller
     $empresas = new Empresas();
     $img_perfil = new img_perfiles();
 
-	$datos = $empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
+    if ($request->input('filter')!=null) {
+         $datos = $empresas->search($request->input('filter'))->get();
+    }else{
+    	$datos = $empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
+    }
 	foreach ($datos as $key => $value) {
 		if ($datos[$key]['nombre_comercial']=='no disponible') {
 			$datos[$key]['nombre_comercial']=$datos[$key]['razon_social'];
@@ -31,8 +35,6 @@ class BusquedaController extends Controller
 		$perfil=$img_perfil->where('id_empresa',$datos[$key]['id_empresa'])->where('estado',1)->first();
 		$datos[$key]['img']=$perfil['img'];
 	}
-
-
 
     return response()->json(['respuesta' => $datos], 200);
     }

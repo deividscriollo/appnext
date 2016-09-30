@@ -26,6 +26,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 //---------------------------------------------- Funciones -------------------
 use App\libs\Funciones;
+// ------------------------ Extras
+use Storage;
 
 class facturaController extends Controller
 {
@@ -50,6 +52,9 @@ public function __construct(Request $request)
         $datos=$this->sucursal->select('id_sucursal')->where('codigo','=',$request->input('sucursal'))->where('id_empresa','=',$this->user['id_user'])->get();
         $this->id_sucursal=$datos[0]['id_sucursal'];
         }else return response()->json(["respuesta"=>false,"mensaje"=>"sin-id-sucursal"]);
+        //------------------------------------ Paths -------------------------------
+        $this->pathFacturas  = config('global.pathFacturas');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
     
     public function add_fac_bdd(Request $request){
@@ -174,7 +179,7 @@ public function upload_xmlfile(Request $request){
             $mensajes=$respuesta['respuesta']['autorizaciones']['autorizacion']['mensajes'];
             if(count($mensajes)=='respuesta'){
             $comprobante=$respuesta['respuesta']['autorizaciones']['autorizacion']['comprobante'];
-            $resultado=$this->Funciones_fac->save_xml_file($comprobante,$this->user['email'],"999.xml",$request->input('descripcion'),$this->id_sucursal);
+            $resultado=$this->Funciones_fac->save_xml_file($comprobante,$this->user['email'],"999.xml",$request->input('tipo'),$this->id_sucursal);
             }
                          }else{
                             $resultado=array('respuesta' => false, 'error' => '4', 'methods' => 'registro-no-existente-sri');
@@ -187,14 +192,14 @@ public function upload_xmlfile(Request $request){
 public function gen_zip($iduser,$idfac)
         {
             // -------------------------------------------GENERAR PDF ---------------------------------------------------
-            $xml = public_path().'/facturas/'.$iduser.'/'.$idfac.".xml";
+            $xml = $this->pathLocal.$iduser.$this->pathFacturas.$idfac.".xml";
             $xml = file_get_contents($xml);
             // echo $xml;
             $this->Funciones_fac->gen_pdf($xml,$iduser,$idfac);
             // ----------------------------------------- GENERAR ZIP ----------------------------------------------------
-            $xml = glob(public_path().'/facturas/'.$iduser.'/'.$idfac.".xml");
-            $pdf = glob(public_path().'/facturas/'.$iduser.'/'.$idfac.".pdf");
-            $zip=Zipper::make(public_path().'/facturas/'.$iduser.'/'.$idfac.".zip")->add($xml);
+            $xml = glob($this->pathLocal.$iduser.$this->pathFacturas.$idfac.".xml");
+            $pdf = glob($this->pathLocal.$iduser.$this->pathFacturas.$idfac.".pdf");
+            $zip=Zipper::make($this->pathLocal.$iduser.$this->pathFacturas.$idfac.".zip")->add($xml);
             $resul_zip=$zip->add($pdf);
             if ($resul_zip) {
                return true;

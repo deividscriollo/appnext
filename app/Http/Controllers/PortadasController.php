@@ -14,6 +14,7 @@ use App\libs\Funciones;
 use App\Portadas;
 //---------------------------- Extras 
 use Storage;
+use File;
 class PortadasController extends Controller
 {
 
@@ -27,19 +28,26 @@ class PortadasController extends Controller
         //----------------------------------- Funciones -------------------------------
         $this->funciones=new Funciones();
         //------------------------------------ Paths -------------------------------
-        $this->imgsPortada  = Storage::disk('imgsPortada')->getDriver()->getAdapter()->getPathPrefix();
+         $this->pathImg  = config('global.pathimgPortadas');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
 
     public function add_img_portada(Request $request){
     
 	$id_img=$this->funciones->generarID();
 
-	if (!is_dir($this->imgsPortada.$this->user['id_user'])) {
-    mkdir($this->imgsPortada.$this->user['id_user']);      
-    } 
+	if (!is_dir($this->pathLocal.$this->user['id_user'])) {
+       $path = $this->pathLocal.$this->user['id_user'];
+        File::makeDirectory($path);    
+    }
+    if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathImg)) {
+        $path = $this->pathLocal.$this->user['id_user'].$this->pathImg;
+        File::makeDirectory($path); 
+    }
+
 	$base64_string = base64_decode($request->input('img'));
 	$image_name= $id_img.'.png';
-	$path = $this->imgsPortada.$this->user['id_user']."/".$image_name;
+    $path = $this->pathLocal.$this->user['id_user'].$this->pathImg.$image_name;
  	$ifp = fopen($path, "wb"); 
     $data = explode(',', $base64_string);
     fwrite($ifp, base64_decode($data[1])); 
@@ -47,8 +55,7 @@ class PortadasController extends Controller
     $this->tabla_img->where('id_empresa','=',$this->user['id_user'])->update(['estado'=>0]);
 
     $this->tabla_img->id_img_portada=$id_img;
-    $this->tabla_img->img=config('global.appnext')."/storage/app/portadas/".$this->user['id_user']."/".$image_name;
-    // $this->tabla_img->img="http://192.168.111.35/appnext/storage/app/portadas/".$this->user['id_user']."/".$image_name;
+    $this->tabla_img->img="storage/app/".$this->user['id_user'].$this->pathImg.$image_name;
     $this->tabla_img->estado='1';
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();
@@ -83,8 +90,12 @@ class PortadasController extends Controller
     }
 
     public function get_img_portada(Request $request){
-    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',1)->first();
-        return response()->json($resultado);
+    $resultado=$this->tabla_img->select('img','id_img_portada')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',1)->first();
+    if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_portada'].'.png')) {
+        return response()->json(['existe'=>true,"img"=>$resultado['img']]);
+    }else{
+        return response()->json(['existe'=>false,"img"=>$resultado['img']]);
+    }
     
     }
 }

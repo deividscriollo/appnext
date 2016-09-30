@@ -28,6 +28,8 @@ class Funciones_fac
         date_default_timezone_set('America/Guayaquil'); //puedes cambiar Guayaquil por tu Ciudad
         setlocale(LC_TIME, 'spanish');
         $this->persona_q_registra=new regpersona_empresas();
+        $this->pathFacturas  = config('global.pathFacturas');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
 
 public static function generateValidXmlFromArray($array, $node_block='nodes', $node_name='node') {
@@ -315,7 +317,7 @@ imap_close($inbox);
     }
 function verificar_autorizacion($clave_acceso){
         $client = new Client;
-$res = $client->request('POST', 'http://apiservicios.nextbook.ec/public/estado_factura', [
+$res = $client->request('POST', config('global.appserviciosnext').'/public/estado_factura', [
     'json' => ["clave"=>(string)$clave_acceso]
 ]);
 
@@ -458,8 +460,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $save=$tblFacturas->save();
                 if ($save) {
                   // echo "OK XML--";
-                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
-                  Storage::disk('facturas')->put($url_destination_xml, $xmlmaster);
+                  $url_destination_xml = "/".$datosPass[0]['id_user'].$this->pathFacturas.$id_factura.'.xml';
+                  Storage::disk('local')->put($url_destination_xml, $xmlmaster);
                   // File::put($url_destination_xml,$xmlmaster);
                  
                   // $fp_fac = fopen($url_destination_xml, "wr+");
@@ -692,8 +694,8 @@ switch ((string)$tipo_doc) {
                 $save=$tblFacturas->save();
                 if ($save) {
 
-                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml';
-                  Storage::disk('facturas')->put($url_destination_xml, $buf); 
+                  $url_destination_xml = "/".$datosPass[0]['id_user'].$this->pathFacturas.$id_factura.'.xml';
+                  Storage::disk('local')->put($url_destination_xml, $buf); 
 
                   $data = [
                     'clave_acceso'=>(string)$clave_acceso,
@@ -916,8 +918,8 @@ if (count($respuesta['respuesta']['autorizaciones'])!=0) {
                 $save=$tblFacturas->save();
                 if ($save) {
                   // echo "OK XML--";
-                  $url_destination_xml = "/".$datosPass[0]['id_user']."/".$id_factura.'.xml'; 
-                  Storage::disk('facturas')->put($url_destination_xml, $xmlmaster);                
+                  $url_destination_xml = "/".$datosPass[0]['id_user'].$this->pathFacturas.$id_factura.'.xml'; 
+                  Storage::disk('local')->put($url_destination_xml, $xmlmaster);                
                   // $fp_fac = fopen($url_destination_xml, "wr+");
                   // fwrite($fp_fac, $xmlmaster);
                   // fclose($fp_fac);
