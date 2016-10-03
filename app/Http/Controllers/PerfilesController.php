@@ -94,9 +94,9 @@ public function __construct()
     $resultado=$this->tabla_img->select('img','id_img_perfil')->where('estado','=',1)->where('id_empresa','=',$this->user['id_user'])->first();
     // echo($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_perfil'].'.png');
     if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_perfil'].'.png')) {
-        return response()->json(['existe'=>true,"img"=>$resultado['img']]);
+        return response()->json(['existe'=>true,"img"=>config('global.appnext').'/'.$resultado['img']]);
     }else{
-        return response()->json(['existe'=>false,"img"=>$resultado['img']]);
+        return response()->json(['existe'=>false,"img"=>config('global.pathAvartarDefault')]);
     }
     
     

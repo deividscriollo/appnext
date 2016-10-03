@@ -92,9 +92,9 @@ class PortadasController extends Controller
     public function get_img_portada(Request $request){
     $resultado=$this->tabla_img->select('img','id_img_portada')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',1)->first();
     if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_portada'].'.png')) {
-        return response()->json(['existe'=>true,"img"=>$resultado['img']]);
+        return response()->json(['existe'=>true,"img"=>config('global.appnext').'/'.$resultado['img']]);
     }else{
-        return response()->json(['existe'=>false,"img"=>$resultado['img']]);
+        return response()->json(['existe'=>false,"img"=>config('global.pathPortadaDefault')]);
     }
     
     }

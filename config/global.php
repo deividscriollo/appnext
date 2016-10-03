@@ -12,6 +12,9 @@ return [
 	'pathimgClientes'=>'/clientes/',
 	'pathFacturas'=>'/facturas/',
 	'pathimgProductos'=>'/productos/',
+	'pathAvartarDefault'=>"images/users/avatar-001.jpg",
+	'pathPortadaDefault'=>"images/samples/w1.jpg",
+	'pathLogoDefault'=>"images/samples/x2.jpg"
 	// 'appnext' => 'https://servicios.nextbook.ec'
 
 ];
