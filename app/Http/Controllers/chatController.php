@@ -15,6 +15,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 //----------------------- Funciones ------------
 use App\libs\Funciones;
+// extras
+use File;
 
 class chatController extends Controller
 {
@@ -116,7 +118,11 @@ class chatController extends Controller
     			}else{
     				$chats[$key]['para']=$datos[0]['nombre_comercial'];
     			}
-    			$chats[$key]['img']=$img_perfil['img'];
+                if (File::exists($img_perfil['img'])) {
+                                    $chats[$key]['img']=$img_perfil['img'];
+                }else{
+                                    $chats[$key]['img']="images/users/avatar-001.jpg";
+                }
 			}
     		 return response()->json(["respuesta"=>true,"datos"=>$chats],200);
     	}

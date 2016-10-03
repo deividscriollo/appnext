@@ -10,7 +10,8 @@ return [
 	'pathimgPortadas'=>'/portadas/',
 	'pathimgLogos'=>'/logos/',
 	'pathimgClientes'=>'/clientes/',
-	'pathFacturas'=>'/facturas/'
+	'pathFacturas'=>'/facturas/',
+	'pathimgProductos'=>'/productos/',
 	// 'appnext' => 'https://servicios.nextbook.ec'
 
 ];

@@ -169,6 +169,21 @@ return [
             'schema' => 'mensajeria',
         ],
 
+        'catalogoconex' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', 'localhost'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'catalogo'),
+         'username' => env('DB_USERNAME', 'postgres'),
+         'password' => env('DB_PASSWORD', 'rootdow'),
+            // 'database' => env('DB_DATABASE', 'nextbook_appnext'),
+            // 'username' => env('DB_USERNAME', 'nextbook_admin'),
+            // 'password' => env('DB_PASSWORD', '}I[B]h)#uR-{'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'catalogo',
+        ],
+
 
     ],
 
