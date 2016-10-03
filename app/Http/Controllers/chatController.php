@@ -17,6 +17,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\libs\Funciones;
 // extras
 use File;
+use Storage;
 
 class chatController extends Controller
 {
@@ -32,6 +33,9 @@ class chatController extends Controller
         $this->user = JWTAuth::parseToken()->authenticate();
         //--------------  Funciones ------
         $this->funciones=new Funciones();
+           //------------------------------------ Paths -------------------------------
+        $this->pathImg  = config('global.pathimgPerfiles');
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
 
     public function send_mensaje(Request $request){
@@ -68,7 +72,7 @@ class chatController extends Controller
     		$this->chat_mensajes->estado_view=FALSE;
             $this->chat_mensajes->tipo_mensaje='SEND';
     		$this->chat_mensajes->save();
-    	return response()->json(["respuesta"=>true],200);
+    	return response()->json(["respuesta"=>true,'chat_id'=>$id_chat],200);
     }
 
     public function send_mensaje_from_chatbox(Request $request){
@@ -112,14 +116,15 @@ class chatController extends Controller
     			}
                 // echo($id_user.'--'.$this->user['id_user']);
     			$datos=$this->Empresas->select('nombre_comercial','razon_social')->where('id_empresa',$id_user)->get();
-    			$img_perfil=$this->img_perfiles->select('img')->where('id_empresa',$id_user)->where('estado',1)->first();
+    			$img_perfil=$this->img_perfiles->select('id_img_perfil','img')->where('id_empresa',$id_user)->where('estado',1)->first();
     			if ($datos[0]['nombre_comercial']=='no disponible') {
     				$chats[$key]['para']=$datos[0]['razon_social'];
     			}else{
     				$chats[$key]['para']=$datos[0]['nombre_comercial'];
     			}
-                if (File::exists($img_perfil['img'])) {
-                                    $chats[$key]['img']=$img_perfil['img'];
+                $path_img_perfil=$this->pathLocal.$id_user.$this->pathImg.$img_perfil['id_img_perfil'].'.png';
+                if (File::exists($path_img_perfil)) {
+                                    $chats[$key]['img']=config('global.appnext').'/'.$img_perfil['img'];
                 }else{
                                     $chats[$key]['img']="images/users/avatar-001.jpg";
                 }

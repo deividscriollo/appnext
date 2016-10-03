@@ -14,12 +14,21 @@ io.sockets.on('connection', function (socket) {
     // socket.emit('chat:updatelista', 'update'); 
 
 	socket.on('chat:join', function(data){
+		if (data!=null) {
+		for (var i = 0; i < data.length; i++) {
 		// store the username in the socket session for this client
-		socket.username = data.user_id;
+		socket.username = data[i]['para'];
 		// store the room name in the socket session for this client
-		socket.room = data.chat_id;
-		socket.join(data.chat_id);
-		console.log('conectado a'+socket.room);
+		socket.room = data[i]['chat_id'];
+		socket.join(data[i]['chat_id']);
+		console.log(' conectado con '+data[i]['para']);
+		}
+		}
+		
+	});
+
+	socket.on('chat:updateRooms', function(){
+		socket.broadcast.emit('chat:updateRooms');
 	});
 
 	socket.on('chat:salir', function(data){
@@ -29,6 +38,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('chat:sendMensaje', function(data){
 		socket.broadcast.to(socket.room).emit('chat:update', data);
+		socket.broadcast.to(socket.room).emit('chat:updatelista', data);
 	});
 
 
