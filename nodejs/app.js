@@ -24,7 +24,15 @@ io.sockets.on('connection', function (socket) {
 		console.log(' conectado con '+data[i]['para']);
 		}
 		}
-		
+	});
+
+	socket.on('chat:jointo', function(data){
+		// store the username in the socket session for this client
+		socket.username = data.para;
+		// store the room name in the socket session for this client
+		socket.room = data.chat_id;
+		socket.join(data.chat_id);
+		console.log(' conectado con '+data.para);
 	});
 
 	socket.on('chat:updateRooms', function(){
