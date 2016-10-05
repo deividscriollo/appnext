@@ -257,6 +257,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getMensajes', 'chatController@get_mensajes');
         //---------------------------------------------- Catalogo ------------------------------------------------
         Route::post('addProducto', 'catalogoController@add_producto');
+        Route::post('addPortada', 'catalogoController@add_portada');
+        Route::post('addContraPortada', 'catalogoController@add_contraportada');
 
         });
     });

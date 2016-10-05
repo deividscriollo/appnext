@@ -11,7 +11,11 @@ return [
 	'pathimgLogos'=>'/logos/',
 	'pathimgClientes'=>'/clientes/',
 	'pathFacturas'=>'/facturas/',
-	'pathimgProductos'=>'/productos/',
+	// catalogo paths
+	'pathimgCatalogoProductos'=>'productos/',
+	'pathimgCatalogo'=>'/catalogo/',
+	'pathimgCatalogoPortadas'=>'portadas/',
+	'pathimgCatalogoContraportadas'=>'contraportadas/',
 	'pathAvartarDefault'=>"images/users/avatar-001.jpg",
 	'pathPortadaDefault'=>"images/samples/w1.jpg",
 	'pathLogoDefault'=>"images/samples/x2.jpg"

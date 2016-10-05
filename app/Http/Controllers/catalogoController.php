@@ -13,6 +13,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Productos;
 use App\img_productos;
 use App\Sucursales;
+use App\CatalogoPortadas;
+use App\CatalogoContraportadas;
 //----------------------- Funciones ------------
 use App\libs\Funciones;
 // extras
@@ -26,6 +28,8 @@ class catalogoController extends Controller
         $this->productos  = new Productos();
         $this->img_productos = new img_productos();
         $this->sucursal=new Sucursales;
+        $this->portadas=new CatalogoPortadas;
+        $this->contraportadas=new CatalogoContraportadas;
         //-------------------------- Autenticacion-------
         $this->user = JWTAuth::parseToken()->authenticate();
         //--------------  Funciones ------
@@ -36,7 +40,10 @@ class catalogoController extends Controller
         $this->id_sucursal=$datos[0]['id_sucursal'];
         }else return response()->json(["respuesta"=>false,"mensaje"=>"sin-id-sucursal"]);
             //------------------------------------ Paths -------------------------------
-        $this->pathImg  = config('global.pathimgProductos');
+        $this->pathimgCatalogo  = config('global.pathimgCatalogo');
+        $this->pathimgCatalogoProductos  = config('global.pathimgCatalogoProductos');
+        $this->pathimgCatalogoPortadas  = config('global.pathimgCatalogoPortadas');
+        $this->pathimgCatalogoContraportadas  = config('global.pathimgCatalogoContraportadas');
         $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
     }
 
@@ -57,17 +64,17 @@ class catalogoController extends Controller
             $this->productos->estado=1;
             $saveprod=$this->productos->save();
             //------------------------- guardar img -------
-		    if (!is_dir($this->pathLocal.$this->user['id_user'])) {
-		       $path = $this->pathLocal.$this->user['id_user'];
+		    if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo)) {
+		       $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo;
 		        File::makeDirectory($path);    
 		    }
-		    if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathImg)) {
-		        $path = $this->pathLocal.$this->user['id_user'].$this->pathImg;
+		    if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoProductos)) {
+		        $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoProductos;
 		        File::makeDirectory($path); 
 		    }
 		    $id_img=$this->funciones->generarID();
             $this->img_productos->id=$id_img;
-            $this->img_productos->img="storage/app/".$this->user['id_user'].$this->pathImg.$id_img.'.jpg';
+            $this->img_productos->img="storage/app/".$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoProductos.$id_img.'.jpg';
             $this->img_productos->id_producto=$id_producto;
             $this->img_productos->estado=1;
             $saveimgprod=$this->img_productos->save();
@@ -76,4 +83,52 @@ class catalogoController extends Controller
                return response()->json(["respuesta"=>true],200);
             }
     }
+
+public function add_portada(Request $request){
+
+            $id_portada=$this->funciones->generarID();
+            $this->portadas->id=$id_portada;
+            $this->portadas->descripcion=$request->input('descripcion');
+            $this->portadas->img="storage/app/".$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoPortadas.$id_portada.'.jpg';
+            $this->portadas->id_sucursal=$this->id_sucursal;
+            $this->portadas->estado=1;
+            $save=$this->portadas->save();
+            //------------------------- guardar img -------
+            if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo)) {
+               $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo;
+                File::makeDirectory($path);    
+            }
+            if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoPortadas)) {
+                $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoPortadas;
+                File::makeDirectory($path); 
+            }
+            if ($save) {
+               return response()->json(["respuesta"=>true],200);
+            }
+    }
+
+    public function add_contraportada(Request $request){
+
+            $id_portada=$this->funciones->generarID();
+            $this->contraportadas->id=$id_portada;
+            $this->contraportadas->descripcion=$request->input('descripcion');
+            $this->contraportadas->img="storage/app/".$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoContraportadas.$id_portada.'.jpg';
+            $this->contraportadas->id_sucursal=$this->id_sucursal;
+            $this->contraportadas->estado=1;
+            $save=$this->contraportadas->save();
+            //------------------------- guardar img -------
+            if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo)) {
+               $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo;
+                File::makeDirectory($path);    
+            }
+            if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoContraportadas)) {
+                $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo.$this->pathimgCatalogoContraportadas;
+                File::makeDirectory($path); 
+            }
+            if ($save) {
+               return response()->json(["respuesta"=>true],200);
+            }
+    }
+
+
 }
