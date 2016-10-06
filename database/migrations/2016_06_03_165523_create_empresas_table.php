@@ -20,7 +20,7 @@ class CreateEmpresasTable extends Migration
             $table->string('estado_contribuyente');
             $table->string('tipo_contribuyente');
             $table->string('obligado_contabilidad');
-            $table->string('actividad_economica');
+            $table->string('actividad_economica',10000);
             $table->string('codigo_activacion');
             $table->integer('estado');
             $table->string('id_provincia');

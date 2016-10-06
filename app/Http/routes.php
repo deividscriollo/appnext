@@ -33,6 +33,8 @@ Route::group(['middleware' => 'cors'], function ()
      // /////////////////////////////////////////////////////////////////////// EMPRESAS ///////////////////
         // --------------------------------------- get Empresas -----------
         Route::get('buscarEmpresas', 'BusquedaController@get_empresas');
+        // --------------------------------------- Add  Empresas from JSON -----------
+        Route::post('addEmpresasJson', 'BusquedaController@add_empresas');
 
             // /////////////////////////////////////////////////////////////////////// CATEGORIAS ///////////////////
         // --------------------------------------- add Categoria -----------
