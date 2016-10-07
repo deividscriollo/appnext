@@ -18,6 +18,7 @@ use App\libs\Funciones;
 // ----------- Extras
 use Storage;
 use File;
+use DB;
 
 class BusquedaController extends Controller
 {
@@ -34,25 +35,25 @@ class BusquedaController extends Controller
     $img_perfil = new img_perfiles();
 
     if ($request->input('filter')!=null) {
-         $datos = $empresas->search($request->input('filter'))->get();
+         $datos = DB::select("SELECT * FROM empresas WHERE (ruc||nombre_comercial) like '%".$request->input('filter')."%' LIMIT 5");
     }else{
     	$datos = $empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
     }
 	foreach ($datos as $key => $value) {
-		if ($datos[$key]['nombre_comercial']=='no disponible') {
-			$datos[$key]['nombre_comercial']=$datos[$key]['razon_social'];
+		if ($value->nombre_comercial=='no disponible') {
+			$value->nombre_comercial=$value->razon_social;
 		}
-	}
+    }
 
 	foreach ($datos as $key => $value) {
-		$resultado=$img_perfil->where('id_empresa',$datos[$key]['id_empresa'])->where('estado',1)->first();
+		$resultado=$img_perfil->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
 
-    if (File::exists($this->pathLocal.$datos[$key]['id_empresa'].$this->pathImg.$resultado['id_img_perfil'].'.png')) {
+    if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImg.$resultado['id_img_perfil'].'.png')) {
         $img=config('global.appnext').'/'.$resultado['img'];
     }else{
         $img=config('global.pathAvartarDefault');
     }
-		$datos[$key]['img']=$img;
+		$value->img=$img;
 	}
 
     return response()->json(['respuesta' => $datos], 200);
