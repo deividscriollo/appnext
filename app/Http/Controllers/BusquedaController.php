@@ -65,7 +65,7 @@ class BusquedaController extends Controller
         $json = json_decode($json);
 
     foreach ($json as $item) {
-        if ($item->ESTADO_CONTRIBUYENTE=="ACTIVO") {
+        // if ($item->ESTADO_CONTRIBUYENTE=="ACTIVO") {
             if ($item->NOMBRE_FANTASIA_COMERCIAL!='') {
                 $nombre_comercial=$item->NOMBRE_FANTASIA_COMERCIAL;
             }else{
@@ -95,7 +95,7 @@ class BusquedaController extends Controller
         $tabla_pass->pass_estado      = 1;
         $tabla_pass->id_user          = $id_empresa;
         $tabla_pass->save();
-        }
+        // }
     }
 
     return response()->json(['respuesta' => true], 200);
