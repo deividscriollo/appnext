@@ -35,7 +35,7 @@ class BusquedaController extends Controller
     $img_perfil = new img_perfiles();
 
     if ($request->input('filter')!=null) {
-         $datos = DB::select("SELECT * FROM empresas WHERE (ruc||nombre_comercial) like '%".$request->input('filter')."%' LIMIT 5");
+         $datos = DB::select("SELECT ruc,id_empresa,nombre_comercial,razon_social FROM empresas WHERE (ruc||nombre_comercial) like '%".$request->input('filter')."%' LIMIT 5");
     }else{
     	$datos = $empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
     }
@@ -51,7 +51,7 @@ class BusquedaController extends Controller
     if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImg.$resultado['id_img_perfil'].'.png')) {
         $img=config('global.appnext').'/'.$resultado['img'];
     }else{
-        $img=config('global.pathAvartarDefault');
+        $img=config('global.appnext').config('global.pathAvartarDefault');
     }
 		$value->img=$img;
 	}

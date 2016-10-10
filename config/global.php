@@ -1,4 +1,4 @@
-<?php 
+<?php
 return [
 
 	// 'appnext' => 'http://186.33.168.251/appnext',
@@ -16,9 +16,9 @@ return [
 	'pathimgCatalogo'=>'/catalogo/',
 	'pathimgCatalogoPortadas'=>'portadas/',
 	'pathimgCatalogoContraportadas'=>'contraportadas/',
-	'pathAvartarDefault'=>"images/users/avatar-001.jpg",
-	'pathPortadaDefault'=>"images/samples/w1.jpg",
-	'pathLogoDefault'=>"images/samples/x2.jpg"
+	'pathAvartarDefault'=>"/storage/default/avatar-default.jpg",
+	'pathPortadaDefault'=>"/storage/default/portada-default.jpg",
+	'pathLogoDefault'=>"/storage/default/logo-default.jpg"
 	// 'appnext' => 'https://servicios.nextbook.ec'
 
 ];

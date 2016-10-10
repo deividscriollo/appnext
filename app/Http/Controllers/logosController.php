@@ -94,7 +94,7 @@ public function __construct()
     if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_logo'].'.png')) {
         return response()->json(['existe'=>true,"img"=>config('global.appnext').'/'.$resultado['img']]);
     }else{
-        return response()->json(['existe'=>false,"img"=>config('global.pathLogoDefault')]);
+        return response()->json(['existe'=>false,"img"=>config('global.appnext').config('global.pathLogoDefault')]);
     }
     
     }

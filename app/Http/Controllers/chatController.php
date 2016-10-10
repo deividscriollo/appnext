@@ -126,7 +126,7 @@ class chatController extends Controller
                 if (File::exists($path_img_perfil)) {
                                     $chats[$key]['img']=config('global.appnext').'/'.$img_perfil['img'];
                 }else{
-                                    $chats[$key]['img']=config('global.pathAvartarDefault');
+                                    $chats[$key]['img']=config('global.appnext').config('global.pathAvartarDefault');
                 }
 			}
     		 return response()->json(["respuesta"=>true,"datos"=>$chats],200);

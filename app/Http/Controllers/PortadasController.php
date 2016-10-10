@@ -94,7 +94,7 @@ class PortadasController extends Controller
     if (File::exists($this->pathLocal.$this->user['id_user'].$this->pathImg.$resultado['id_img_portada'].'.png')) {
         return response()->json(['existe'=>true,"img"=>config('global.appnext').'/'.$resultado['img']]);
     }else{
-        return response()->json(['existe'=>false,"img"=>config('global.pathPortadaDefault')]);
+        return response()->json(['existe'=>false,"img"=>config('global.appnext').config('global.pathPortadaDefault')]);
     }
     
     }
