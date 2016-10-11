@@ -9,6 +9,10 @@ use App\Http\Requests;
 use App\Empresas;
 use App\img_perfiles;
 use App\PasswrdsE;
+use App\Portadas;
+//-------------------------  autenticacion -------
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 //----------------------- paginador --------
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -24,20 +28,27 @@ class BusquedaController extends Controller
 {
     function __construct(){
         // modelos------
+        $this->empresas = new Empresas();
+        $this->img_perfil = new img_perfiles();
+        $this->img_portada = new Portadas();
+        // /-funciones
         $this->funciones=new Funciones();
         // ------- paths --------------------
         $this->pathImg  = config('global.pathimgPerfiles');
+        $this->pathImgPortada  = config('global.pathimgPortadas');
         $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
+        //-------------------------- Autenticacion-------
+        // $this->user = JWTAuth::parseToken()->authenticate();
+
     }
     public function get_empresas(Request $request)
     {
-    $empresas = new Empresas();
-    $img_perfil = new img_perfiles();
 
     if ($request->input('filter')!=null) {
-         $datos = DB::select("SELECT ruc,id_empresa,nombre_comercial,razon_social FROM empresas WHERE (ruc||nombre_comercial) like '%".$request->input('filter')."%' LIMIT 5");
+         $datos = DB::select("SELECT id_empresa, ruc, razon_social, nombre_comercial, estado_contribuyente, 
+       tipo_contribuyente, actividad_economica FROM empresas WHERE (ruc||nombre_comercial) like '%".strtoupper ($request->input('filter'))."%' LIMIT 5");
     }else{
-    	$datos = $empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
+    	$datos = $this->empresas->where('estado','=',1)->orderBy('created_at','ASC')->paginate(10)->items();
     }
 	foreach ($datos as $key => $value) {
 		if ($value->nombre_comercial=='no disponible') {
@@ -46,17 +57,58 @@ class BusquedaController extends Controller
     }
 
 	foreach ($datos as $key => $value) {
-		$resultado=$img_perfil->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
+		$resultado=$this->img_perfil->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
+        $resultado_portada=$this->img_portada->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
 
     if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImg.$resultado['id_img_perfil'].'.png')) {
-        $img=config('global.appnext').'/'.$resultado['img'];
+        $img['perfil']=config('global.appnext').'/'.$resultado['img'];
     }else{
-        $img=config('global.appnext').config('global.pathAvartarDefault');
+        $img['perfil']=config('global.appnext').config('global.pathAvartarDefault');
     }
+
+     if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImgPortada.$resultado_portada['id_img_portada'].'.png')) {
+        $img['portada']=config('global.appnext').'/'.$resultado_portada['img'];
+    }else{
+        $img['portada']=config('global.appnext').config('global.pathPortadaDefault');
+    }
+
 		$value->img=$img;
 	}
 
     return response()->json(['respuesta' => $datos], 200);
+    }
+
+
+    public function get_perfil_empresas(Request $request)
+    {
+
+        $datos = $this->empresas->where('estado','=',1)->where('ruc',$request->input('ruc'))->get();
+
+    foreach ($datos as $key => $value) {
+        if ($value->nombre_comercial=='no disponible') {
+            $value->nombre_comercial=$value->razon_social;
+        }
+    }
+
+    foreach ($datos as $key => $value) {
+        $resultado=$this->img_perfil->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
+        $resultado_portada=$this->img_portada->where('id_empresa',$value->id_empresa)->where('estado',1)->first();
+
+    if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImg.$resultado['id_img_perfil'].'.png')) {
+        $img['perfil']=config('global.appnext').'/'.$resultado['img'];
+    }else{
+        $img['perfil']=config('global.appnext').config('global.pathAvartarDefault');
+    }
+
+     if (File::exists($this->pathLocal.$value->id_empresa.$this->pathImgPortada.$resultado_portada['id_img_portada'].'.png')) {
+        $img['portada']=config('global.appnext').'/'.$resultado_portada['img'];
+    }else{
+        $img['portada']=config('global.appnext').config('global.pathPortadaDefault');
+    }
+        $value->img=$img;
+    }
+
+    return response()->json(['respuesta' => $datos[0]], 200);
     }
 
     public function add_empresas(Request $request)

@@ -31,10 +31,10 @@ Route::group(['middleware' => 'cors'], function ()
     Route::get('activar_cuenta', 'registroController@activar_cuenta');
     Route::post('login', 'loginController@login');
      // /////////////////////////////////////////////////////////////////////// EMPRESAS ///////////////////
-        // --------------------------------------- get Empresas -----------
-        Route::get('buscarEmpresas', 'BusquedaController@get_empresas');
         // --------------------------------------- Add  Empresas from JSON -----------
         Route::post('addEmpresasJson', 'BusquedaController@add_empresas');
+        // --------------------------------------- Buscar Empresas -----------
+        Route::get('buscarEmpresas', 'BusquedaController@get_empresas');
 
             // /////////////////////////////////////////////////////////////////////// CATEGORIAS ///////////////////
         // --------------------------------------- add Categoria -----------
@@ -259,8 +259,15 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('getMensajes', 'chatController@get_mensajes');
         //---------------------------------------------- Catalogo ------------------------------------------------
         Route::post('addProducto', 'catalogoController@add_producto');
+        // ----------------------------- Portada ----------------------
         Route::post('addPortada', 'catalogoController@add_portada');
+        Route::get('getPortada', 'catalogoController@get_catalogo_portada');
+        // ----------------------------- ContraPortada ----------------------
         Route::post('addContraPortada', 'catalogoController@add_contraportada');
+        Route::get('getContraPortada', 'catalogoController@get_contraportada');
+        // --------------------- Datos de Perfil Empresa----------------------------------
+        Route::get('getPerfilEmpresas', 'BusquedaController@get_perfil_empresas');
+        
 
         });
     });

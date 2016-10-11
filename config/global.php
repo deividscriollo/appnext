@@ -16,9 +16,12 @@ return [
 	'pathimgCatalogo'=>'/catalogo/',
 	'pathimgCatalogoPortadas'=>'portadas/',
 	'pathimgCatalogoContraportadas'=>'contraportadas/',
+	// default --------------------
 	'pathAvartarDefault'=>"/storage/default/avatar-default.jpg",
 	'pathPortadaDefault'=>"/storage/default/portada-default.jpg",
-	'pathLogoDefault'=>"/storage/default/logo-default.jpg"
+	'pathLogoDefault'=>"/storage/default/logo-default.jpg",
+	'pathPortadaCatalogoDefault'=>"/storage/default/catportada-default.jpg",
+	'pathContraportadaDefault'=>"/storage/default/contraportada-default.jpg"
 	// 'appnext' => 'https://servicios.nextbook.ec'
 
 ];

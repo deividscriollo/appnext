@@ -19,7 +19,8 @@ use App\libs\Funciones;
 use App\libs\xmlapi;
 //-------------------------------------------- Extras ----------------------------------------
 use Mail;
-
+use File;
+use Storage;
 class registroController extends Controller
 {
 
@@ -35,6 +36,8 @@ class registroController extends Controller
         if ($request->input('sucursal')!=null) {
         $datos=$this->sucursal->select('id_sucursal')->where('codigo','=',$request->input('sucursal'))->where('id_empresa','=',$this->user['id_user'])->get();
         $this->id_sucursal=$datos[0]['id_sucursal'];
+        // -------------- Paths --------------
+        $this->pathLocal  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
         }
     }
 
@@ -261,6 +264,7 @@ switch ($tipocuenta) {
                 $activar=$tabla::where('id_persona', '=',$id_user)->update(['estado' => "1"]);
                 break;
         }
+        File::makeDirectory($this->pathLocal.$id_user);
         //-------------------------- if activacion OK --------------------------
         if ($activar) {
            return response()->json(["respuesta"=>true], 200);

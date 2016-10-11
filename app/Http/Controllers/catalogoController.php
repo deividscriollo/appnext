@@ -84,7 +84,7 @@ class catalogoController extends Controller
             }
     }
 
-public function add_portada(Request $request){
+    public function add_portada(Request $request){
 
             $id_portada=$this->funciones->generarID();
             $this->portadas->id=$id_portada;
@@ -94,6 +94,10 @@ public function add_portada(Request $request){
             $this->portadas->estado=1;
             $save=$this->portadas->save();
             //------------------------- guardar img -------
+            if (!is_dir($this->pathLocal.$this->user['id_user'])) {
+                $path = $this->pathLocal.$this->user['id_user'];
+                File::makeDirectory($path); 
+            }
             if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo)) {
                $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo;
                 File::makeDirectory($path);    
@@ -103,8 +107,32 @@ public function add_portada(Request $request){
                 File::makeDirectory($path); 
             }
             if ($save) {
-               return response()->json(["respuesta"=>true],200);
+               return response()->json(["respuesta"=>config('global.appnext').config('global.pathPortadaCatalogoDefault')],200);
             }
+    }
+
+    public function get_catalogo_portada(Request $request){
+
+            // $portada=$this->portadas->select('img')->where('id_sucursal',$this->id_sucursal)->get();
+            // if (count($portada)!=0) {
+         $files = File::files(public_path('portadas'));
+        $filecount = 0;
+        
+        if ($files !== false) {
+            $filecount = count($files);
+        }
+        $img=[];
+        foreach ($files as $key => $value) {
+           $img[$key]['img']=config('global.appnext').str_replace('C:\\xampp\\htdocs\\appnext\\public\\', '/public/', $value);
+        }
+
+
+                return response()->json(["respuesta"=>$img],200);
+            // }else{
+            //     return response()->json(["respuesta"=>false],200);
+            // }
+            
+            
     }
 
     public function add_contraportada(Request $request){
@@ -117,6 +145,10 @@ public function add_portada(Request $request){
             $this->contraportadas->estado=1;
             $save=$this->contraportadas->save();
             //------------------------- guardar img -------
+            if (!is_dir($this->pathLocal.$this->user['id_user'])) {
+                $path = $this->pathLocal.$this->user['id_user'];
+                File::makeDirectory($path); 
+            }
             if (!is_dir($this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo)) {
                $path = $this->pathLocal.$this->user['id_user'].$this->pathimgCatalogo;
                 File::makeDirectory($path);    
@@ -126,9 +158,23 @@ public function add_portada(Request $request){
                 File::makeDirectory($path); 
             }
             if ($save) {
-               return response()->json(["respuesta"=>true],200);
+               return response()->json(["respuesta"=>config('global.appnext').config('global.pathContraportadaDefault')],200);
             }
     }
+
+    public function get_contraportada(Request $request){
+
+            $portada=$this->contraportadas->select('img')->where('id_sucursal',$this->id_sucursal)->get();
+            // if (count($portada)!=0) {
+                return response()->json(["respuesta"=>config('global.appnext').config('global.pathContraportadaDefault')],200);
+            // }else{
+                // return response()->json(["respuesta"=>false],200);
+            // }
+            
+            
+    }
+
+
 
 
 }
