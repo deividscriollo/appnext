@@ -264,7 +264,7 @@ switch ($tipocuenta) {
                 $activar=$tabla::where('id_persona', '=',$id_user)->update(['estado' => "1"]);
                 break;
         }
-        File::makeDirectory($this->pathLocal.$id_user);
+        // File::makeDirectory($this->pathLocal.$id_user);
         //-------------------------- if activacion OK --------------------------
         if ($activar) {
            return response()->json(["respuesta"=>true], 200);
@@ -285,11 +285,11 @@ switch ($tipocuenta) {
     
     private function crear_email($user,$email_pass)
     {
-        $ip           = "nextbook.ec"; 
-        $account      = "nextbook"; 
-        $passwd       = "EiCZTO.ePLFIP"; 
+        $ip           = "oyefm.com"; 
+        $account      = "oyefm"; 
+        $passwd       = "0-apJPRb1qfE"; 
         $port         = 2083; 
-        $email_domain = 'facturanext.com'; 
+        $email_domain = 'oyefm.com'; 
         $email_quota  = 50; 
         $xmlapi       = new xmlapi($ip);
         $xmlapi->set_port($port); 
