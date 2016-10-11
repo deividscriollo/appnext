@@ -184,6 +184,7 @@ class registroController extends Controller
         //     $message->from("registro@facturanext.com",'Admin');
         //     $message->to('alexdariogc@gmail.com', 'Alex')->subject('Welcome!');
         // });
+        // hola mundo
         if(!$saveC){
             App::abort(500, 'Error');
         }else{
