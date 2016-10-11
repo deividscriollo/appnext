@@ -4,8 +4,8 @@ return [
 	// 'appnext' => 'http://186.33.168.251/appnext',
 	// 'appserviciosnext' => 'http://186.33.168.251/appserviciosnext'
 	// local
-	'appnext' => 'http://192.168.0.109/appnext',
-	'appserviciosnext' => 'http://192.168.0.109/appserviciosnext',
+	'appnext' => 'http://186.33.168.251/appnext',
+	'appserviciosnext' => 'http://186.33.168.251/appserviciosnext',
 	'pathimgPerfiles'=>'/perfiles/',
 	'pathimgPortadas'=>'/portadas/',
 	'pathimgLogos'=>'/logos/',
