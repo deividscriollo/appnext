@@ -17,6 +17,7 @@ class CreateImgProductosTable extends Migration
             $table->string('img');
             $table->string('id_producto');
             $table->string('estado');
+            $table->string('principal');
             $table->timestamps();
         });
     }

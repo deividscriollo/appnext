@@ -10,6 +10,8 @@ use App\chat;
 use App\chat_mensajes;
 use App\Empresas;
 use App\img_perfiles;
+use App\blacklist_chats;
+use App\blacklist_mensajes;
 //-------------------------  autenticacion -------
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -29,7 +31,9 @@ class chatController extends Controller
         $this->chat_mensajes = new chat_mensajes();
         $this->Empresas = new Empresas();
         $this->img_perfiles = new img_perfiles();
-        //-------------------------- Autenticacion-------
+        $this->blacklist_chats=new blacklist_chats();
+        $this->blacklist_mensajes=new blacklist_mensajes();
+        //-------------------------- Autenticacion---1----
         $this->user = JWTAuth::parseToken()->authenticate();
         //--------------  Funciones ------
         $this->funciones=new Funciones();
@@ -101,10 +105,16 @@ class chatController extends Controller
 
     	$chats=[];
     	foreach ($result_sala as $key => $value) {
-    		$result=$this->chat_mensajes->where('chat_id',$value->chat_id)->orderBy('created_at','DESC')->first();
-    		$chats[$key]=$result;
+            $blacklist_chats=$this->blacklist_chats->where('id_chat',$value->chat_id)
+                                                   ->where('id_empresa',$this->user['id_user'])->get();
+            if (count($blacklist_chats)==0) {
+
+        		$result=$this->chat_mensajes->where('chat_id',$value->chat_id)->orderBy('created_at','DESC')->first();
+
+        		$chats[$key]=$result;
+            }
     	}
-    		foreach ($chats as $key => $value) {
+    		foreach ($chats as $key => $value) {      
     			$id_user=$value->user_id;
     			if ($id_user==$this->user['id_user']) {
     				$user_para=$this->chat_sala->select('user2_id')->where('chat_id',$value->chat_id)->first();
@@ -114,7 +124,6 @@ class chatController extends Controller
                         $id_user=$user_para['user1_id'];
                     }
     			}
-                // echo($id_user.'--'.$this->user['id_user']);
     			$datos=$this->Empresas->select('nombre_comercial','razon_social')->where('id_empresa',$id_user)->get();
     			$img_perfil=$this->img_perfiles->select('id_img_perfil','img')->where('id_empresa',$id_user)->where('estado',1)->first();
     			if ($datos[0]['nombre_comercial']=='no disponible') {
@@ -134,20 +143,48 @@ class chatController extends Controller
 
     }
     public function get_mensajes(Request $request){
-    	$mensajes=$this->chat_mensajes->select(['mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('chat_mensajes_id','DESC')->limit(15)->get();
-
+    	$mensajes=$this->chat_mensajes->select(['chat_mensajes_id','mensaje','user_id'])->where('chat_id',$request->input('chat_id'))->orderBy('chat_mensajes_id','DESC')->limit(15)->get();
+        $result=[];
         foreach ($mensajes as $key => $value) {
-
+            $blacklist_mensajes=$this->blacklist_mensajes->where('id_mensaje',$value['chat_mensajes_id'])->where('id_empresa',$this->user['id_user'])->get();
+            if (count($blacklist_mensajes)==0) {
+                $result[$key]=$mensajes[$key];
+            }
+        }
+         $mensajes=$result;
+        foreach ($mensajes as $key => $value) {
+            $mensajes[$key]['id_mensaje']=$value['chat_mensajes_id'];
             if ($value['user_id']==$this->user['id_user']) {
                $mensajes[$key]['tipo_mensaje']="SEND";
             }else{
                 $mensajes[$key]['tipo_mensaje']="RECEIVED";
             }
-            
+            $mensajes[$key]['selected']=false;
         }
-        $mensajes = array_reverse($mensajes->toArray());
+        $mensajes = array_reverse($mensajes);
         return response()->json(["respuesta"=>true,"mensajes"=>$mensajes],200);
     }
 
+    public function delete_conversacion(Request $request){
+        
+        $this->blacklist_chats->id_chat=$request->input('chat_id');
+        $this->blacklist_chats->id_empresa=$this->user['id_user'];
+        $save=$this->blacklist_chats->save();
+        if ($save) {
+            return response()->json(["respuesta"=>true],200);
+        }
+    }
+
+    public function delete_mensajes(Request $request){
+        $datos=$this->blacklist_mensajes->where('id_mensaje',$request->input('id_mensaje'))->get();
+        if (count($datos)==0) {
+             $this->blacklist_mensajes->id_mensaje=$request->input('id_mensaje');
+            $this->blacklist_mensajes->id_empresa=$this->user['id_user'];
+            $delete=$this->blacklist_mensajes->save();
+        if ($delete) {
+            return response()->json(["respuesta"=>true],200);
+        }
+        }    
+    }
 
 }

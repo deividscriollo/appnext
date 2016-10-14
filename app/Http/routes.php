@@ -257,6 +257,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::post('sendMensajeFromChat', 'chatController@send_mensaje_from_chatbox');
         Route::get('getChats', 'chatController@get_chats');
         Route::get('getMensajes', 'chatController@get_mensajes');
+        Route::post('deleteChat', 'chatController@delete_conversacion');
+        Route::post('deleteMensajes', 'chatController@delete_mensajes');
         //---------------------------------------------- Catalogo ------------------------------------------------
         Route::post('addProducto', 'catalogoController@add_producto');
         // ----------------------------- Portada ----------------------
