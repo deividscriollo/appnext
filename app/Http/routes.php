@@ -110,6 +110,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsPerfil', 'PerfilesController@load_imgs_perfil');
         // --------------------------------------- GET IMAGENES PERFIL -----------
         Route::get('getImgPerfil', 'PerfilesController@get_img_perfil');
+        // --------------------------------------- DELETE IMAGENES PERFIL -----------
+        Route::post('deleteImgPerfil', 'PerfilesController@delete_img_perfil');
                                 // ////////////////////////////////////////////////// IMAGENES DE LOGO //////////////
         // --------------------------------------- AÑADIR IMAGEN DE LOGO -----------
         Route::post('addImgLogo', 'logosController@add_img_logo');
@@ -119,6 +121,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsLogo', 'logosController@load_imgs_logo');
         // --------------------------------------- GET IMAGENES LOGO -----------
         Route::get('getImgLogo', 'logosController@get_img_logo');
+        // --------------------------------------- DELETE IMAGENES PERFIL -----------
+        Route::post('deleteImgLogo', 'logosController@delete_img_logo');
         // ////////////////////////////////////////////////// IMAGENES DE PORTADA //////////////
         // --------------------------------------- AÑADIR IMAGEN DE PORTADA -----------
         Route::post('addImgPortada', 'PortadasController@add_img_portada');
@@ -128,6 +132,8 @@ Route::group(['middleware' => 'cors'], function ()
         Route::get('loadImgsPortada', 'PortadasController@load_imgs_portada');
         // --------------------------------------- GET IMAGENES PORTADA -----------
         Route::get('getImgPortada', 'PortadasController@get_img_portada');
+        // --------------------------------------- DELETE IMAGENES PERFIL -----------
+        Route::post('deleteImgPortada', 'PortadasController@delete_img_portada');
         // /////////////////////////////////////////////////////////////////////// CLIENTES ///////////////////
         // --------------------------------------- AÑADIR CLIENTE -----------
         Route::post('addCliente', 'ClientesController@save');

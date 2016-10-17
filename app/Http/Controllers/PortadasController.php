@@ -57,6 +57,7 @@ class PortadasController extends Controller
     $this->tabla_img->id_img_portada=$id_img;
     $this->tabla_img->img="storage/app/".$this->user['id_user'].$this->pathImg.$image_name;
     $this->tabla_img->estado='1';
+    $this->tabla_img->estado_delete=FALSE;
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();
 
@@ -85,7 +86,7 @@ class PortadasController extends Controller
 
     public function load_imgs_portada(Request $request){
 
-    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->get();
+    $resultado=$this->tabla_img->select('img','id_img_portada')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->where('estado_delete',FALSE)->get();
     	return response()->json(["imgs"=>$resultado]);
     }
 
@@ -96,6 +97,12 @@ class PortadasController extends Controller
     }else{
         return response()->json(['existe'=>false,"img"=>config('global.appnext').config('global.pathPortadaDefault')]);
     }
-    
+    }
+
+    public function delete_img_portada(Request $request){
+        foreach ($request->input('imgs') as $key => $value) {
+            $this->tabla_img->where('id_img_portada','=',$value['id_img_portada'])->update(['estado_delete'=>TRUE]);
+        }
+        return response()->json(['respuesta'=>true]); 
     }
 }

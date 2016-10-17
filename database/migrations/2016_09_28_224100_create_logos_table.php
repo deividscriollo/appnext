@@ -16,6 +16,7 @@ class CreateLogosTable extends Migration
             $table->string('id_img_logo')->primary();
             $table->string('img');
             $table->integer('estado');
+            $table->boolean('estado_delete');
             $table->string('id_empresa');
             $table->foreign('id_empresa')->references('id_empresa')->on('registro.empresas')->onDelete('cascade');
             $table->timestamps();

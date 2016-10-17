@@ -57,6 +57,7 @@ public function __construct()
     $this->tabla_img->id_img_perfil=$id_img;
     $this->tabla_img->img="storage/app/".$this->user['id_user'].$this->pathImg.$image_name;
     $this->tabla_img->estado='1';
+    $this->tabla_img->estado_delete=FALSE;
     $this->tabla_img->id_empresa=$this->user['id_user'];
     $save=$this->tabla_img->save();
 
@@ -85,7 +86,7 @@ public function __construct()
 
     public function load_imgs_perfil(Request $request){
 
-    $resultado=$this->tabla_img->select('img')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->orderBy('created_at','ASC')->get();
+    $resultado=$this->tabla_img->select('img','id_img_perfil')->where('id_empresa','=',$this->user['id_user'])->where('estado','=',0)->where('estado_delete',FALSE)->orderBy('created_at','ASC')->get();
     return response()->json(["imgs"=>$resultado]);
     }
 
@@ -98,8 +99,13 @@ public function __construct()
     }else{
         return response()->json(['existe'=>false,"img"=>config('global.appnext').config('global.pathAvartarDefault')]);
     }
-    
-    
+    }
+
+    public function delete_img_perfil(Request $request){
+        foreach ($request->input('imgs') as $key => $value) {
+            $this->tabla_img->where('id_img_perfil','=',$value['id_img_perfil'])->update(['estado_delete'=>TRUE]);
+        }
+        return response()->json(['respuesta'=>true]); 
     }
 
 }
